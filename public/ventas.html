@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas - PowerPuffFit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff85a2;
+            --secondary-color: #ffacc7;
+            --accent-color: #ffd6e0;
+            --dark-color: #8a2f5a;
+            --light-color: #fff0f6;
+            --text-dark: #5a2a3a;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff0f6 0%, #ffeef5 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-color) 100%);
+            color: white;
+            width: 280px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(138, 47, 90, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 10px;
+        }
+
+        .sale-item {
+            border-left: 4px solid var(--primary-color);
+            background-color: var(--light-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-brand p-3 text-center">
+                <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
+                <h5>PowerPuffFit</h5>
+                <small>Ventas</small>
+            </div>
+            <nav class="nav flex-column">
+                <a class="nav-link text-white" href="dashboard.html">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a class="nav-link text-white" href="inventario.html">
+                    <i class="fas fa-boxes me-2"></i>Inventario
+                </a>
+                <a class="nav-link text-white active" href="ventas.html">
+                    <i class="fas fa-cash-register me-2"></i>Ventas
+                </a>
+                <a class="nav-link text-white" href="reportes.html">
+                    <i class="fas fa-chart-bar me-2"></i>Reportes
+                </a>
+                <a class="nav-link text-white mt-auto" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Registro de Ventas</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ventaModal">
+                    <i class="fas fa-plus me-2"></i>Nueva Venta
+                </button>
+            </div>
+
+            <!-- Resumen de Ventas -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-primary" id="totalVentasHoy">0</h3>
+                            <p class="mb-0">Ventas Hoy</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-success" id="ingresosHoy">$0</h3>
+                            <p class="mb-0">Ingresos Hoy</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-info" id="totalVentasMes">0</h3>
+                            <p class="mb-0">Ventas Este Mes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-warning" id="ingresosMes">$0</h3>
+                            <p class="mb-0">Ingresos Este Mes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Ventas -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID Venta</th>
+                                    <th>Cliente</th>
+                                    <th>Productos</th>
+                                    <th>Total</th>
+                                    <th>Fecha</th>
+                                    <th>Método Pago</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ventasTable">
+                                <!-- Las ventas se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Nueva Venta -->
+    <div class="modal fade" id="ventaModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6>Seleccionar Productos</h6>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="searchProduct" placeholder="Buscar producto...">
+                            </div>
+                            <div id="productosList" class="row g-2 mb-3" style="max-height: 300px; overflow-y: auto;">
+                                <!-- Lista de productos -->
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Detalles de la Venta</h6>
+                            <form id="ventaForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Cliente</label>
+                                    <input type="text" class="form-control" id="cliente" placeholder="Nombre del cliente">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Método de Pago</label>
+                                    <select class="form-select" id="metodo_pago">
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="tarjeta">Tarjeta</option>
+                                        <option value="transferencia">Transferencia</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Notas</label>
+                                    <textarea class="form-control" id="notas" rows="3"></textarea>
+                                </div>
+                            </form>
+
+                            <h6>Productos Seleccionados</h6>
+                            <div id="carrito" class="mb-3" style="max-height: 200px; overflow-y: auto;">
+                                <!-- Carrito de compras -->
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <strong>Total:</strong>
+                                <span id="totalVenta" class="h5 text-primary">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="finalizarVentaBtn">Finalizar Venta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJIhyjLP2EEcg7RKgLHREmMosKA5cL6Qw",
+            authDomain: "powerpuffit.firebaseapp.com",
+            projectId: "powerpuffit",
+            storageBucket: "powerpuffit.appspot.com",
+            messagingSenderId: "450568163513",
+            appId: "1:450568163513:web:ee8ccfa9fbfe1075d34b68"
+        };
+
+        class VentasManager {
+            constructor() {
+                this.app = initializeApp(firebaseConfig);
+                this.db = getFirestore(this.app);
+                this.auth = getAuth(this.app);
+                this.productos = [];
+                this.ventas = [];
+                this.carrito = [];
+                this.init();
+            }
+
+            async init() {
+                await this.checkAuth();
+                this.initEventListeners();
+                await this.cargarProductos();
+                await this.cargarVentas();
+                this.calcularResumen();
+            }
+
+            async checkAuth() {
+                return new Promise((resolve) => {
+                    onAuthStateChanged(this.auth, (user) => {
+                        if (!user) {
+                            window.location.href = 'index.html';
+                        } else {
+                            resolve(true);
+                        }
+                    });
+                });
+            }
+
+            initEventListeners() {
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+                document.getElementById('finalizarVentaBtn').addEventListener('click', () => this.finalizarVenta());
+                document.getElementById('searchProduct').addEventListener('input', () => this.filtrarProductos());
+                
+                // Configurar el modal
+                document.getElementById('ventaModal').addEventListener('show.bs.modal', () => {
+                    this.carrito = [];
+                    this.actualizarCarrito();
+                    this.filtrarProductos();
+                });
+            }
+
+            async cargarProductos() {
+                try {
+                    const querySnapshot = await getDocs(collection(this.db, "productos"));
+                    this.productos = [];
+                    querySnapshot.forEach((doc) => {
+                        const producto = { id: doc.id, ...doc.data() };
+                        if (producto.activo !== false && producto.cantidad > 0) {
+                            this.productos.push(producto);
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error cargando productos:", error);
+                }
+            }
+
+            async cargarVentas() {
+                try {
+                    const q = query(collection(this.db, "ventas"), orderBy("fecha_venta", "desc"));
+                    const querySnapshot = await getDocs(q);
+                    this.ventas = [];
+                    querySnapshot.forEach((doc) => {
+                        this.ventas.push({ id: doc.id, ...doc.data() });
+                    });
+                    this.mostrarVentas();
+                } catch (error) {
+                    console.error("Error cargando ventas:", error);
+                }
+            }
+
+            mostrarVentas() {
+                const tbody = document.getElementById('ventasTable');
+                tbody.innerHTML = '';
+
+                this.ventas.forEach(venta => {
+                    const productosText = venta.productos?.map(p => 
+                        `${p.nombre} (${p.cantidad})`
+                    ).join(', ') || 'N/A';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${venta.id.substring(0, 8)}...</td>
+                        <td>${venta.cliente || 'Cliente General'}</td>
+                        <td>${productosText}</td>
+                        <td>$${venta.total?.toFixed(2) || '0.00'}</td>
+                        <td>${venta.fecha_venta ? new Date(venta.fecha_venta.toDate()).toLocaleDateString() : 'N/A'}</td>
+                        <td><span class="badge bg-secondary">${this.getMetodoPagoNombre(venta.metodo_pago)}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger" onclick="ventasManager.eliminarVenta('${venta.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            getMetodoPagoNombre(metodo) {
+                const metodos = {
+                    'efectivo': 'Efectivo',
+                    'tarjeta': 'Tarjeta',
+                    'transferencia': 'Transferencia'
+                };
+                return metodos[metodo] || metodo;
+            }
+
+            filtrarProductos() {
+                const searchTerm = document.getElementById('searchProduct').value.toLowerCase();
+                const container = document.getElementById('productosList');
+                container.innerHTML = '';
+
+                const productosFiltrados = this.productos.filter(producto => 
+                    producto.nombre.toLowerCase().includes(searchTerm)
+                );
+
+                productosFiltrados.forEach(producto => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'col-md-6';
+                    productCard.innerHTML = `
+                        <div class="card sale-item p-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">${producto.nombre}</h6>
+                                    <small class="text-muted">Stock: ${producto.cantidad}</small>
+                                    <br>
+                                    <strong class="text-primary">$${producto.precio?.toFixed(2)}</strong>
+                                </div>
+                                <button class="btn btn-sm btn-primary" onclick="ventasManager.agregarAlCarrito('${producto.id}')">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(productCard);
+                });
+            }
+
+            agregarAlCarrito(productId) {
+                const producto = this.productos.find(p => p.id === productId);
+                if (!producto) return;
+
+                const itemExistente = this.carrito.find(item => item.id === productId);
+                
+                if (itemExistente) {
+                    if (itemExistente.cantidad < producto.cantidad) {
+                        itemExistente.cantidad++;
+                    } else {
+                        alert('No hay suficiente stock disponible');
+                        return;
+                    }
+                } else {
+                    this.carrito.push({
+                        id: producto.id,
+                        nombre: producto.nombre,
+                        precio: producto.precio,
+                        cantidad: 1,
+                        stock_disponible: producto.cantidad
+                    });
+                }
+
+                this.actualizarCarrito();
+            }
+
+            actualizarCarrito() {
+                const container = document.getElementById('carrito');
+                const totalElement = document.getElementById('totalVenta');
+                
+                container.innerHTML = '';
+                let total = 0;
+
+                this.carrito.forEach((item, index) => {
+                    const subtotal = item.precio * item.cantidad;
+                    total += subtotal;
+
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'd-flex justify-content-between align-items-center border-bottom pb-2 mb-2';
+                    itemElement.innerHTML = `
+                        <div>
+                            <small><strong>${item.nombre}</strong></small>
+                            <br>
+                            <small>$${item.precio.toFixed(2)} x ${item.cantidad} = $${subtotal.toFixed(2)}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary me-1" onclick="ventasManager.modificarCantidad(${index}, -1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="ventasManager.modificarCantidad(${index}, 1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger ms-1" onclick="ventasManager.eliminarDelCarrito(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(itemElement);
+                });
+
+                totalElement.textContent = `$${total.toFixed(2)}`;
+            }
+
+            modificarCantidad(index, cambio) {
+                const item = this.carrito[index];
+                const nuevaCantidad = item.cantidad + cambio;
+
+                if (nuevaCantidad <= 0) {
+                    this.eliminarDelCarrito(index);
+                    return;
+                }
+
+                if (nuevaCantidad > item.stock_disponible) {
+                    alert('No hay suficiente stock disponible');
+                    return;
+                }
+
+                item.cantidad = nuevaCantidad;
+                this.actualizarCarrito();
+            }
+
+            eliminarDelCarrito(index) {
+                this.carrito.splice(index, 1);
+                this.actualizarCarrito();
+            }
+
+            async finalizarVenta() {
+                if (this.carrito.length === 0) {
+                    alert('Agrega al menos un producto a la venta');
+                    return;
+                }
+
+                const cliente = document.getElementById('cliente').value || 'Cliente General';
+                const metodo_pago = document.getElementById('metodo_pago').value;
+                const notas = document.getElementById('notas').value;
+
+                const total = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+
+                try {
+                    // Registrar la venta
+                    const ventaData = {
+                        cliente: cliente,
+                        productos: this.carrito,
+                        total: total,
+                        metodo_pago: metodo_pago,
+                        notas: notas,
+                        fecha_venta: new Date(),
+                        estado: 'completada'
+                    };
+
+                    await addDoc(collection(this.db, "ventas"), ventaData);
+
+                    // Actualizar stock de productos
+                    for (const item of this.carrito) {
+                        const productoRef = doc(this.db, "productos", item.id);
+                        const producto = this.productos.find(p => p.id === item.id);
+                        const nuevoStock = producto.cantidad - item.cantidad;
+                        
+                        await updateDoc(productoRef, {
+                            cantidad: nuevoStock
+                        });
+                    }
+
+                    alert('✅ Venta registrada exitosamente');
+                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('ventaModal'));
+                    modal.hide();
+
+                    // Recargar datos
+                    await this.cargarProductos();
+                    await this.cargarVentas();
+                    this.calcularResumen();
+
+                } catch (error) {
+                    console.error("Error finalizando venta:", error);
+                    alert("Error al registrar la venta: " + error.message);
+                }
+            }
+
+            async eliminarVenta(ventaId) {
+                if (!confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
+                    return;
+                }
+
+                try {
+                    await deleteDoc(doc(this.db, "ventas", ventaId));
+                    alert('✅ Venta eliminada correctamente');
+                    await this.cargarVentas();
+                    this.calcularResumen();
+                } catch (error) {
+                    console.error("Error eliminando venta:", error);
+                    alert("Error al eliminar la venta: " + error.message);
+                }
+            }
+
+            calcularResumen() {
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                
+                const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+
+                const ventasHoy = this.ventas.filter(venta => {
+                    const fechaVenta = venta.fecha_venta?.toDate();
+                    return fechaVenta >= hoy;
+                });
+
+                const ventasMes = this.ventas.filter(venta => {
+                    const fechaVenta = venta.fecha_venta?.toDate();
+                    return fechaVenta >= inicioMes;
+                });
+
+                document.getElementById('totalVentasHoy').textContent = ventasHoy.length;
+                document.getElementById('ingresosHoy').textContent = '$' + 
+                    ventasHoy.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
+                
+                document.getElementById('totalVentasMes').textContent = ventasMes.length;
+                document.getElementById('ingresosMes').textContent = '$' + 
+                    ventasMes.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
+            }
+
+            async logout() {
+                try {
+                    await signOut(this.auth);
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Error al cerrar sesión:', error);
+                }
+            }
+        }
+
+        // Inicializar el gestor de ventas
+        document.addEventListener('DOMContentLoaded', () => {
+            window.ventasManager = new VentasManager();
+        });
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
-// public/app.js - VERSIÓN CORREGIDA
+// public/app.js - VERSIÓN MEJORADA
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-import { getFirestore, collection, getDocs, addDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
 class PowerPuffApp {
@@ -35,7 +35,6 @@ class PowerPuffApp {
             loginForm.addEventListener('submit', (e) => this.handleLogin(e));
         }
 
-        // Botón de registro rápido para testing
         const registerBtn = document.getElementById('registerBtn');
         if (registerBtn) {
             registerBtn.addEventListener('click', () => this.registerTestUser());
@@ -61,13 +60,11 @@ class PowerPuffApp {
             console.log('✅ Usuario autenticado:', user);
             alert('✅ Inicio de sesión exitoso! Redirigiendo al dashboard...');
             
-            // Redirigir inmediatamente
             window.location.href = 'dashboard.html';
             
         } catch (error) {
             console.error('❌ Error en login:', error);
             
-            // Mostrar error específico
             let errorMessage = 'Error desconocido';
             
             switch (error.code) {
@@ -92,7 +89,6 @@ class PowerPuffApp {
             
             alert(errorMessage);
             
-            // Si el usuario no existe, ofrecer registro
             if (error.code === 'auth/user-not-found') {
                 if (confirm('¿Quieres crear una cuenta con este email?')) {
                     await this.registerTestUser(email, password);
@@ -113,7 +109,6 @@ class PowerPuffApp {
             console.log('✅ Usuario registrado:', user);
             alert(`✅ Usuario creado exitosamente!\nEmail: ${userEmail}\nContraseña: ${userPassword}`);
             
-            // Iniciar sesión automáticamente
             await this.handleLoginAfterRegister(userEmail, userPassword);
             
         } catch (error) {
@@ -137,25 +132,135 @@ class PowerPuffApp {
         }
     }
 
-    async testFirestore() {
+    // Métodos para gestión de productos
+    async getProducts() {
         try {
-            const testProduct = {
-                nombre: "Producto de Prueba " + Date.now(),
-                descripcion: "Este es un producto de prueba de PowerPuffFit",
-                precio: 29.99,
-                cantidad: 15,
-                categoria: "deportes",
-                activo: true,
-                fecha_registro: new Date()
-            };
-
-            const docRef = await addDoc(collection(this.db, "productos"), testProduct);
-            console.log("✅ Producto creado con ID: ", docRef.id);
-            alert(`✅ Producto de prueba creado con ID: ${docRef.id}`);
-            
+            const querySnapshot = await getDocs(collection(this.db, "productos"));
+            const products = [];
+            querySnapshot.forEach((doc) => {
+                products.push({ id: doc.id, ...doc.data() });
+            });
+            return products;
         } catch (error) {
-            console.error("❌ Error creando producto:", error);
-            alert("❌ Error: " + error.message);
+            console.error("Error obteniendo productos:", error);
+            throw error;
+        }
+    }
+
+    async addProduct(productData) {
+        try {
+            const docRef = await addDoc(collection(this.db, "productos"), {
+                ...productData,
+                fecha_creacion: new Date(),
+                activo: true
+            });
+            return docRef.id;
+        } catch (error) {
+            console.error("Error agregando producto:", error);
+            throw error;
+        }
+    }
+
+    async updateProduct(productId, productData) {
+        try {
+            const productRef = doc(this.db, "productos", productId);
+            await updateDoc(productRef, productData);
+        } catch (error) {
+            console.error("Error actualizando producto:", error);
+            throw error;
+        }
+    }
+
+    async deleteProduct(productId) {
+        try {
+            await deleteDoc(doc(this.db, "productos", productId));
+        } catch (error) {
+            console.error("Error eliminando producto:", error);
+            throw error;
+        }
+    }
+
+    // Métodos para gestión de ventas
+    async getVentas() {
+        try {
+            const querySnapshot = await getDocs(collection(this.db, "ventas"));
+            const ventas = [];
+            querySnapshot.forEach((doc) => {
+                ventas.push({ id: doc.id, ...doc.data() });
+            });
+            return ventas;
+        } catch (error) {
+            console.error("Error obteniendo ventas:", error);
+            throw error;
+        }
+    }
+
+    async addVenta(ventaData) {
+        try {
+            const docRef = await addDoc(collection(this.db, "ventas"), {
+                ...ventaData,
+                fecha_venta: new Date(),
+                estado: 'completada'
+            });
+            return docRef.id;
+        } catch (error) {
+            console.error("Error agregando venta:", error);
+            throw error;
+        }
+    }
+
+    async updateVenta(ventaId, ventaData) {
+        try {
+            const ventaRef = doc(this.db, "ventas", ventaId);
+            await updateDoc(ventaRef, ventaData);
+        } catch (error) {
+            console.error("Error actualizando venta:", error);
+            throw error;
+        }
+    }
+
+    async deleteVenta(ventaId) {
+        try {
+            await deleteDoc(doc(this.db, "ventas", ventaId));
+        } catch (error) {
+            console.error("Error eliminando venta:", error);
+            throw error;
+        }
+    }
+
+    // Método para generar reportes
+    async generarReporte(tipo, fechaInicio, fechaFin) {
+        try {
+            let data = [];
+            
+            if (tipo === 'ventas') {
+                const ventasQuery = query(
+                    collection(this.db, "ventas"),
+                    where("fecha_venta", ">=", fechaInicio),
+                    where("fecha_venta", "<=", fechaFin),
+                    orderBy("fecha_venta", "desc")
+                );
+                
+                const querySnapshot = await getDocs(ventasQuery);
+                querySnapshot.forEach((doc) => {
+                    data.push({ id: doc.id, ...doc.data() });
+                });
+            } else if (tipo === 'productos') {
+                const productosQuery = query(
+                    collection(this.db, "productos"),
+                    orderBy("fecha_creacion", "desc")
+                );
+                
+                const querySnapshot = await getDocs(productosQuery);
+                querySnapshot.forEach((doc) => {
+                    data.push({ id: doc.id, ...doc.data() });
+                });
+            }
+            
+            return data;
+        } catch (error) {
+            console.error("Error generando reporte:", error);
+            throw error;
         }
     }
 }

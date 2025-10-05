@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - PowerPuffFit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff85a2;
+            --secondary-color: #ffacc7;
+            --accent-color: #ffd6e0;
+            --dark-color: #8a2f5a;
+            --light-color: #fff0f6;
+            --text-dark: #5a2a3a;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff0f6 0%, #ffeef5 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-color) 100%);
+            color: white;
+            width: 280px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(138, 47, 90, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 133, 162, 0.4);
+        }
+
+        .table th {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .badge-low {
+            background-color: #ff4444;
+        }
+
+        .badge-medium {
+            background-color: #ffaa00;
+        }
+
+        .badge-high {
+            background-color: #00c851;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar (mismo que dashboard) -->
+        <div class="sidebar">
+            <div class="sidebar-brand p-3 text-center">
+                <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
+                <h5>PowerPuffFit</h5>
+                <small>Inventario</small>
+            </div>
+            <nav class="nav flex-column">
+                <a class="nav-link text-white" href="dashboard.html">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a class="nav-link text-white active" href="inventario.html">
+                    <i class="fas fa-boxes me-2"></i>Inventario
+                </a>
+                <a class="nav-link text-white" href="ventas.html">
+                    <i class="fas fa-cash-register me-2"></i>Ventas
+                </a>
+                <a class="nav-link text-white" href="reportes.html">
+                    <i class="fas fa-chart-bar me-2"></i>Reportes
+                </a>
+                <a class="nav-link text-white mt-auto" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Gestión de Inventario</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productoModal">
+                    <i class="fas fa-plus me-2"></i>Agregar Producto
+                </button>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Buscar Producto</label>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Nombre del producto...">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">Todas las categorías</option>
+                                <option value="ropa">Ropa Deportiva</option>
+                                <option value="calzado">Calzado</option>
+                                <option value="accesorios">Accesorios</option>
+                                <option value="equipamiento">Equipamiento</option>
+                                <option value="suplementos">Suplementos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Estado Stock</label>
+                            <select class="form-select" id="stockFilter">
+                                <option value="">Todos</option>
+                                <option value="low">Stock Bajo (< 10)</option>
+                                <option value="out">Sin Stock</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Productos -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productosTable">
+                                <!-- Los productos se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar/Editar Producto -->
+    <div class="modal fade" id="productoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Agregar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productoForm">
+                        <input type="hidden" id="productId">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre del Producto</label>
+                                <input type="text" class="form-control" id="nombre" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Categoría</label>
+                                <select class="form-select" id="categoria" required>
+                                    <option value="">Seleccionar categoría</option>
+                                    <option value="ropa">Ropa Deportiva</option>
+                                    <option value="calzado">Calzado</option>
+                                    <option value="accesorios">Accesorios</option>
+                                    <option value="equipamiento">Equipamiento</option>
+                                    <option value="suplementos">Suplementos</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Precio ($)</label>
+                                <input type="number" class="form-control" id="precio" step="0.01" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Cantidad en Stock</label>
+                                <input type="number" class="form-control" id="cantidad" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" id="descripcion" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Código de Barras (opcional)</label>
+                                <input type="text" class="form-control" id="codigo_barras">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Proveedor</label>
+                                <input type="text" class="form-control" id="proveedor">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveProductBtn">Guardar Producto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJIhyjLP2EEcg7RKgLHREmMosKA5cL6Qw",
+            authDomain: "powerpuffit.firebaseapp.com",
+            projectId: "powerpuffit",
+            storageBucket: "powerpuffit.appspot.com",
+            messagingSenderId: "450568163513",
+            appId: "1:450568163513:web:ee8ccfa9fbfe1075d34b68"
+        };
+
+        class InventarioManager {
+            constructor() {
+                this.app = initializeApp(firebaseConfig);
+                this.db = getFirestore(this.app);
+                this.auth = getAuth(this.app);
+                this.productos = [];
+                this.init();
+            }
+
+            async init() {
+                await this.checkAuth();
+                this.initEventListeners();
+                await this.cargarProductos();
+            }
+
+            async checkAuth() {
+                return new Promise((resolve) => {
+                    onAuthStateChanged(this.auth, (user) => {
+                        if (!user) {
+                            window.location.href = 'index.html';
+                        } else {
+                            resolve(true);
+                        }
+                    });
+                });
+            }
+
+            initEventListeners() {
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+                document.getElementById('saveProductBtn').addEventListener('click', () => this.guardarProducto());
+                document.getElementById('searchInput').addEventListener('input', () => this.filtrarProductos());
+                document.getElementById('categoryFilter').addEventListener('change', () => this.filtrarProductos());
+                document.getElementById('stockFilter').addEventListener('change', () => this.filtrarProductos());
+            }
+
+            async cargarProductos() {
+                try {
+                    const querySnapshot = await getDocs(collection(this.db, "productos"));
+                    this.productos = [];
+                    querySnapshot.forEach((doc) => {
+                        this.productos.push({ id: doc.id, ...doc.data() });
+                    });
+                    this.mostrarProductos(this.productos);
+                } catch (error) {
+                    console.error("Error cargando productos:", error);
+                    alert("Error al cargar los productos: " + error.message);
+                }
+            }
+
+            mostrarProductos(productos) {
+                const tbody = document.getElementById('productosTable');
+                tbody.innerHTML = '';
+
+                if (productos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">No se encontraron productos</td></tr>';
+                    return;
+                }
+
+                productos.forEach(producto => {
+                    const stockClass = producto.cantidad === 0 ? 'badge-low' : 
+                                     producto.cantidad < 10 ? 'badge-medium' : 'badge-high';
+                    const stockText = producto.cantidad === 0 ? 'Sin Stock' : 
+                                    producto.cantidad < 10 ? 'Stock Bajo' : 'En Stock';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${producto.nombre}</td>
+                        <td><span class="badge bg-secondary">${this.getCategoriaNombre(producto.categoria)}</span></td>
+                        <td>$${producto.precio?.toFixed(2) || '0.00'}</td>
+                        <td>${producto.cantidad || 0}</td>
+                        <td><span class="badge ${stockClass}">${stockText}</span></td>
+                        <td>${producto.fecha_creacion ? new Date(producto.fecha_creacion.toDate()).toLocaleDateString() : 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="inventario.editarProducto('${producto.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="inventario.eliminarProducto('${producto.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            getCategoriaNombre(categoria) {
+                const categorias = {
+                    'ropa': 'Ropa Deportiva',
+                    'calzado': 'Calzado',
+                    'accesorios': 'Accesorios',
+                    'equipamiento': 'Equipamiento',
+                    'suplementos': 'Suplementos'
+                };
+                return categorias[categoria] || categoria;
+            }
+
+            filtrarProductos() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const categoria = document.getElementById('categoryFilter').value;
+                const stockFilter = document.getElementById('stockFilter').value;
+
+                let productosFiltrados = this.productos.filter(producto => {
+                    const matchesSearch = producto.nombre.toLowerCase().includes(searchTerm);
+                    const matchesCategory = !categoria || producto.categoria === categoria;
+                    let matchesStock = true;
+
+                    if (stockFilter === 'low') {
+                        matchesStock = producto.cantidad < 10 && producto.cantidad > 0;
+                    } else if (stockFilter === 'out') {
+                        matchesStock = producto.cantidad === 0;
+                    }
+
+                    return matchesSearch && matchesCategory && matchesStock;
+                });
+
+                this.mostrarProductos(productosFiltrados);
+            }
+
+            nuevoProducto() {
+                document.getElementById('modalTitle').textContent = 'Agregar Producto';
+                document.getElementById('productoForm').reset();
+                document.getElementById('productId').value = '';
+            }
+
+            async editarProducto(productId) {
+                const producto = this.productos.find(p => p.id === productId);
+                if (!producto) return;
+
+                document.getElementById('modalTitle').textContent = 'Editar Producto';
+                document.getElementById('productId').value = producto.id;
+                document.getElementById('nombre').value = producto.nombre || '';
+                document.getElementById('categoria').value = producto.categoria || '';
+                document.getElementById('precio').value = producto.precio || '';
+                document.getElementById('cantidad').value = producto.cantidad || '';
+                document.getElementById('descripcion').value = producto.descripcion || '';
+                document.getElementById('codigo_barras').value = producto.codigo_barras || '';
+                document.getElementById('proveedor').value = producto.proveedor || '';
+
+                const modal = new bootstrap.Modal(document.getElementById('productoModal'));
+                modal.show();
+            }
+
+            async guardarProducto() {
+                const productId = document.getElementById('productId').value;
+                const productData = {
+                    nombre: document.getElementById('nombre').value,
+                    categoria: document.getElementById('categoria').value,
+                    precio: parseFloat(document.getElementById('precio').value),
+                    cantidad: parseInt(document.getElementById('cantidad').value),
+                    descripcion: document.getElementById('descripcion').value,
+                    codigo_barras: document.getElementById('codigo_barras').value,
+                    proveedor: document.getElementById('proveedor').value,
+                    fecha_actualizacion: new Date()
+                };
+
+                try {
+                    if (productId) {
+                        // Editar producto existente
+                        await updateDoc(doc(this.db, "productos", productId), productData);
+                        alert('✅ Producto actualizado correctamente');
+                    } else {
+                        // Agregar nuevo producto
+                        productData.fecha_creacion = new Date();
+                        productData.activo = true;
+                        await addDoc(collection(this.db, "productos"), productData);
+                        alert('✅ Producto agregado correctamente');
+                    }
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('productoModal'));
+                    modal.hide();
+                    await this.cargarProductos();
+                } catch (error) {
+                    console.error("Error guardando producto:", error);
+                    alert("Error al guardar el producto: " + error.message);
+                }
+            }
+
+            async eliminarProducto(productId) {
+                if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                    return;
+                }
+
+                try {
+                    await deleteDoc(doc(this.db, "productos", productId));
+                    alert('✅ Producto eliminado correctamente');
+                    await this.cargarProductos();
+                } catch (error) {
+                    console.error("Error eliminando producto:", error);
+                    alert("Error al eliminar el producto: " + error.message);
+                }
+            }
+
+            async logout() {
+                try {
+                    await signOut(this.auth);
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Error al cerrar sesión:', error);
+                }
+            }
+        }
+
+        // Inicializar el gestor de inventario
+        document.addEventListener('DOMContentLoaded', () => {
+            window.inventario = new InventarioManager();
+            
+            // Configurar el modal para limpiar al abrir
+            document.getElementById('productoModal').addEventListener('show.bs.modal', () => {
+                if (!document.getElementById('productId').value) {
+                    window.inventario.nuevoProducto();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

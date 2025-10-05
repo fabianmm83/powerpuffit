@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - PowerPuffFit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #ff85a2;
+            --secondary-color: #ffacc7;
+            --accent-color: #ffd6e0;
+            --dark-color: #8a2f5a;
+            --light-color: #fff0f6;
+            --text-dark: #5a2a3a;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff0f6 0%, #ffeef5 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-color) 100%);
+            color: white;
+            width: 280px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(138, 47, 90, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-brand p-3 text-center">
+                <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
+                <h5>PowerPuffFit</h5>
+                <small>Reportes</small>
+            </div>
+            <nav class="nav flex-column">
+                <a class="nav-link text-white" href="dashboard.html">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a class="nav-link text-white" href="inventario.html">
+                    <i class="fas fa-boxes me-2"></i>Inventario
+                </a>
+                <a class="nav-link text-white" href="ventas.html">
+                    <i class="fas fa-cash-register me-2"></i>Ventas
+                </a>
+                <a class="nav-link text-white active" href="reportes.html">
+                    <i class="fas fa-chart-bar me-2"></i>Reportes
+                </a>
+                <a class="nav-link text-white mt-auto" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Reportes y Análisis</h2>
+                <div>
+                    <button class="btn btn-primary me-2" onclick="reportesManager.generarReportePDF()">
+                        <i class="fas fa-file-pdf me-2"></i>Exportar PDF
+                    </button>
+                    <button class="btn btn-success" onclick="reportesManager.exportarExcel()">
+                        <i class="fas fa-file-excel me-2"></i>Exportar Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Tipo de Reporte</label>
+                            <select class="form-select" id="tipoReporte">
+                                <option value="ventas">Ventas</option>
+                                <option value="productos">Productos</option>
+                                <option value="inventario">Inventario</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha Desde</label>
+                            <input type="date" class="form-control" id="fechaDesde">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha Hasta</label>
+                            <input type="date" class="form-control" id="fechaHasta">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-primary w-100" onclick="reportesManager.generarReporte()">
+                                <i class="fas fa-chart-bar me-2"></i>Generar Reporte
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métricas Principales -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-primary" id="totalVentas">0</h3>
+                            <p class="mb-0">Total Ventas</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-success" id="ingresosTotales">$0</h3>
+                            <p class="mb-0">Ingresos Totales</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-info" id="productosVendidos">0</h3>
+                            <p class="mb-0">Productos Vendidos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-warning" id="ticketPromedio">$0</h3>
+                            <p class="mb-0">Ticket Promedio</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Ventas por Día</h5>
+                            <div class="chart-container">
+                                <canvas id="ventasChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Productos Más Vendidos</h5>
+                            <div class="chart-container">
+                                <canvas id="productosChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Métodos de Pago</h5>
+                            <div class="chart-container">
+                                <canvas id="pagosChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Estado del Inventario</h5>
+                            <div class="chart-container">
+                                <canvas id="inventarioChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Detalles -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Detalle del Reporte</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>ID Venta</th>
+                                    <th>Cliente</th>
+                                    <th>Productos</th>
+                                    <th>Cantidad</th>
+                                    <th>Total</th>
+                                    <th>Método Pago</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detalleReporte">
+                                <!-- Los detalles se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore, collection, getDocs, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJIhyjLP2EEcg7RKgLHREmMosKA5cL6Qw",
+            authDomain: "powerpuffit.firebaseapp.com",
+            projectId: "powerpuffit",
+            storageBucket: "powerpuffit.appspot.com",
+            messagingSenderId: "450568163513",
+            appId: "1:450568163513:web:ee8ccfa9fbfe1075d34b68"
+        };
+
+        class ReportesManager {
+            constructor() {
+                this.app = initializeApp(firebaseConfig);
+                this.db = getFirestore(this.app);
+                this.auth = getAuth(this.app);
+                this.ventas = [];
+                this.productos = [];
+                this.charts = {};
+                this.init();
+            }
+
+            async init() {
+                await this.checkAuth();
+                this.initEventListeners();
+                await this.cargarDatos();
+                this.inicializarFechas();
+                await this.generarReporte();
+            }
+
+            async checkAuth() {
+                return new Promise((resolve) => {
+                    onAuthStateChanged(this.auth, (user) => {
+                        if (!user) {
+                            window.location.href = 'index.html';
+                        } else {
+                            resolve(true);
+                        }
+                    });
+                });
+            }
+
+            initEventListeners() {
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+            }
+
+            inicializarFechas() {
+                const hoy = new Date();
+                const haceUnaSemana = new Date();
+                haceUnaSemana.setDate(hoy.getDate() - 7);
+
+                document.getElementById('fechaDesde').value = haceUnaSemana.toISOString().split('T')[0];
+                document.getElementById('fechaHasta').value = hoy.toISOString().split('T')[0];
+            }
+
+            async cargarDatos() {
+                try {
+                    // Cargar ventas
+                    const ventasQuery = query(collection(this.db, "ventas"), orderBy("fecha_venta", "desc"));
+                    const ventasSnapshot = await getDocs(ventasQuery);
+                    this.ventas = [];
+                    ventasSnapshot.forEach((doc) => {
+                        this.ventas.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    // Cargar productos
+                    const productosQuery = query(collection(this.db, "productos"));
+                    const productosSnapshot = await getDocs(productosQuery);
+                    this.productos = [];
+                    productosSnapshot.forEach((doc) => {
+                        this.productos.push({ id: doc.id, ...doc.data() });
+                    });
+
+                } catch (error) {
+                    console.error("Error cargando datos:", error);
+                }
+            }
+
+            async generarReporte() {
+                const tipoReporte = document.getElementById('tipoReporte').value;
+                const fechaDesde = document.getElementById('fechaDesde').value;
+                const fechaHasta = document.getElementById('fechaHasta').value;
+
+                // Filtrar ventas por fecha
+                const ventasFiltradas = this.ventas.filter(venta => {
+                    if (!fechaDesde || !fechaHasta) return true;
+                    
+                    const fechaVenta = venta.fecha_venta?.toDate();
+                    if (!fechaVenta) return false;
+
+                    const desde = new Date(fechaDesde);
+                    const hasta = new Date(fechaHasta);
+                    hasta.setHours(23, 59, 59, 999);
+
+                    return fechaVenta >= desde && fechaVenta <= hasta;
+                });
+
+                this.calcularMetricas(ventasFiltradas);
+                this.generarGraficos(ventasFiltradas);
+                this.mostrarDetalle(ventasFiltradas);
+            }
+
+            calcularMetricas(ventas) {
+                const totalVentas = ventas.length;
+                const ingresosTotales = ventas.reduce((sum, venta) => sum + (venta.total || 0), 0);
+                const productosVendidos = ventas.reduce((sum, venta) => 
+                    sum + venta.productos?.reduce((prodSum, prod) => prodSum + (prod.cantidad || 0), 0) || 0, 0
+                );
+                const ticketPromedio = totalVentas > 0 ? ingresosTotales / totalVentas : 0;
+
+                document.getElementById('totalVentas').textContent = totalVentas;
+                document.getElementById('ingresosTotales').textContent = '$' + ingresosTotales.toFixed(2);
+                document.getElementById('productosVendidos').textContent = productosVendidos;
+                document.getElementById('ticketPromedio').textContent = '$' + ticketPromedio.toFixed(2);
+            }
+
+            generarGraficos(ventas) {
+                this.generarGraficoVentas(ventas);
+                this.generarGraficoProductos(ventas);
+                this.generarGraficoPagos(ventas);
+                this.generarGraficoInventario();
+            }
+
+            generarGraficoVentas(ventas) {
+                const ctx = document.getElementById('ventasChart').getContext('2d');
+                
+                // Agrupar ventas por día
+                const ventasPorDia = {};
+                ventas.forEach(venta => {
+                    const fecha = venta.fecha_venta?.toDate();
+                    if (fecha) {
+                        const dia = fecha.toISOString().split('T')[0];
+                        ventasPorDia[dia] = (ventasPorDia[dia] || 0) + (venta.total || 0);
+                    }
+                });
+
+                const labels = Object.keys(ventasPorDia).sort();
+                const data = labels.map(dia => ventasPorDia[dia]);
+
+                if (this.charts.ventas) {
+                    this.charts.ventas.destroy();
+                }
+
+                this.charts.ventas = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Ventas ($)',
+                            data: data,
+                            borderColor: '#ff85a2',
+                            backgroundColor: 'rgba(255, 133, 162, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            generarGraficoProductos(ventas) {
+                const ctx = document.getElementById('productosChart').getContext('2d');
+                
+                // Contar productos vendidos
+                const productosVendidos = {};
+                ventas.forEach(venta => {
+                    venta.productos?.forEach(prod => {
+                        productosVendidos[prod.nombre] = (productosVendidos[prod.nombre] || 0) + prod.cantidad;
+                    });
+                });
+
+                const productosArray = Object.entries(productosVendidos)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5);
+
+                const labels = productosArray.map(([nombre]) => nombre);
+                const data = productosArray.map(([, cantidad]) => cantidad);
+
+                if (this.charts.productos) {
+                    this.charts.productos.destroy();
+                }
+
+                this.charts.productos = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Unidades Vendidas',
+                            data: data,
+                            backgroundColor: [
+                                '#ff85a2', '#ffacc7', '#ffd6e0', '#8a2f5a', '#5a2a3a'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            generarGraficoPagos(ventas) {
+                const ctx = document.getElementById('pagosChart').getContext('2d');
+                
+                const metodosPago = {};
+                ventas.forEach(venta => {
+                    const metodo = venta.metodo_pago || 'desconocido';
+                    metodosPago[metodo] = (metodosPago[metodo] || 0) + 1;
+                });
+
+                const labels = Object.keys(metodosPago).map(metodo => 
+                    this.getMetodoPagoNombre(metodo)
+                );
+                const data = Object.values(metodosPago);
+
+                if (this.charts.pagos) {
+                    this.charts.pagos.destroy();
+                }
+
+                this.charts.pagos = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: [
+                                '#ff85a2', '#ffacc7', '#ffd6e0', '#8a2f5a'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            generarGraficoInventario() {
+                const ctx = document.getElementById('inventarioChart').getContext('2d');
+                
+                const categorias = {};
+                this.productos.forEach(producto => {
+                    const categoria = producto.categoria || 'sin-categoria';
+                    if (!categorias[categoria]) {
+                        categorias[categoria] = { total: 0, bajoStock: 0, sinStock: 0 };
+                    }
+                    categorias[categoria].total++;
+                    if (producto.cantidad === 0) {
+                        categorias[categoria].sinStock++;
+                    } else if (producto.cantidad < 10) {
+                        categorias[categoria].bajoStock++;
+                    }
+                });
+
+                const labels = Object.keys(categorias).map(cat => this.getCategoriaNombre(cat));
+                const dataTotal = Object.values(categorias).map(cat => cat.total);
+                const dataBajoStock = Object.values(categorias).map(cat => cat.bajoStock);
+                const dataSinStock = Object.values(categorias).map(cat => cat.sinStock);
+
+                if (this.charts.inventario) {
+                    this.charts.inventario.destroy();
+                }
+
+                this.charts.inventario = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Total Productos',
+                                data: dataTotal,
+                                backgroundColor: '#ff85a2'
+                            },
+                            {
+                                label: 'Stock Bajo',
+                                data: dataBajoStock,
+                                backgroundColor: '#ffaa00'
+                            },
+                            {
+                                label: 'Sin Stock',
+                                data: dataSinStock,
+                                backgroundColor: '#ff4444'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                stacked: false
+                            },
+                            y: {
+                                stacked: false,
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            mostrarDetalle(ventas) {
+                const tbody = document.getElementById('detalleReporte');
+                tbody.innerHTML = '';
+
+                ventas.forEach(venta => {
+                    const productosText = venta.productos?.map(p => 
+                        `${p.nombre} (${p.cantidad})`
+                    ).join(', ') || 'N/A';
+
+                    const totalProductos = venta.productos?.reduce((sum, prod) => sum + prod.cantidad, 0) || 0;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${venta.fecha_venta ? new Date(venta.fecha_venta.toDate()).toLocaleDateString() : 'N/A'}</td>
+                        <td>${venta.id.substring(0, 8)}...</td>
+                        <td>${venta.cliente || 'Cliente General'}</td>
+                        <td>${productosText}</td>
+                        <td>${totalProductos}</td>
+                        <td>$${venta.total?.toFixed(2) || '0.00'}</td>
+                        <td><span class="badge bg-secondary">${this.getMetodoPagoNombre(venta.metodo_pago)}</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            getMetodoPagoNombre(metodo) {
+                const metodos = {
+                    'efectivo': 'Efectivo',
+                    'tarjeta': 'Tarjeta',
+                    'transferencia': 'Transferencia',
+                    'desconocido': 'Desconocido'
+                };
+                return metodos[metodo] || metodo;
+            }
+
+            getCategoriaNombre(categoria) {
+                const categorias = {
+                    'ropa': 'Ropa Deportiva',
+                    'calzado': 'Calzado',
+                    'accesorios': 'Accesorios',
+                    'equipamiento': 'Equipamiento',
+                    'suplementos': 'Suplementos',
+                    'sin-categoria': 'Sin Categoría'
+                };
+                return categorias[categoria] || categoria;
+            }
+
+            generarReportePDF() {
+                alert('✅ Función de exportación PDF lista para implementar');
+                // Aquí puedes integrar una librería como jsPDF
+            }
+
+            exportarExcel() {
+                alert('✅ Función de exportación Excel lista para implementar');
+                // Aquí puedes integrar una librería como SheetJS
+            }
+
+            async logout() {
+                try {
+                    await signOut(this.auth);
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Error al cerrar sesión:', error);
+                }
+            }
+        }
+
+        // Inicializar el gestor de reportes
+        document.addEventListener('DOMContentLoaded', () => {
+            window.reportesManager = new ReportesManager();
+        });
+    </script>
+</body>
+</html>
