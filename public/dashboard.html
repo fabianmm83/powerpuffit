@@ -515,48 +515,11 @@
             }
         }
 
-        /* Loading States */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-        }
-
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
         /* Status Alerts */
         .status-alert {
             border-radius: 12px;
             border: none;
             margin-bottom: 1rem;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--dark-color);
         }
     </style>
 </head>
@@ -793,10 +756,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- El script JavaScript se mantiene igual que en la versión anterior -->
     <script type="module">
-        // El código JavaScript se mantiene igual que en tu versión funcional
-        // Solo se actualizó el CSS para hacerlo responsivo
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
@@ -841,8 +801,344 @@
                     now.toLocaleDateString('es-ES', options);
             }
 
-            // ... (el resto del código JavaScript se mantiene igual)
-            // Solo asegúrate de que todas las funcionalidades estén implementadas
+            initEventListeners() {
+                // Logout
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+                
+                // Test buttons
+                document.getElementById('testAuthBtn').addEventListener('click', () => this.testAuth());
+                document.getElementById('testFirestoreBtn').addEventListener('click', () => this.testFirestore());
+                document.getElementById('refreshDataBtn').addEventListener('click', () => this.refreshData());
+                
+                // Navigation links
+                const navLinks = ['inventarioLink', 'tiendaLink', 'ventasLink', 'productosLink', 
+                                'clientesLink', 'reportesLink', 'addProductBtn', 'newSaleBtn', 
+                                'viewInventoryBtn', 'reportsBtn'];
+                
+                navLinks.forEach(linkId => {
+                    const element = document.getElementById(linkId);
+                    if (element) {
+                        element.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            alert(`🚧 ${linkId.replace('Link', '').replace('Btn', '')} - Esta funcionalidad está en desarrollo`);
+                        });
+                    }
+                });
+            }
+
+            async checkAuth() {
+                console.log("🔐 Verificando autenticación...");
+                
+                return new Promise((resolve) => {
+                    onAuthStateChanged(this.auth, (user) => {
+                        const authStatus = document.getElementById('authStatus');
+                        
+                        if (user) {
+                            console.log("✅ Usuario autenticado:", user);
+                            authStatus.className = 'alert alert-success';
+                            authStatus.innerHTML = `
+                                <strong>✅ CONECTADO</strong><br>
+                                Email: ${user.email}<br>
+                                UID: ${user.uid}
+                            `;
+                            this.displayUserInfo(user);
+                            resolve(true);
+                        } else {
+                            console.log("❌ No hay usuario autenticado");
+                            authStatus.className = 'alert alert-danger';
+                            authStatus.innerHTML = `
+                                <strong>❌ NO AUTENTICADO</strong><br>
+                                Redirigiendo al login...
+                            `;
+                            
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 2000);
+                            resolve(false);
+                        }
+                    });
+                });
+            }
+
+            displayUserInfo(user) {
+                const userName = document.getElementById('userName');
+                const userAvatar = document.getElementById('userAvatar');
+                const mobileUserAvatar = document.getElementById('mobileUserAvatar');
+                const welcomeMessage = document.getElementById('welcomeMessage');
+                const welcomeTitle = document.getElementById('welcomeTitle');
+                
+                const email = user.email;
+                const displayName = user.displayName || email.split('@')[0];
+                
+                userName.textContent = displayName;
+                userAvatar.textContent = displayName.charAt(0).toUpperCase();
+                mobileUserAvatar.textContent = displayName.charAt(0).toUpperCase();
+                
+                welcomeTitle.textContent = `¡Bienvenido, ${displayName}!`;
+                welcomeMessage.textContent = `Estás conectado como ${email}. Gestiona tu tienda PowerPuffFit desde aquí.`;
+            }
+
+            async testFirestoreConnection() {
+                try {
+                    const firestoreStatus = document.getElementById('firestoreStatus');
+                    firestoreStatus.className = 'alert alert-warning';
+                    firestoreStatus.innerHTML = 'Probando conexión...';
+                    
+                    const snapshot = await getDocs(collection(this.db, "productos"));
+                    
+                    firestoreStatus.className = 'alert alert-success';
+                    firestoreStatus.innerHTML = `
+                        <strong>✅ FIRESTORE CONECTADO</strong><br>
+                        Productos en la base de datos: ${snapshot.size}
+                    `;
+                    
+                    console.log("✅ Firestore conectado correctamente");
+                    
+                } catch (error) {
+                    console.error("❌ Error conectando a Firestore:", error);
+                    const firestoreStatus = document.getElementById('firestoreStatus');
+                    
+                    if (error.code === 'permission-denied') {
+                        firestoreStatus.className = 'alert alert-danger';
+                        firestoreStatus.innerHTML = `
+                            <strong>❌ PERMISO DENEGADO</strong><br>
+                            Las reglas de Firestore están bloqueando el acceso.<br>
+                            <small>Error: ${error.message}</small>
+                        `;
+                    } else {
+                        firestoreStatus.className = 'alert alert-danger';
+                        firestoreStatus.innerHTML = `
+                            <strong>❌ ERROR EN FIRESTORE</strong><br>
+                            ${error.message}
+                        `;
+                    }
+                }
+            }
+
+            async logout() {
+                try {
+                    await signOut(this.auth);
+                    console.log("✅ Sesión cerrada exitosamente");
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('❌ Error al cerrar sesión:', error);
+                    alert('Error al cerrar sesión: ' + error.message);
+                }
+            }
+
+            async testAuth() {
+                const user = this.auth.currentUser;
+                if (user) {
+                    alert(`✅ Autenticación funcionando\nUsuario: ${user.email}\nUID: ${user.uid}`);
+                } else {
+                    alert('❌ No hay usuario autenticado');
+                }
+            }
+
+            async testFirestore() {
+                try {
+                    const testProduct = {
+                        nombre: "Producto Test " + new Date().toLocaleTimeString(),
+                        descripcion: "Producto de prueba creado desde el dashboard",
+                        precio: Math.random() * 100 + 10,
+                        cantidad: Math.floor(Math.random() * 50) + 1,
+                        categoria: "pruebas",
+                        activo: true,
+                        fecha_creacion: new Date()
+                    };
+
+                    const docRef = await addDoc(collection(this.db, "productos"), testProduct);
+                    alert(`✅ Producto de prueba creado exitosamente\nID: ${docRef.id}\nNombre: ${testProduct.nombre}`);
+                    
+                    await this.loadStatistics();
+                    await this.loadLowStockProducts();
+                    
+                } catch (error) {
+                    console.error("❌ Error creando producto de prueba:", error);
+                    alert("❌ Error: " + error.message);
+                }
+            }
+
+            async refreshData() {
+                try {
+                    await this.loadStatistics();
+                    await this.loadRecentActivity();
+                    await this.loadLowStockProducts();
+                    alert('✅ Datos actualizados correctamente');
+                } catch (error) {
+                    console.error('❌ Error actualizando datos:', error);
+                    alert('Error actualizando datos: ' + error.message);
+                }
+            }
+
+            async loadStatistics() {
+                try {
+                    // Total productos
+                    const productsSnapshot = await getDocs(collection(this.db, "productos"));
+                    document.getElementById('totalProductos').textContent = productsSnapshot.size;
+
+                    // Productos con stock bajo
+                    const lowStockQuery = query(
+                        collection(this.db, "productos"), 
+                        where("cantidad", "<", 10)
+                    );
+                    const lowStockSnapshot = await getDocs(lowStockQuery);
+                    document.getElementById('stockBajo').textContent = lowStockSnapshot.size;
+
+                    // Datos de ejemplo
+                    document.getElementById('totalVentas').textContent = Math.floor(productsSnapshot.size * 1.5);
+                    document.getElementById('ingresosTotales').textContent = `$${(productsSnapshot.size * 89.99).toFixed(2)}`;
+
+                } catch (error) {
+                    console.error("❌ Error cargando estadísticas:", error);
+                }
+            }
+
+            async loadRecentActivity() {
+                try {
+                    const container = document.getElementById('recentActivity');
+                    
+                    // Datos de ejemplo para actividad reciente
+                    const activities = [
+                        { type: 'sale', title: 'Nueva venta registrada', time: 'Hace 5 minutos' },
+                        { type: 'product', title: 'Producto agregado al inventario', time: 'Hace 15 minutos' },
+                        { type: 'user', title: 'Nuevo cliente registrado', time: 'Hace 1 hora' },
+                        { type: 'update', title: 'Stock actualizado', time: 'Hace 2 horas' }
+                    ];
+
+                    container.innerHTML = activities.map(activity => `
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-${this.getActivityIcon(activity.type)}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">${activity.title}</div>
+                                <div class="activity-time">${activity.time}</div>
+                            </div>
+                        </div>
+                    `).join('');
+
+                } catch (error) {
+                    console.error("❌ Error cargando actividad:", error);
+                }
+            }
+
+            getActivityIcon(type) {
+                const icons = {
+                    'sale': 'shopping-cart',
+                    'product': 'box',
+                    'user': 'user-plus',
+                    'update': 'sync'
+                };
+                return icons[type] || 'info-circle';
+            }
+
+            async loadLowStockProducts() {
+                try {
+                    const lowStockQuery = query(
+                        collection(this.db, "productos"), 
+                        where("cantidad", "<", 10),
+                        orderBy("cantidad", "asc"),
+                        limit(5)
+                    );
+                    
+                    const snapshot = await getDocs(lowStockQuery);
+                    const container = document.getElementById('lowStockProducts');
+                    
+                    if (snapshot.empty) {
+                        container.innerHTML = '<p class="text-center text-muted">No hay productos con stock bajo</p>';
+                        return;
+                    }
+
+                    container.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const product = doc.data();
+                        const item = document.createElement('div');
+                        item.className = 'activity-item';
+                        item.innerHTML = `
+                            <div class="activity-icon" style="background: #ffebee;">
+                                <i class="fas fa-exclamation-triangle" style="color: #f44336;"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">${product.nombre}</div>
+                                <div class="activity-time">Stock: ${product.cantidad} unidades - $${product.precio}</div>
+                            </div>
+                        `;
+                        container.appendChild(item);
+                    });
+
+                } catch (error) {
+                    console.error("❌ Error cargando productos con stock bajo:", error);
+                }
+            }
+
+            initCharts() {
+                // Gráfico de ventas
+                const salesCtx = document.getElementById('salesChart').getContext('2d');
+                this.salesChart = new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                        datasets: [{
+                            label: 'Ventas ($)',
+                            data: [1200, 1900, 1500, 2000, 1800, 2200, 2400],
+                            borderColor: '#ff85a2',
+                            backgroundColor: 'rgba(255, 133, 162, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0,0,0,0.1)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Gráfico de categorías
+                const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+                this.categoryChart = new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Ropa', 'Calzado', 'Accesorios', 'Equipamiento'],
+                        datasets: [{
+                            data: [35, 25, 20, 20],
+                            backgroundColor: [
+                                '#ff85a2',
+                                '#ffacc7',
+                                '#ffd6e0',
+                                '#8a2f5a'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         // Inicializar el dashboard cuando el DOM esté listo
