@@ -31,12 +31,15 @@
             position: fixed;
             left: 0;
             top: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
         }
 
         .main-content {
             margin-left: 280px;
             padding: 20px;
             min-height: 100vh;
+            transition: margin-left 0.3s ease;
         }
 
         .card {
@@ -73,12 +76,99 @@
         .badge-high {
             background-color: #00c851;
         }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+            
+            .row.g-3 .col-md-4 {
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .d-flex.justify-content-between h2 {
+                text-align: center;
+            }
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 1.2rem;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="overlay" id="overlay"></div>
+    
     <div class="app-container">
         <!-- Sidebar (mismo que dashboard) -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-brand p-3 text-center">
                 <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
                 <h5>PowerPuffFit</h5>
@@ -104,7 +194,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="main-content">
+        <div class="main-content" id="mainContent">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Gestión de Inventario</h2>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productoModal">
@@ -209,12 +299,20 @@
                                 <textarea class="form-control" id="descripcion" rows="3"></textarea>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Código de Barras (opcional)</label>
-                                <input type="text" class="form-control" id="codigo_barras">
-                            </div>
-                            <div class="col-md-6">
                                 <label class="form-label">Proveedor</label>
                                 <input type="text" class="form-control" id="proveedor">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Código de Barras</label>
+                                <input type="text" class="form-control" id="codigo_barras">
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="activo" checked>
+                                    <label class="form-check-label" for="activo">
+                                        Producto Activo
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -275,50 +373,69 @@
                 document.getElementById('searchInput').addEventListener('input', () => this.filtrarProductos());
                 document.getElementById('categoryFilter').addEventListener('change', () => this.filtrarProductos());
                 document.getElementById('stockFilter').addEventListener('change', () => this.filtrarProductos());
+                
+                // Configurar el modal
+                document.getElementById('productoModal').addEventListener('show.bs.modal', (event) => {
+                    const button = event.relatedTarget;
+                    const productId = button?.getAttribute('data-product-id');
+                    
+                    if (productId) {
+                        this.cargarProductoParaEditar(productId);
+                    } else {
+                        this.limpiarFormulario();
+                    }
+                });
+
+                // Responsive sidebar toggle
+                document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
+                document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
+            }
+
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
             }
 
             async cargarProductos() {
                 try {
-                    const querySnapshot = await getDocs(collection(this.db, "productos"));
+                    const q = query(collection(this.db, "productos"), orderBy("fecha_registro", "desc"));
+                    const querySnapshot = await getDocs(q);
                     this.productos = [];
                     querySnapshot.forEach((doc) => {
                         this.productos.push({ id: doc.id, ...doc.data() });
                     });
-                    this.mostrarProductos(this.productos);
+                    this.mostrarProductos();
                 } catch (error) {
                     console.error("Error cargando productos:", error);
-                    alert("Error al cargar los productos: " + error.message);
                 }
             }
 
-            mostrarProductos(productos) {
+            mostrarProductos(productos = this.productos) {
                 const tbody = document.getElementById('productosTable');
                 tbody.innerHTML = '';
 
-                if (productos.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">No se encontraron productos</td></tr>';
-                    return;
-                }
-
                 productos.forEach(producto => {
-                    const stockClass = producto.cantidad === 0 ? 'badge-low' : 
-                                     producto.cantidad < 10 ? 'badge-medium' : 'badge-high';
-                    const stockText = producto.cantidad === 0 ? 'Sin Stock' : 
-                                    producto.cantidad < 10 ? 'Stock Bajo' : 'En Stock';
-
+                    const estadoStock = this.getEstadoStock(producto.cantidad);
+                    const badgeClass = this.getBadgeClass(estadoStock);
+                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${producto.nombre}</td>
-                        <td><span class="badge bg-secondary">${this.getCategoriaNombre(producto.categoria)}</span></td>
-                        <td>$${producto.precio?.toFixed(2) || '0.00'}</td>
-                        <td>${producto.cantidad || 0}</td>
-                        <td><span class="badge ${stockClass}">${stockText}</span></td>
-                        <td>${producto.fecha_creacion ? new Date(producto.fecha_creacion.toDate()).toLocaleDateString() : 'N/A'}</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-primary me-1" onclick="inventario.editarProducto('${producto.id}')">
+                            <strong>${producto.nombre}</strong>
+                            ${producto.descripcion ? `<br><small class="text-muted">${producto.descripcion.substring(0, 50)}...</small>` : ''}
+                        </td>
+                        <td><span class="badge bg-light text-dark">${this.getCategoriaNombre(producto.categoria)}</span></td>
+                        <td>$${producto.precio?.toFixed(2) || '0.00'}</td>
+                        <td>${producto.cantidad}</td>
+                        <td><span class="badge ${badgeClass}">${estadoStock}</span></td>
+                        <td>${producto.fecha_registro ? new Date(producto.fecha_registro.toDate()).toLocaleDateString() : 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#productoModal" data-product-id="${producto.id}">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="inventario.eliminarProducto('${producto.id}')">
+                            <button class="btn btn-sm btn-outline-danger" onclick="inventarioManager.eliminarProducto('${producto.id}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -338,35 +455,48 @@
                 return categorias[categoria] || categoria;
             }
 
+            getEstadoStock(cantidad) {
+                if (cantidad === 0) return 'Sin Stock';
+                if (cantidad < 10) return 'Stock Bajo';
+                if (cantidad < 20) return 'Stock Medio';
+                return 'Stock Alto';
+            }
+
+            getBadgeClass(estado) {
+                switch(estado) {
+                    case 'Sin Stock': return 'badge-low';
+                    case 'Stock Bajo': return 'badge-medium';
+                    case 'Stock Medio': return 'badge-medium';
+                    case 'Stock Alto': return 'badge-high';
+                    default: return 'badge-secondary';
+                }
+            }
+
             filtrarProductos() {
                 const searchTerm = document.getElementById('searchInput').value.toLowerCase();
                 const categoria = document.getElementById('categoryFilter').value;
                 const stockFilter = document.getElementById('stockFilter').value;
 
-                let productosFiltrados = this.productos.filter(producto => {
+                const productosFiltrados = this.productos.filter(producto => {
                     const matchesSearch = producto.nombre.toLowerCase().includes(searchTerm);
                     const matchesCategory = !categoria || producto.categoria === categoria;
-                    let matchesStock = true;
-
-                    if (stockFilter === 'low') {
-                        matchesStock = producto.cantidad < 10 && producto.cantidad > 0;
-                    } else if (stockFilter === 'out') {
-                        matchesStock = producto.cantidad === 0;
-                    }
-
+                    const matchesStock = this.matchesStockFilter(producto.cantidad, stockFilter);
+                    
                     return matchesSearch && matchesCategory && matchesStock;
                 });
 
                 this.mostrarProductos(productosFiltrados);
             }
 
-            nuevoProducto() {
-                document.getElementById('modalTitle').textContent = 'Agregar Producto';
-                document.getElementById('productoForm').reset();
-                document.getElementById('productId').value = '';
+            matchesStockFilter(cantidad, filter) {
+                switch(filter) {
+                    case 'low': return cantidad < 10;
+                    case 'out': return cantidad === 0;
+                    default: return true;
+                }
             }
 
-            async editarProducto(productId) {
+            async cargarProductoParaEditar(productId) {
                 const producto = this.productos.find(p => p.id === productId);
                 if (!producto) return;
 
@@ -377,42 +507,55 @@
                 document.getElementById('precio').value = producto.precio || '';
                 document.getElementById('cantidad').value = producto.cantidad || '';
                 document.getElementById('descripcion').value = producto.descripcion || '';
-                document.getElementById('codigo_barras').value = producto.codigo_barras || '';
                 document.getElementById('proveedor').value = producto.proveedor || '';
+                document.getElementById('codigo_barras').value = producto.codigo_barras || '';
+                document.getElementById('activo').checked = producto.activo !== false;
+            }
 
-                const modal = new bootstrap.Modal(document.getElementById('productoModal'));
-                modal.show();
+            limpiarFormulario() {
+                document.getElementById('modalTitle').textContent = 'Agregar Producto';
+                document.getElementById('productoForm').reset();
+                document.getElementById('productId').value = '';
+                document.getElementById('activo').checked = true;
             }
 
             async guardarProducto() {
+                const form = document.getElementById('productoForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
                 const productId = document.getElementById('productId').value;
-                const productData = {
+                const productoData = {
                     nombre: document.getElementById('nombre').value,
                     categoria: document.getElementById('categoria').value,
                     precio: parseFloat(document.getElementById('precio').value),
                     cantidad: parseInt(document.getElementById('cantidad').value),
                     descripcion: document.getElementById('descripcion').value,
-                    codigo_barras: document.getElementById('codigo_barras').value,
                     proveedor: document.getElementById('proveedor').value,
+                    codigo_barras: document.getElementById('codigo_barras').value,
+                    activo: document.getElementById('activo').checked,
                     fecha_actualizacion: new Date()
                 };
 
                 try {
                     if (productId) {
-                        // Editar producto existente
-                        await updateDoc(doc(this.db, "productos", productId), productData);
+                        // Actualizar producto existente
+                        await updateDoc(doc(this.db, "productos", productId), productoData);
                         alert('✅ Producto actualizado correctamente');
                     } else {
-                        // Agregar nuevo producto
-                        productData.fecha_creacion = new Date();
-                        productData.activo = true;
-                        await addDoc(collection(this.db, "productos"), productData);
+                        // Crear nuevo producto
+                        productoData.fecha_registro = new Date();
+                        await addDoc(collection(this.db, "productos"), productoData);
                         alert('✅ Producto agregado correctamente');
                     }
 
                     const modal = bootstrap.Modal.getInstance(document.getElementById('productoModal'));
                     modal.hide();
+
                     await this.cargarProductos();
+
                 } catch (error) {
                     console.error("Error guardando producto:", error);
                     alert("Error al guardar el producto: " + error.message);
@@ -446,14 +589,7 @@
 
         // Inicializar el gestor de inventario
         document.addEventListener('DOMContentLoaded', () => {
-            window.inventario = new InventarioManager();
-            
-            // Configurar el modal para limpiar al abrir
-            document.getElementById('productoModal').addEventListener('show.bs.modal', () => {
-                if (!document.getElementById('productId').value) {
-                    window.inventario.nuevoProducto();
-                }
-            });
+            window.inventarioManager = new InventarioManager();
         });
     </script>
 </body>

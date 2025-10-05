@@ -32,12 +32,15 @@
             position: fixed;
             left: 0;
             top: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
         }
 
         .main-content {
             margin-left: 280px;
             padding: 20px;
             min-height: 100vh;
+            transition: margin-left 0.3s ease;
         }
 
         .card {
@@ -52,17 +55,113 @@
             border-radius: 10px;
         }
 
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 133, 162, 0.4);
+        }
+
         .chart-container {
             position: relative;
             height: 300px;
             width: 100%;
         }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            .row.g-3 .col-md-6 {
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .d-flex.justify-content-between h2 {
+                text-align: center;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 1.2rem;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="overlay" id="overlay"></div>
+    
     <div class="app-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
+        <!-- Sidebar (mismo que dashboard) -->
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-brand p-3 text-center">
                 <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
                 <h5>PowerPuffFit</h5>
@@ -88,14 +187,14 @@
         </div>
 
         <!-- Main Content -->
-        <div class="main-content">
+        <div class="main-content" id="mainContent">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Reportes y Análisis</h2>
-                <div>
-                    <button class="btn btn-primary me-2" onclick="reportesManager.generarReportePDF()">
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" id="exportPdfBtn">
                         <i class="fas fa-file-pdf me-2"></i>Exportar PDF
                     </button>
-                    <button class="btn btn-success" onclick="reportesManager.exportarExcel()">
+                    <button class="btn btn-outline-success" id="exportExcelBtn">
                         <i class="fas fa-file-excel me-2"></i>Exportar Excel
                     </button>
                 </div>
@@ -106,25 +205,27 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-3">
-                            <label class="form-label">Tipo de Reporte</label>
-                            <select class="form-select" id="tipoReporte">
-                                <option value="ventas">Ventas</option>
-                                <option value="productos">Productos</option>
-                                <option value="inventario">Inventario</option>
+                            <label class="form-label">Período</label>
+                            <select class="form-select" id="periodoFilter">
+                                <option value="hoy">Hoy</option>
+                                <option value="semana">Esta Semana</option>
+                                <option value="mes" selected>Este Mes</option>
+                                <option value="trimestre">Este Trimestre</option>
+                                <option value="anio">Este Año</option>
+                                <option value="personalizado">Personalizado</option>
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Fecha Desde</label>
-                            <input type="date" class="form-control" id="fechaDesde">
+                            <label class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-control" id="fechaInicio">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Fecha Hasta</label>
-                            <input type="date" class="form-control" id="fechaHasta">
+                            <label class="form-label">Fecha Fin</label>
+                            <input type="date" class="form-control" id="fechaFin">
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">&nbsp;</label>
-                            <button class="btn btn-primary w-100" onclick="reportesManager.generarReporte()">
-                                <i class="fas fa-chart-bar me-2"></i>Generar Reporte
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-primary w-100" id="aplicarFiltrosBtn">
+                                <i class="fas fa-filter me-2"></i>Aplicar Filtros
                             </button>
                         </div>
                     </div>
@@ -133,7 +234,7 @@
 
             <!-- Métricas Principales -->
             <div class="row mb-4">
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-6 mb-3">
                     <div class="card text-center">
                         <div class="card-body">
                             <h3 class="text-primary" id="totalVentas">0</h3>
@@ -141,7 +242,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-6 mb-3">
                     <div class="card text-center">
                         <div class="card-body">
                             <h3 class="text-success" id="ingresosTotales">$0</h3>
@@ -149,7 +250,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-6 mb-3">
                     <div class="card text-center">
                         <div class="card-body">
                             <h3 class="text-info" id="productosVendidos">0</h3>
@@ -157,7 +258,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-6 mb-3">
                     <div class="card text-center">
                         <div class="card-body">
                             <h3 class="text-warning" id="ticketPromedio">$0</h3>
@@ -169,7 +270,7 @@
 
             <!-- Gráficos -->
             <div class="row mb-4">
-                <div class="col-md-6">
+                <div class="col-lg-8 mb-4">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Ventas por Día</h5>
@@ -179,7 +280,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-lg-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Métodos de Pago</h5>
+                            <div class="chart-container">
+                                <canvas id="metodosPagoChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-lg-6 mb-4">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Productos Más Vendidos</h5>
@@ -189,25 +303,12 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="row mb-4">
-                <div class="col-md-6">
+                <div class="col-lg-6 mb-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Métodos de Pago</h5>
+                            <h5 class="card-title">Ventas por Categoría</h5>
                             <div class="chart-container">
-                                <canvas id="pagosChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Estado del Inventario</h5>
-                            <div class="chart-container">
-                                <canvas id="inventarioChart"></canvas>
+                                <canvas id="categoriasChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -217,7 +318,7 @@
             <!-- Tabla de Detalles -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Detalle del Reporte</h5>
+                    <h5 class="card-title mb-4">Detalle de Ventas</h5>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -231,7 +332,7 @@
                                     <th>Método Pago</th>
                                 </tr>
                             </thead>
-                            <tbody id="detalleReporte">
+                            <tbody id="detalleVentasTable">
                                 <!-- Los detalles se cargarán aquí -->
                             </tbody>
                         </table>
@@ -264,15 +365,17 @@
                 this.ventas = [];
                 this.productos = [];
                 this.charts = {};
+                this.fechaInicio = new Date();
+                this.fechaFin = new Date();
                 this.init();
             }
 
             async init() {
                 await this.checkAuth();
                 this.initEventListeners();
+                this.configurarFechas();
                 await this.cargarDatos();
-                this.inicializarFechas();
-                await this.generarReporte();
+                this.generarReportes();
             }
 
             async checkAuth() {
@@ -289,70 +392,142 @@
 
             initEventListeners() {
                 document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+                document.getElementById('aplicarFiltrosBtn').addEventListener('click', () => this.aplicarFiltros());
+                document.getElementById('periodoFilter').addEventListener('change', () => this.cambiarPeriodo());
+                document.getElementById('exportPdfBtn').addEventListener('click', () => this.exportarPDF());
+                document.getElementById('exportExcelBtn').addEventListener('click', () => this.exportarExcel());
+
+                // Responsive sidebar toggle
+                document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
+                document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
             }
 
-            inicializarFechas() {
-                const hoy = new Date();
-                const haceUnaSemana = new Date();
-                haceUnaSemana.setDate(hoy.getDate() - 7);
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
 
-                document.getElementById('fechaDesde').value = haceUnaSemana.toISOString().split('T')[0];
-                document.getElementById('fechaHasta').value = hoy.toISOString().split('T')[0];
+            configurarFechas() {
+                const hoy = new Date();
+                const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+                
+                this.fechaInicio = inicioMes;
+                this.fechaFin = hoy;
+
+                document.getElementById('fechaInicio').value = this.formatDateForInput(inicioMes);
+                document.getElementById('fechaFin').value = this.formatDateForInput(hoy);
+            }
+
+            formatDateForInput(date) {
+                return date.toISOString().split('T')[0];
+            }
+
+            cambiarPeriodo() {
+                const periodo = document.getElementById('periodoFilter').value;
+                const hoy = new Date();
+                let inicio, fin = hoy;
+
+                switch(periodo) {
+                    case 'hoy':
+                        inicio = new Date(hoy);
+                        inicio.setHours(0, 0, 0, 0);
+                        break;
+                    case 'semana':
+                        inicio = new Date(hoy);
+                        inicio.setDate(hoy.getDate() - hoy.getDay());
+                        inicio.setHours(0, 0, 0, 0);
+                        break;
+                    case 'mes':
+                        inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+                        break;
+                    case 'trimestre':
+                        const trimestre = Math.floor(hoy.getMonth() / 3);
+                        inicio = new Date(hoy.getFullYear(), trimestre * 3, 1);
+                        break;
+                    case 'anio':
+                        inicio = new Date(hoy.getFullYear(), 0, 1);
+                        break;
+                    case 'personalizado':
+                        // No hacer nada, el usuario seleccionará las fechas
+                        return;
+                }
+
+                this.fechaInicio = inicio;
+                this.fechaFin = fin;
+
+                document.getElementById('fechaInicio').value = this.formatDateForInput(inicio);
+                document.getElementById('fechaFin').value = this.formatDateForInput(fin);
+
+                this.aplicarFiltros();
+            }
+
+            async aplicarFiltros() {
+                const fechaInicioInput = document.getElementById('fechaInicio').value;
+                const fechaFinInput = document.getElementById('fechaFin').value;
+
+                if (fechaInicioInput && fechaFinInput) {
+                    this.fechaInicio = new Date(fechaInicioInput);
+                    this.fechaFin = new Date(fechaFinInput);
+                    this.fechaFin.setHours(23, 59, 59, 999); // Fin del día
+                }
+
+                await this.cargarDatos();
+                this.generarReportes();
             }
 
             async cargarDatos() {
+                await this.cargarVentas();
+                await this.cargarProductos();
+            }
+
+            async cargarVentas() {
                 try {
-                    // Cargar ventas
-                    const ventasQuery = query(collection(this.db, "ventas"), orderBy("fecha_venta", "desc"));
-                    const ventasSnapshot = await getDocs(ventasQuery);
+                    const q = query(
+                        collection(this.db, "ventas"),
+                        where("fecha_venta", ">=", this.fechaInicio),
+                        where("fecha_venta", "<=", this.fechaFin),
+                        orderBy("fecha_venta", "asc")
+                    );
+                    
+                    const querySnapshot = await getDocs(q);
                     this.ventas = [];
-                    ventasSnapshot.forEach((doc) => {
+                    querySnapshot.forEach((doc) => {
                         this.ventas.push({ id: doc.id, ...doc.data() });
                     });
-
-                    // Cargar productos
-                    const productosQuery = query(collection(this.db, "productos"));
-                    const productosSnapshot = await getDocs(productosQuery);
-                    this.productos = [];
-                    productosSnapshot.forEach((doc) => {
-                        this.productos.push({ id: doc.id, ...doc.data() });
-                    });
-
                 } catch (error) {
-                    console.error("Error cargando datos:", error);
+                    console.error("Error cargando ventas:", error);
                 }
             }
 
-            async generarReporte() {
-                const tipoReporte = document.getElementById('tipoReporte').value;
-                const fechaDesde = document.getElementById('fechaDesde').value;
-                const fechaHasta = document.getElementById('fechaHasta').value;
-
-                // Filtrar ventas por fecha
-                const ventasFiltradas = this.ventas.filter(venta => {
-                    if (!fechaDesde || !fechaHasta) return true;
-                    
-                    const fechaVenta = venta.fecha_venta?.toDate();
-                    if (!fechaVenta) return false;
-
-                    const desde = new Date(fechaDesde);
-                    const hasta = new Date(fechaHasta);
-                    hasta.setHours(23, 59, 59, 999);
-
-                    return fechaVenta >= desde && fechaVenta <= hasta;
-                });
-
-                this.calcularMetricas(ventasFiltradas);
-                this.generarGraficos(ventasFiltradas);
-                this.mostrarDetalle(ventasFiltradas);
+            async cargarProductos() {
+                try {
+                    const querySnapshot = await getDocs(collection(this.db, "productos"));
+                    this.productos = [];
+                    querySnapshot.forEach((doc) => {
+                        this.productos.push({ id: doc.id, ...doc.data() });
+                    });
+                } catch (error) {
+                    console.error("Error cargando productos:", error);
+                }
             }
 
-            calcularMetricas(ventas) {
-                const totalVentas = ventas.length;
-                const ingresosTotales = ventas.reduce((sum, venta) => sum + (venta.total || 0), 0);
-                const productosVendidos = ventas.reduce((sum, venta) => 
-                    sum + venta.productos?.reduce((prodSum, prod) => prodSum + (prod.cantidad || 0), 0) || 0, 0
-                );
+            generarReportes() {
+                this.calcularMetricas();
+                this.generarGraficoVentas();
+                this.generarGraficoMetodosPago();
+                this.generarGraficoProductos();
+                this.generarGraficoCategorias();
+                this.mostrarDetalleVentas();
+            }
+
+            calcularMetricas() {
+                const totalVentas = this.ventas.length;
+                const ingresosTotales = this.ventas.reduce((sum, venta) => sum + (venta.total || 0), 0);
+                const productosVendidos = this.ventas.reduce((sum, venta) => {
+                    return sum + (venta.productos?.reduce((prodSum, prod) => prodSum + (prod.cantidad || 0), 0) || 0);
+                }, 0);
                 const ticketPromedio = totalVentas > 0 ? ingresosTotales / totalVentas : 0;
 
                 document.getElementById('totalVentas').textContent = totalVentas;
@@ -361,32 +536,26 @@
                 document.getElementById('ticketPromedio').textContent = '$' + ticketPromedio.toFixed(2);
             }
 
-            generarGraficos(ventas) {
-                this.generarGraficoVentas(ventas);
-                this.generarGraficoProductos(ventas);
-                this.generarGraficoPagos(ventas);
-                this.generarGraficoInventario();
-            }
-
-            generarGraficoVentas(ventas) {
+            generarGraficoVentas() {
                 const ctx = document.getElementById('ventasChart').getContext('2d');
                 
-                // Agrupar ventas por día
-                const ventasPorDia = {};
-                ventas.forEach(venta => {
-                    const fecha = venta.fecha_venta?.toDate();
-                    if (fecha) {
-                        const dia = fecha.toISOString().split('T')[0];
-                        ventasPorDia[dia] = (ventasPorDia[dia] || 0) + (venta.total || 0);
-                    }
-                });
-
-                const labels = Object.keys(ventasPorDia).sort();
-                const data = labels.map(dia => ventasPorDia[dia]);
-
+                // Destruir gráfico anterior si existe
                 if (this.charts.ventas) {
                     this.charts.ventas.destroy();
                 }
+
+                // Agrupar ventas por día
+                const ventasPorDia = {};
+                this.ventas.forEach(venta => {
+                    const fecha = venta.fecha_venta?.toDate();
+                    if (fecha) {
+                        const fechaStr = fecha.toLocaleDateString();
+                        ventasPorDia[fechaStr] = (ventasPorDia[fechaStr] || 0) + (venta.total || 0);
+                    }
+                });
+
+                const labels = Object.keys(ventasPorDia);
+                const data = Object.values(ventasPorDia);
 
                 this.charts.ventas = new Chart(ctx, {
                     type: 'line',
@@ -405,185 +574,172 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
                             }
                         }
                     }
                 });
             }
 
-            generarGraficoProductos(ventas) {
-                const ctx = document.getElementById('productosChart').getContext('2d');
+            generarGraficoMetodosPago() {
+                const ctx = document.getElementById('metodosPagoChart').getContext('2d');
                 
-                // Contar productos vendidos
-                const productosVendidos = {};
-                ventas.forEach(venta => {
-                    venta.productos?.forEach(prod => {
-                        productosVendidos[prod.nombre] = (productosVendidos[prod.nombre] || 0) + prod.cantidad;
-                    });
+                if (this.charts.metodosPago) {
+                    this.charts.metodosPago.destroy();
+                }
+
+                const metodos = {};
+                this.ventas.forEach(venta => {
+                    const metodo = venta.metodo_pago || 'desconocido';
+                    metodos[metodo] = (metodos[metodo] || 0) + 1;
                 });
 
-                const productosArray = Object.entries(productosVendidos)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 5);
+                const labels = Object.keys(metodos).map(key => this.getMetodoPagoNombre(key));
+                const data = Object.values(metodos);
+                const backgroundColors = ['#ff85a2', '#ffacc7', '#ffd6e0', '#8a2f5a', '#fff0f6'];
 
-                const labels = productosArray.map(([nombre]) => nombre);
-                const data = productosArray.map(([, cantidad]) => cantidad);
+                this.charts.metodosPago = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: backgroundColors,
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
 
+            generarGraficoProductos() {
+                const ctx = document.getElementById('productosChart').getContext('2d');
+                
                 if (this.charts.productos) {
                     this.charts.productos.destroy();
                 }
+
+                // Contar productos vendidos
+                const productosVendidos = {};
+                this.ventas.forEach(venta => {
+                    venta.productos?.forEach(producto => {
+                        const nombre = producto.nombre;
+                        productosVendidos[nombre] = (productosVendidos[nombre] || 0) + producto.cantidad;
+                    });
+                });
+
+                // Ordenar y tomar los 5 más vendidos
+                const topProductos = Object.entries(productosVendidos)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5);
+
+                const labels = topProductos.map(([nombre]) => nombre.substring(0, 15) + (nombre.length > 15 ? '...' : ''));
+                const data = topProductos.map(([,cantidad]) => cantidad);
 
                 this.charts.productos = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Unidades Vendidas',
+                            label: 'Cantidad Vendida',
                             data: data,
-                            backgroundColor: [
-                                '#ff85a2', '#ffacc7', '#ffd6e0', '#8a2f5a', '#5a2a3a'
-                            ],
-                            borderWidth: 0
+                            backgroundColor: '#ff85a2',
+                            borderColor: '#8a2f5a',
+                            borderWidth: 1
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
                             }
                         }
                     }
                 });
             }
 
-            generarGraficoPagos(ventas) {
-                const ctx = document.getElementById('pagosChart').getContext('2d');
+            generarGraficoCategorias() {
+                const ctx = document.getElementById('categoriasChart').getContext('2d');
                 
-                const metodosPago = {};
-                ventas.forEach(venta => {
-                    const metodo = venta.metodo_pago || 'desconocido';
-                    metodosPago[metodo] = (metodosPago[metodo] || 0) + 1;
-                });
-
-                const labels = Object.keys(metodosPago).map(metodo => 
-                    this.getMetodoPagoNombre(metodo)
-                );
-                const data = Object.values(metodosPago);
-
-                if (this.charts.pagos) {
-                    this.charts.pagos.destroy();
+                if (this.charts.categorias) {
+                    this.charts.categorias.destroy();
                 }
 
-                this.charts.pagos = new Chart(ctx, {
-                    type: 'doughnut',
+                // Agrupar ventas por categoría
+                const ventasPorCategoria = {};
+                this.ventas.forEach(venta => {
+                    venta.productos?.forEach(productoVenta => {
+                        const producto = this.productos.find(p => p.id === productoVenta.id);
+                        if (producto && producto.categoria) {
+                            const categoria = producto.categoria;
+                            ventasPorCategoria[categoria] = (ventasPorCategoria[categoria] || 0) + (productoVenta.precio * productoVenta.cantidad);
+                        }
+                    });
+                });
+
+                const labels = Object.keys(ventasPorCategoria).map(key => this.getCategoriaNombre(key));
+                const data = Object.values(ventasPorCategoria);
+                const backgroundColors = ['#ff85a2', '#ffacc7', '#ffd6e0', '#8a2f5a', '#fff0f6'];
+
+                this.charts.categorias = new Chart(ctx, {
+                    type: 'pie',
                     data: {
                         labels: labels,
                         datasets: [{
                             data: data,
-                            backgroundColor: [
-                                '#ff85a2', '#ffacc7', '#ffd6e0', '#8a2f5a'
-                            ],
-                            borderWidth: 0
+                            backgroundColor: backgroundColors,
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
                         }]
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-            }
-
-            generarGraficoInventario() {
-                const ctx = document.getElementById('inventarioChart').getContext('2d');
-                
-                const categorias = {};
-                this.productos.forEach(producto => {
-                    const categoria = producto.categoria || 'sin-categoria';
-                    if (!categorias[categoria]) {
-                        categorias[categoria] = { total: 0, bajoStock: 0, sinStock: 0 };
-                    }
-                    categorias[categoria].total++;
-                    if (producto.cantidad === 0) {
-                        categorias[categoria].sinStock++;
-                    } else if (producto.cantidad < 10) {
-                        categorias[categoria].bajoStock++;
-                    }
-                });
-
-                const labels = Object.keys(categorias).map(cat => this.getCategoriaNombre(cat));
-                const dataTotal = Object.values(categorias).map(cat => cat.total);
-                const dataBajoStock = Object.values(categorias).map(cat => cat.bajoStock);
-                const dataSinStock = Object.values(categorias).map(cat => cat.sinStock);
-
-                if (this.charts.inventario) {
-                    this.charts.inventario.destroy();
-                }
-
-                this.charts.inventario = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Total Productos',
-                                data: dataTotal,
-                                backgroundColor: '#ff85a2'
-                            },
-                            {
-                                label: 'Stock Bajo',
-                                data: dataBajoStock,
-                                backgroundColor: '#ffaa00'
-                            },
-                            {
-                                label: 'Sin Stock',
-                                data: dataSinStock,
-                                backgroundColor: '#ff4444'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
                         maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                stacked: false
-                            },
-                            y: {
-                                stacked: false,
-                                beginAtZero: true
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
                             }
                         }
                     }
-                });
-            }
-
-            mostrarDetalle(ventas) {
-                const tbody = document.getElementById('detalleReporte');
-                tbody.innerHTML = '';
-
-                ventas.forEach(venta => {
-                    const productosText = venta.productos?.map(p => 
-                        `${p.nombre} (${p.cantidad})`
-                    ).join(', ') || 'N/A';
-
-                    const totalProductos = venta.productos?.reduce((sum, prod) => sum + prod.cantidad, 0) || 0;
-
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${venta.fecha_venta ? new Date(venta.fecha_venta.toDate()).toLocaleDateString() : 'N/A'}</td>
-                        <td>${venta.id.substring(0, 8)}...</td>
-                        <td>${venta.cliente || 'Cliente General'}</td>
-                        <td>${productosText}</td>
-                        <td>${totalProductos}</td>
-                        <td>$${venta.total?.toFixed(2) || '0.00'}</td>
-                        <td><span class="badge bg-secondary">${this.getMetodoPagoNombre(venta.metodo_pago)}</span></td>
-                    `;
-                    tbody.appendChild(row);
                 });
             }
 
@@ -603,20 +759,44 @@
                     'calzado': 'Calzado',
                     'accesorios': 'Accesorios',
                     'equipamiento': 'Equipamiento',
-                    'suplementos': 'Suplementos',
-                    'sin-categoria': 'Sin Categoría'
+                    'suplementos': 'Suplementos'
                 };
                 return categorias[categoria] || categoria;
             }
 
-            generarReportePDF() {
-                alert('✅ Función de exportación PDF lista para implementar');
-                // Aquí puedes integrar una librería como jsPDF
+            mostrarDetalleVentas() {
+                const tbody = document.getElementById('detalleVentasTable');
+                tbody.innerHTML = '';
+
+                this.ventas.forEach(venta => {
+                    const productosText = venta.productos?.map(p => 
+                        `${p.nombre} (${p.cantidad})`
+                    ).join(', ') || 'N/A';
+
+                    const totalProductos = venta.productos?.reduce((sum, p) => sum + p.cantidad, 0) || 0;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${venta.fecha_venta ? new Date(venta.fecha_venta.toDate()).toLocaleDateString() : 'N/A'}</td>
+                        <td>${venta.id.substring(0, 8)}...</td>
+                        <td>${venta.cliente || 'Cliente General'}</td>
+                        <td>${productosText}</td>
+                        <td>${totalProductos}</td>
+                        <td>$${venta.total?.toFixed(2) || '0.00'}</td>
+                        <td><span class="badge bg-secondary">${this.getMetodoPagoNombre(venta.metodo_pago)}</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            exportarPDF() {
+                alert('Funcionalidad de exportación PDF en desarrollo');
+                // En una implementación real, aquí se generaría un PDF con los reportes
             }
 
             exportarExcel() {
-                alert('✅ Función de exportación Excel lista para implementar');
-                // Aquí puedes integrar una librería como SheetJS
+                alert('Funcionalidad de exportación Excel en desarrollo');
+                // En una implementación real, aquí se generaría un archivo Excel con los datos
             }
 
             async logout() {

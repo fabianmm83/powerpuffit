@@ -31,12 +31,15 @@
             position: fixed;
             left: 0;
             top: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
         }
 
         .main-content {
             margin-left: 280px;
             padding: 20px;
             min-height: 100vh;
+            transition: margin-left 0.3s ease;
         }
 
         .card {
@@ -55,12 +58,99 @@
             border-left: 4px solid var(--primary-color);
             background-color: var(--light-color);
         }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .d-flex.justify-content-between h2 {
+                text-align: center;
+            }
+            
+            .row.mb-4 .col-md-3 {
+                margin-bottom: 15px;
+            }
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 1.2rem;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="overlay" id="overlay"></div>
+    
     <div class="app-container">
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-brand p-3 text-center">
                 <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
                 <h5>PowerPuffFit</h5>
@@ -86,7 +176,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="main-content">
+        <div class="main-content" id="mainContent">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="mb-0">Registro de Ventas</h2>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ventaModal">
@@ -96,7 +186,7 @@
 
             <!-- Resumen de Ventas -->
             <div class="row mb-4">
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-6 mb-3">
                     <div class="card text-center">
                         <div class="card-body">
                             <h3 class="text-primary" id="totalVentasHoy">0</h3>
@@ -104,7 +194,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-6 mb-3">
                     <div class="card text-center">
                         <div class="card-body">
                             <h3 class="text-success" id="ingresosHoy">$0</h3>
@@ -112,7 +202,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-6 mb-3">
                     <div class="card text-center">
                         <div class="card-body">
                             <h3 class="text-info" id="totalVentasMes">0</h3>
@@ -120,7 +210,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-6 mb-3">
                     <div class="card text-center">
                         <div class="card-body">
                             <h3 class="text-warning" id="ingresosMes">$0</h3>
@@ -166,7 +256,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-lg-8 mb-3">
                             <h6>Seleccionar Productos</h6>
                             <div class="mb-3">
                                 <input type="text" class="form-control" id="searchProduct" placeholder="Buscar producto...">
@@ -175,7 +265,7 @@
                                 <!-- Lista de productos -->
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-lg-4">
                             <h6>Detalles de la Venta</h6>
                             <form id="ventaForm">
                                 <div class="mb-3">
@@ -273,6 +363,17 @@
                     this.actualizarCarrito();
                     this.filtrarProductos();
                 });
+
+                // Responsive sidebar toggle
+                document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
+                document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
+            }
+
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
             }
 
             async cargarProductos() {
@@ -351,7 +452,7 @@
 
                 productosFiltrados.forEach(producto => {
                     const productCard = document.createElement('div');
-                    productCard.className = 'col-md-6';
+                    productCard.className = 'col-md-6 col-sm-12 mb-2';
                     productCard.innerHTML = `
                         <div class="card sale-item p-2">
                             <div class="d-flex justify-content-between align-items-start">
