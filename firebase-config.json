@@ -1,0 +1,8 @@
+{
+  "apiKey": "tu-api-key",
+  "authDomain": "powerpuffit.firebaseapp.com",
+  "projectId": "powerpuffit",
+  "storageBucket": "powerpuffit.appspot.com",
+  "messagingSenderId": "123456789",
+  "appId": "tu-app-id"
+}
