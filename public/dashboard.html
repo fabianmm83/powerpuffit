@@ -184,244 +184,237 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+    import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
-        // Configuración de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDJIhyjLP2EEcg7RKgLHREmMosKA5cL6Qw",
-            authDomain: "powerpuffit.firebaseapp.com",
-            projectId: "powerpuffit",
-            storageBucket: "powerpuffit.appspot.com",
-            messagingSenderId: "450568163513",
-            appId: "1:450568163513:web:ee8ccfa9fbfe1075d34b68"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDJIhyjLP2EEcg7RKgLHREmMosKA5cL6Qw",
+        authDomain: "powerpuffit.firebaseapp.com",
+        projectId: "powerpuffit",
+        storageBucket: "powerpuffit.appspot.com",
+        messagingSenderId: "450568163513",
+        appId: "1:450568163513:web:ee8ccfa9fbfe1075d34b68"
+    };
 
-        class Dashboard {
-            constructor() {
-                this.app = initializeApp(firebaseConfig);
-                this.db = getFirestore(this.app);
-                this.auth = getAuth(this.app);
-                this.init();
+    class Dashboard {
+        constructor() {
+            this.app = initializeApp(firebaseConfig);
+            this.db = getFirestore(this.app);
+            this.auth = getAuth(this.app);
+            this.init();
+        }
+
+        async init() {
+            this.initEventListeners();
+            await this.checkAuthentication();
+            await this.testFirestoreConnection();
+            await this.loadStatistics();
+        }
+
+        async checkAuthentication() {
+            console.log("🔐 Verificando autenticación...");
+            
+            // PRIMERO: Verificar localStorage (modo demo)
+            const localUser = localStorage.getItem('powerpuffit_user');
+            if (localUser) {
+                const userData = JSON.parse(localUser);
+                console.log("✅ Usuario encontrado en localStorage:", userData);
+                this.displayUserInfo(userData);
+                return true;
             }
-
-            async init() {
-                this.initEventListeners();
-                await this.checkAuth();
-                await this.testFirestoreConnection();
-            }
-
-            async checkAuth() {
-                console.log("🔐 Verificando autenticación...");
-                
+            
+            // SEGUNDO: Verificar Firebase Auth
+            return new Promise((resolve) => {
                 onAuthStateChanged(this.auth, (user) => {
                     const authStatus = document.getElementById('authStatus');
                     
                     if (user) {
-                        console.log("✅ Usuario autenticado:", user);
+                        console.log("✅ Usuario autenticado con Firebase:", user);
                         authStatus.className = 'alert alert-success';
                         authStatus.innerHTML = `
-                            <strong>✅ CONECTADO</strong><br>
+                            <strong>✅ FIREBASE AUTH</strong><br>
                             Email: ${user.email}<br>
                             UID: ${user.uid}
                         `;
                         this.displayUserInfo(user);
-                        this.loadStatistics();
+                        resolve(true);
                     } else {
                         console.log("❌ No hay usuario autenticado");
-                        authStatus.className = 'alert alert-danger';
+                        authStatus.className = 'alert alert-warning';
                         authStatus.innerHTML = `
-                            <strong>❌ NO AUTENTICADO</strong><br>
-                            Redirigiendo al login...
+                            <strong>🔐 MODO DEMO</strong><br>
+                            Usando autenticación local
                         `;
                         
-                        // Redirigir después de 2 segundos
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 2000);
+                        // Crear usuario demo automáticamente
+                        const demoUser = {
+                            uid: 'demo-user-' + Date.now(),
+                            email: 'demo@powerpufffit.com',
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        localStorage.setItem('powerpuffit_user', JSON.stringify(demoUser));
+                        this.displayUserInfo(demoUser);
+                        resolve(true);
                     }
                 });
-            }
+            });
+        }
 
-            displayUserInfo(user) {
-                const userName = document.getElementById('userName');
-                const userAvatar = document.getElementById('userAvatar');
-                const welcomeMessage = document.getElementById('welcomeMessage');
-                
-                if (user.displayName) {
-                    userName.textContent = user.displayName;
-                    userAvatar.textContent = user.displayName.charAt(0).toUpperCase();
-                } else {
-                    userName.textContent = user.email;
-                    userAvatar.textContent = user.email.charAt(0).toUpperCase();
-                }
-                
-                welcomeMessage.textContent = `Hola ${user.email}, bienvenido al sistema de gestión PowerPuffFit.`;
-            }
+        displayUserInfo(user) {
+            const userName = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+            const userStatus = document.getElementById('userStatus');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            
+            const email = user.email || user.mail || 'usuario@powerpufffit.com';
+            const displayName = user.displayName || email.split('@')[0];
+            
+            userName.textContent = displayName;
+            userAvatar.textContent = displayName.charAt(0).toUpperCase();
+            userStatus.textContent = user.source === 'firebase' ? 'Firebase Auth' : 'Modo Demo';
+            
+            welcomeMessage.textContent = `Hola ${displayName}, bienvenido al sistema de gestión PowerPuffFit.`;
+        }
 
-            initEventListeners() {
-                // Logout
-                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
-                
-                // Test buttons
-                document.getElementById('testAuthBtn').addEventListener('click', () => this.testAuth());
-                document.getElementById('testFirestoreBtn').addEventListener('click', () => this.testFirestore());
-                
-                // Navigation links (por ahora solo muestran alertas)
-                const navLinks = ['inventarioLink', 'tiendaLink', 'ventasLink', 'productosLink', 
-                                'addProductBtn', 'newSaleBtn', 'viewInventoryBtn', 'reportsBtn'];
-                
-                navLinks.forEach(linkId => {
-                    document.getElementById(linkId).addEventListener('click', (e) => {
+        initEventListeners() {
+            // Logout mejorado
+            document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+            
+            // Test buttons
+            document.getElementById('testAuthBtn').addEventListener('click', () => this.testAuth());
+            document.getElementById('testFirestoreBtn').addEventListener('click', () => this.testFirestore());
+            
+            // Navigation links
+            const navLinks = ['inventarioLink', 'tiendaLink', 'ventasLink', 'productosLink', 
+                            'addProductBtn', 'newSaleBtn', 'viewInventoryBtn', 'reportsBtn'];
+            
+            navLinks.forEach(linkId => {
+                const element = document.getElementById(linkId);
+                if (element) {
+                    element.addEventListener('click', (e) => {
                         e.preventDefault();
                         alert(`🚧 ${linkId.replace('Link', '').replace('Btn', '')} - Esta funcionalidad está en desarrollo`);
                     });
-                });
+                }
+            });
+        }
+
+        async logout() {
+            try {
+                // Limpiar localStorage
+                localStorage.removeItem('powerpuffit_user');
+                
+                // Intentar cerrar sesión de Firebase si existe
+                await signOut(this.auth);
+                
+                console.log("✅ Sesión cerrada exitosamente");
+                window.location.href = 'index.html';
+                
+            } catch (error) {
+                console.error('❌ Error al cerrar sesión:', error);
+                // Redirigir de todas formas
+                window.location.href = 'index.html';
             }
+        }
 
+        async testAuth() {
+            const localUser = localStorage.getItem('powerpuffit_user');
+            const firebaseUser = this.auth.currentUser;
+            
+            if (firebaseUser) {
+                alert(`✅ Firebase Auth funcionando\nUsuario: ${firebaseUser.email}\nUID: ${firebaseUser.uid}`);
+            } else if (localUser) {
+                const userData = JSON.parse(localUser);
+                alert(`🎮 Modo Demo activo\nUsuario: ${userData.email}\nFuente: ${userData.source || 'local'}`);
+            } else {
+                alert('❌ No hay usuario autenticado');
+            }
+        }
 
+        async testFirestoreConnection() {
+            try {
+                const firestoreStatus = document.getElementById('firestoreStatus');
+                firestoreStatus.className = 'alert alert-warning';
+                firestoreStatus.innerHTML = 'Probando conexión con Firestore...';
+                
+                const snapshot = await getDocs(collection(this.db, "productos"));
+                
+                firestoreStatus.className = 'alert alert-success';
+                firestoreStatus.innerHTML = `
+                    <strong>✅ FIRESTORE CONECTADO</strong><br>
+                    Productos en la base de datos: ${snapshot.size}
+                `;
+                
+                console.log("✅ Firestore conectado correctamente");
+                
+            } catch (error) {
+                console.error("❌ Error conectando a Firestore:", error);
+                const firestoreStatus = document.getElementById('firestoreStatus');
+                firestoreStatus.className = 'alert alert-danger';
+                firestoreStatus.innerHTML = `
+                    <strong>❌ ERROR EN FIRESTORE</strong><br>
+                    ${error.message}
+                `;
+            }
+        }
 
-            async testFirestoreConnection() {
-    try {
-        const firestoreStatus = document.getElementById('firestoreStatus');
-        firestoreStatus.className = 'alert alert-warning';
-        firestoreStatus.innerHTML = 'Probando conexión...';
-        
-        // Primero verificar si podemos acceder a la colección
-        const snapshot = await getDocs(collection(this.db, "productos"));
-        
-        firestoreStatus.className = 'alert alert-success';
-        firestoreStatus.innerHTML = `
-            <strong>✅ FIRESTORE CONECTADO</strong><br>
-            Productos en la base de datos: ${snapshot.size}
-        `;
-        
-        console.log("✅ Firestore conectado correctamente");
-        
-    } catch (error) {
-        console.error("❌ Error conectando a Firestore:", error);
-        const firestoreStatus = document.getElementById('firestoreStatus');
-        
-        if (error.code === 'permission-denied') {
-            firestoreStatus.className = 'alert alert-danger';
-            firestoreStatus.innerHTML = `
-                <strong>❌ PERMISO DENEGADO</strong><br>
-                Las reglas de Firestore están bloqueando el acceso.<br>
-                <small>Error: ${error.message}</small>
-            `;
-        } else {
-            firestoreStatus.className = 'alert alert-danger';
-            firestoreStatus.innerHTML = `
-                <strong>❌ ERROR EN FIRESTORE</strong><br>
-                ${error.message}
-            `;
+        async testFirestore() {
+            try {
+                const testProduct = {
+                    nombre: "Producto Test " + new Date().toLocaleTimeString(),
+                    descripcion: "Producto de prueba creado desde el dashboard",
+                    precio: Math.random() * 100 + 10,
+                    cantidad: Math.floor(Math.random() * 50) + 1,
+                    categoria: "pruebas",
+                    activo: true,
+                    fecha_creacion: new Date()
+                };
+
+                const docRef = await addDoc(collection(this.db, "productos"), testProduct);
+                alert(`✅ Producto de prueba creado exitosamente\nID: ${docRef.id}\nNombre: ${testProduct.nombre}`);
+                
+                // Actualizar estadísticas
+                this.loadStatistics();
+                
+            } catch (error) {
+                console.error("❌ Error creando producto de prueba:", error);
+                alert("❌ Error: " + error.message);
+            }
+        }
+
+        async loadStatistics() {
+            try {
+                // Total productos
+                const productsSnapshot = await getDocs(collection(this.db, "productos"));
+                document.getElementById('totalProductos').textContent = productsSnapshot.size;
+
+                // Productos con stock bajo
+                const lowStockQuery = query(
+                    collection(this.db, "productos"), 
+                    where("cantidad", "<", 10)
+                );
+                const lowStockSnapshot = await getDocs(lowStockQuery);
+                document.getElementById('stockBajo').textContent = lowStockSnapshot.size;
+
+                // Datos de ejemplo
+                document.getElementById('totalVentas').textContent = productsSnapshot.size * 3;
+                document.getElementById('ingresosTotales').textContent = `$${(productsSnapshot.size * 149.99).toFixed(2)}`;
+
+            } catch (error) {
+                console.error("❌ Error cargando estadísticas:", error);
+            }
         }
     }
-}
 
+    // Inicializar el dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+        window.dashboard = new Dashboard();
+    });
+</script>
 
-            async logout() {
-                try {
-                    await signOut(this.auth);
-                    console.log("✅ Sesión cerrada exitosamente");
-                } catch (error) {
-                    console.error('❌ Error al cerrar sesión:', error);
-                    alert('Error al cerrar sesión: ' + error.message);
-                }
-            }
-
-            async testAuth() {
-                const user = this.auth.currentUser;
-                if (user) {
-                    alert(`✅ Autenticación funcionando\nUsuario: ${user.email}\nUID: ${user.uid}`);
-                } else {
-                    alert('❌ No hay usuario autenticado');
-                }
-            }
-
-            async testFirestoreConnection() {
-                try {
-                    const firestoreStatus = document.getElementById('firestoreStatus');
-                    firestoreStatus.className = 'alert alert-warning';
-                    firestoreStatus.innerHTML = 'Probando conexión...';
-                    
-                    // Intentar leer la colección de productos
-                    const snapshot = await getDocs(collection(this.db, "productos"));
-                    
-                    firestoreStatus.className = 'alert alert-success';
-                    firestoreStatus.innerHTML = `
-                        <strong>✅ FIRESTORE CONECTADO</strong><br>
-                        Productos en la base de datos: ${snapshot.size}
-                    `;
-                    
-                    console.log("✅ Firestore conectado correctamente");
-                    
-                } catch (error) {
-                    console.error("❌ Error conectando a Firestore:", error);
-                    const firestoreStatus = document.getElementById('firestoreStatus');
-                    firestoreStatus.className = 'alert alert-danger';
-                    firestoreStatus.innerHTML = `
-                        <strong>❌ ERROR EN FIRESTORE</strong><br>
-                        ${error.message}
-                    `;
-                }
-            }
-
-            async testFirestore() {
-                try {
-                    // Crear un producto de prueba
-                    const testProduct = {
-                        nombre: "Producto Test " + new Date().getTime(),
-                        descripcion: "Producto de prueba creado desde el dashboard",
-                        precio: 99.99,
-                        cantidad: 10,
-                        categoria: "pruebas",
-                        activo: true,
-                        fecha_creacion: new Date()
-                    };
-
-                    const docRef = await addDoc(collection(this.db, "productos"), testProduct);
-                    alert(`✅ Producto de prueba creado exitosamente\nID: ${docRef.id}`);
-                    
-                    // Actualizar estadísticas
-                    this.loadStatistics();
-                    
-                } catch (error) {
-                    console.error("❌ Error creando producto de prueba:", error);
-                    alert("❌ Error: " + error.message);
-                }
-            }
-
-            async loadStatistics() {
-                try {
-                    // Total productos
-                    const productsSnapshot = await getDocs(collection(this.db, "productos"));
-                    document.getElementById('totalProductos').textContent = productsSnapshot.size;
-
-                    // Productos con stock bajo
-                    const lowStockQuery = query(
-                        collection(this.db, "productos"), 
-                        where("cantidad", "<", 10)
-                    );
-                    const lowStockSnapshot = await getDocs(lowStockQuery);
-                    document.getElementById('stockBajo').textContent = lowStockSnapshot.size;
-
-                    // Datos de ejemplo para ventas (por ahora)
-                    document.getElementById('totalVentas').textContent = productsSnapshot.size * 2;
-                    document.getElementById('ingresosTotales').textContent = `$${(productsSnapshot.size * 199.99).toFixed(2)}`;
-
-                } catch (error) {
-                    console.error("❌ Error cargando estadísticas:", error);
-                }
-            }
-        }
-
-        // Inicializar el dashboard
-        document.addEventListener('DOMContentLoaded', () => {
-            window.dashboard = new Dashboard();
-        });
-    </script>
 </body>
 </html>
