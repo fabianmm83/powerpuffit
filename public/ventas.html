@@ -351,9 +351,16 @@
                             <h6>Detalles de la Venta</h6>
                             <form id="ventaForm">
                                 <div class="mb-3">
-                                    <label class="form-label">Cliente</label>
-                                    <input type="text" class="form-control" id="cliente" placeholder="Nombre del cliente">
-                                </div>
+    <label class="form-label">Cliente</label>
+    <div class="input-group">
+        <select class="form-select" id="clienteSelect">
+            <option value="">Seleccionar cliente...</option>
+        </select>
+        <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#clienteModal">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+</div>
                                 <div class="mb-3">
                                     <label class="form-label">Método de Pago</label>
                                     <select class="form-select" id="metodo_pago">
@@ -377,11 +384,40 @@
                                 <strong>Total:</strong>
                                 <span id="totalVenta" class="h5 text-primary">$0.00</span>
                             </div>
+                            <div class="mb-3">
+    <label class="form-label">Descuento</label>
+    <div class="input-group">
+        <input type="number" class="form-control" id="descuento" placeholder="0" min="0" step="0.01">
+        <select class="form-select" id="tipoDescuento" style="max-width: 120px;">
+            <option value="porcentaje">%</option>
+            <option value="monto">$</option>
+        </select>
+        <button class="btn btn-outline-secondary" type="button" id="aplicarDescuento">
+            Aplicar
+        </button>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <strong>Subtotal:</strong>
+    <span id="subtotalVenta" class="text-muted">$0.00</span>
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <strong>Descuento:</strong>
+    <span id="montoDescuento" class="text-danger">$0.00</span>
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
+    <strong>Total:</strong>
+    <span id="totalVenta" class="h5 text-primary">$0.00</span>
+</div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                     <button type="button" class="btn btn-success" id="imprimirTicketBtn">
+        <i class="fas fa-receipt me-2"></i>Imprimir Ticket
+    </button>
                     <button type="button" class="btn btn-primary" id="finalizarVentaBtn">Finalizar Venta</button>
                 </div>
             </div>
@@ -411,6 +447,8 @@
                 this.productos = [];
                 this.ventas = [];
                 this.carrito = [];
+                this.clientes = [];
+                this.montoDescuento = 0;
                 this.init();
             }
 
@@ -437,6 +475,7 @@
             initEventListeners() {
                 document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
                 document.getElementById('finalizarVentaBtn').addEventListener('click', () => this.finalizarVenta());
+                 document.getElementById('imprimirTicketBtn').addEventListener('click', () => this.generarTicket());
                 document.getElementById('searchProduct').addEventListener('input', () => this.filtrarProductos());
                 
                 // Configurar el modal
@@ -487,6 +526,78 @@
                 }
             }
 
+
+
+             async cargarClientes() {
+        try {
+            const q = query(collection(this.db, "clientes"), orderBy("nombre"));
+            const snapshot = await getDocs(q);
+            this.clientes = [];
+            snapshot.forEach((doc) => {
+                this.clientes.push({ id: doc.id, ...doc.data() });
+            });
+            this.mostrarClientesEnSelect();
+        } catch (error) {
+            console.error("Error cargando clientes:", error);
+        }
+    }
+
+    mostrarClientesEnSelect() {
+        const select = document.getElementById('clienteSelect');
+        select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+        
+        this.clientes.forEach(cliente => {
+            const option = document.createElement('option');
+            option.value = cliente.id;
+            option.textContent = `${cliente.nombre} - ${cliente.email || ''}`;
+            select.appendChild(option);
+        });
+    }
+
+    async crearCliente(clienteData) {
+        try {
+            const docRef = await addDoc(collection(this.db, "clientes"), {
+                ...clienteData,
+                fecha_registro: new Date(),
+                total_compras: 0,
+                ultima_compra: null
+            });
+            return docRef.id;
+        } catch (error) {
+            console.error("Error creando cliente:", error);
+            throw error;
+        }
+    }
+
+
+
+
+    aplicarDescuento() {
+    const descuento = parseFloat(document.getElementById('descuento').value) || 0;
+    const tipo = document.getElementById('tipoDescuento').value;
+    const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    
+    let montoDescuento = 0;
+    
+    if (tipo === 'porcentaje') {
+        montoDescuento = subtotal * (descuento / 100);
+    } else {
+        montoDescuento = Math.min(descuento, subtotal);
+    }
+    
+    this.montoDescuento = montoDescuento;
+    this.actualizarTotales();
+}
+
+actualizarTotales() {
+    const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    const total = subtotal - this.montoDescuento;
+    
+    document.getElementById('subtotalVenta').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('montoDescuento').textContent = `-$${this.montoDescuento.toFixed(2)}`;
+    document.getElementById('totalVenta').textContent = `$${total.toFixed(2)}`;
+}
+
             async cargarProductos() {
                 try {
                     const querySnapshot = await getDocs(collection(this.db, "productos"));
@@ -502,6 +613,148 @@
                 }
             }
 
+
+
+            async actualizarHistorialCliente(ventaData) {
+    if (ventaData.clienteId) {
+        const clienteRef = doc(this.db, "clientes", ventaData.clienteId);
+        const cliente = this.clientes.find(c => c.id === ventaData.clienteId);
+        
+        await updateDoc(clienteRef, {
+            total_compras: (cliente.total_compras || 0) + 1,
+            monto_total: (cliente.monto_total || 0) + ventaData.total,
+            ultima_compra: new Date()
+        });
+    }
+}
+
+async obtenerComprasRecurrentes() {
+    const clientesFrecuentes = this.clientes
+        .filter(cliente => cliente.total_compras > 1)
+        .sort((a, b) => b.total_compras - a.total_compras)
+        .slice(0, 10);
+    
+    return clientesFrecuentes;
+}
+
+
+// En la clase VentasManager, agrega este método
+generarTicket() {
+    if (this.carrito.length === 0) {
+        alert('No hay productos en el carrito para generar ticket');
+        return;
+    }
+
+    const cliente = document.getElementById('clienteSelect').value;
+    const clienteNombre = this.clientes.find(c => c.id === cliente)?.nombre || 'Cliente General';
+    const metodoPago = document.getElementById('metodo_pago').value;
+    const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    const total = subtotal - this.montoDescuento;
+
+    const ticketContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ticket de Venta</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            font-size: 12px; 
+            padding: 10px;
+            margin: 0;
+        }
+        .ticket { 
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+        }
+        .producto {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        .total {
+            border-top: 1px dashed #000;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket">
+        <div class="header">
+            <h3 style="margin: 0; font-size: 14px;">PowerPuffFit</h3>
+            <p style="margin: 2px 0;">Tienda Deportiva</p>
+            <p style="margin: 2px 0;">${new Date().toLocaleString()}</p>
+            <p style="margin: 2px 0;">Cliente: ${clienteNombre}</p>
+        </div>
+        
+        <div class="productos">
+            ${this.carrito.map(item => `
+                <div class="producto">
+                    <div>
+                        ${item.nombre.substring(0, 20)}${item.nombre.length > 20 ? '...' : ''}
+                        <br>
+                        <small>$${item.precio.toFixed(2)} x ${item.cantidad}</small>
+                    </div>
+                    <div>$${(item.precio * item.cantidad).toFixed(2)}</div>
+                </div>
+            `).join('')}
+        </div>
+        
+        ${this.montoDescuento > 0 ? `
+            <div class="producto">
+                <div>Subtotal:</div>
+                <div>$${subtotal.toFixed(2)}</div>
+            </div>
+            <div class="producto">
+                <div>Descuento:</div>
+                <div>-$${this.montoDescuento.toFixed(2)}</div>
+            </div>
+        ` : ''}
+        
+        <div class="producto total">
+            <div>TOTAL:</div>
+            <div>$${total.toFixed(2)}</div>
+        </div>
+        
+        <div style="margin-top: 8px; text-align: center;">
+            <small>Método: ${this.getMetodoPagoNombre(metodoPago)}</small>
+        </div>
+        
+        <div class="footer">
+            <p style="margin: 5px 0;">¡Gracias por su compra!</p>
+            <p style="margin: 5px 0;">Vuelva pronto</p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
+    // Crear ventana para imprimir
+    const ventana = window.open('', '_blank', 'width=350,height=600');
+    ventana.document.write(ticketContent);
+    ventana.document.close();
+    
+    // Esperar a que cargue el contenido y luego imprimir
+    ventana.onload = function() {
+        ventana.print();
+        // Cerrar ventana después de imprimir (opcional)
+        // ventana.close();
+    };
+}
             async cargarVentas() {
                 try {
                     const q = query(collection(this.db, "ventas"), orderBy("fecha_venta", "desc"));
