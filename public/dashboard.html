@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    
     <style>
     :root {
         --primary-color: #ff85a2;
@@ -39,42 +38,133 @@
         min-height: 100vh;
     }
 
-        /* Sidebar */
+    /* Sidebar - Actualizado para coincidir con inventario */
     .sidebar {
         background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-color) 100%);
         color: white;
         width: 280px;
         min-height: 100vh;
-        box-shadow: 3px 0 15px rgba(138, 47, 90, 0.2);
         position: fixed;
         left: 0;
         top: 0;
         z-index: 1000;
-        transition: all 0.3s ease;
-        overflow-y: auto;
-        height: 100vh;
+        transition: transform 0.3s ease;
     }
 
-    .sidebar.collapsed {
-        width: 80px;
-    }
-
-    /* Main Content */
     .main-content {
         margin-left: 280px;
         padding: 20px;
-        transition: all 0.3s ease;
         min-height: 100vh;
+        transition: margin-left 0.3s ease;
         width: calc(100% - 280px);
         background: linear-gradient(135deg, #fff0f6 0%, #ffeef5 100%);
     }
 
-    .sidebar.collapsed ~ .main-content {
-        margin-left: 80px;
-        width: calc(100% - 80px);
+    .sidebar-brand {
+        padding: 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-        .navbar-top {
+    .sidebar-brand img {
+        height: 50px;
+        border-radius: 50%;
+        margin-bottom: 10px;
+    }
+
+    .sidebar-brand h5 {
+        margin-bottom: 0;
+        font-weight: 600;
+    }
+
+    .sidebar-brand small {
+        opacity: 0.8;
+        font-size: 0.8rem;
+    }
+
+    .nav-link {
+        color: white !important;
+        padding: 0.8rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding-left: 2rem;
+    }
+
+    .nav-link i {
+        width: 20px;
+        margin-right: 10px;
+    }
+
+    .nav-link.text-danger:hover {
+        background-color: rgba(220, 53, 69, 0.2);
+    }
+
+    /* Responsive styles */
+    @media (max-width: 992px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .main-content {
+            margin-left: 0;
+        }
+        
+        .sidebar-toggle {
+            display: block !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 15px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 10px;
+        }
+    }
+
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1100;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 12px;
+        font-size: 1.2rem;
+    }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .overlay.active {
+        display: block;
+    }
+
+    /* Resto de estilos del dashboard */
+    .navbar-top {
         background: white;
         box-shadow: 0 2px 15px rgba(138, 47, 90, 0.1);
         border-radius: 15px;
@@ -291,332 +381,11 @@
         font-size: 1.8rem;
     }
 
-    /* Mobile Header */
-    .mobile-header {
-        display: none;
-        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        padding: 1rem;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 999;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .mobile-header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    }
-
-    .mobile-menu-btn {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        padding: 0.5rem;
-    }
-
     /* Status Alerts */
     .status-alert {
         border-radius: 12px;
         border: none;
         margin-bottom: 1rem;
-    }
-
-    /* Sidebar Overlay para móvil */
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 998;
-        display: none;
-    }
-
-    /* ===== RESPONSIVE DESIGN ===== */
-
-    /* Tablets grandes y laptops pequeñas */
-    @media (max-width: 1200px) {
-        .sidebar {
-            width: 250px;
-        }
-        
-        .main-content {
-            margin-left: 250px;
-            width: calc(100% - 250px);
-        }
-        
-        .sidebar.collapsed ~ .main-content {
-            margin-left: 80px;
-            width: calc(100% - 80px);
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-        }
-        
-        .stat-icon {
-            font-size: 2.5rem;
-        }
-        
-        .chart-container {
-            padding: 1.5rem;
-        }
-    }
-
-        /* Tablets */
-    @media (max-width: 992px) {
-        .sidebar {
-            transform: translateX(-100%);
-            width: 280px;
-            z-index: 1000;
-        }
-        
-        .sidebar.mobile-open {
-            transform: translateX(0);
-            box-shadow: 5px 0 25px rgba(0,0,0,0.3);
-        }
-        
-        .main-content {
-            margin-left: 0 !important;
-            width: 100% !important;
-            padding: 20px;
-            padding-top: 80px; /* Espacio para el mobile header */
-        }
-        
-        .mobile-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .quick-actions {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        
-        .navbar-top {
-            flex-direction: column;
-            gap: 1rem;
-            text-align: center;
-            margin-top: 0;
-        }
-        
-        .toggle-sidebar {
-            display: none;
-        }
-        
-        .stat-card {
-            margin-bottom: 1rem;
-        }
-        
-        /* Asegurar que el contenido sea accesible */
-        body {
-            overflow-x: hidden;
-        }
-    }
-
-    /* Tablets pequeñas y móviles grandes */
-    @media (max-width: 768px) {
-        .main-content {
-            padding: 15px;
-            padding-top: 70px;
-        }
-        
-        .navbar-top {
-            margin-bottom: 1.5rem;
-        }
-        
-        /* Ajustar el grid para mejor visualización */
-        .row.g-4 {
-            margin-left: -0.5rem;
-            margin-right: -0.5rem;
-        }
-        
-        .row.g-4 > [class*="col-"] {
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }
-    }
-    /* Tablets pequeñas y móviles grandes */
-    @media (max-width: 768px) {
-        .quick-actions {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-        
-        .stat-card {
-            padding: 1.5rem;
-        }
-        
-        .chart-container, .activity-list {
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .main-content {
-            padding: 15px;
-        }
-        
-        .section-title {
-            font-size: 1.3rem;
-            margin-bottom: 1.2rem;
-        }
-        
-        .activity-item {
-            padding: 1rem 0;
-        }
-        
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            margin-right: 1rem;
-            font-size: 1rem;
-        }
-        
-        .navbar-top {
-            padding: 1rem;
-        }
-        
-        .row.g-4 {
-            gap: 1rem !important;
-        }
-    }
-
-    /* Móviles */
-    @media (max-width: 576px) {
-        .stat-number {
-            font-size: 1.8rem;
-        }
-        
-        .stat-icon {
-            font-size: 2.2rem;
-        }
-        
-        .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-        }
-        
-        .activity-item {
-            padding: 0.8rem 0;
-        }
-        
-        .activity-title {
-            font-size: 0.9rem;
-        }
-        
-        .activity-time {
-            font-size: 0.8rem;
-        }
-        
-        .action-btn {
-            padding: 1.2rem 0.8rem;
-        }
-        
-        .action-btn i {
-            font-size: 1.5rem;
-        }
-        
-        .action-btn span {
-            font-size: 0.9rem;
-        }
-        
-        .btn {
-            font-size: 0.85rem;
-            padding: 0.5rem 0.8rem;
-        }
-        
-        .stat-card::before {
-            height: 3px;
-        }
-        
-        .user-info {
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            font-size: 1.1rem;
-        }
-    }
-
-    /* Móviles muy pequeños */
-    @media (max-width: 480px) {
-        .main-content {
-            padding: 10px;
-        }
-        
-        .navbar-top {
-            padding: 0.8rem;
-            margin-bottom: 1rem;
-        }
-        
-        .chart-container, .activity-list {
-            padding: 1rem;
-        }
-        
-        .chart-container canvas {
-            max-height: 200px;
-        }
-        
-        .stat-card {
-            padding: 1.2rem;
-        }
-        
-        .stat-number {
-            font-size: 1.6rem;
-        }
-        
-        .stat-icon {
-            font-size: 2rem;
-        }
-        
-        .mobile-header {
-            padding: 0.8rem;
-        }
-        
-        .mobile-user-avatar {
-            width: 32px !important;
-            height: 32px !important;
-            font-size: 0.9rem !important;
-        }
-    }
-
-    /* Tablets en orientación horizontal */
-    @media (max-width: 1024px) and (min-width: 993px) {
-        .sidebar {
-            width: 240px;
-        }
-        
-        .main-content {
-            margin-left: 240px;
-            width: calc(100% - 240px);
-        }
-        
-        .sidebar.collapsed ~ .main-content {
-            margin-left: 70px;
-            width: calc(100% - 70px);
-        }
-    }
-
-    /* Tablets en orientación vertical */
-    @media (max-width: 992px) and (min-width: 768px) {
-        .quick-actions {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        
-        .stat-card {
-            padding: 1.5rem;
-        }
     }
 
     /* Mejoras de accesibilidad */
@@ -633,17 +402,6 @@
     .btn:focus {
         outline: 2px solid var(--primary-color);
         outline-offset: 2px;
-    }
-
-    /* Scroll suave para móvil */
-    @media (max-width: 768px) {
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        .main-content {
-            overflow-x: hidden;
-        }
     }
 
     /* Loading states */
@@ -681,78 +439,56 @@
         height: auto !important;
     }
 </style>
-
-
 </head>
 <body>
-    <!-- Mobile Header -->
-    <div class="mobile-header">
-        <div class="mobile-header-content">
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="d-flex align-items-center">
-                <img src="images/logo.png" alt="Logo" height="35" class="me-2 rounded-circle">
-                <h5 class="mb-0">PowerPufFit</h5>
-            </div>
-            <div class="user-avatar" style="width: 35px; height: 35px; font-size: 1rem;" id="mobileUserAvatar">U</div>
-        </div>
-    </div>
-
+    <!-- Botón para mostrar/ocultar sidebar en móvil -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Overlay para móvil -->
+    <div class="overlay" id="overlay"></div>
+    
     <!-- App Container -->
     <div class="app-container">
-        <!-- Sidebar -->
+        <!-- Sidebar - Actualizado para coincidir con inventario -->
         <div class="sidebar" id="sidebar">
-            <div class="toggle-sidebar" id="toggleSidebar">
-                <i class="fas fa-chevron-left"></i>
-            </div>
-            
             <div class="sidebar-brand">
-                <img src="images/logo.png" alt="PowerPuffFit Logo">
-                <h4>PowerPufFit</h4>
+                <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
+                <h5>PowerPuffFit</h5>
                 <small>Dashboard</small>
             </div>
-
-            <nav class="nav flex-column mt-3">
-    <a class="nav-link active" href="dashboard.html">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-    </a>
-    <a class="nav-link" href="inventario.html">
-        <i class="fas fa-boxes"></i>
-        <span>Inventario</span>
-    </a>
-    <a class="nav-link" href="#" id="tiendaLink">
-        <i class="fas fa-store"></i>
-        <span>Tienda Online</span>
-    </a>
-    <a class="nav-link" href="ventas.html">
-        <i class="fas fa-cash-register"></i>
-        <span>Registro Ventas</span>
-    </a>
-    <a class="nav-link" href="inventario.html" onclick="inventario.nuevoProducto()">
-        <i class="fas fa-plus-circle"></i>
-        <span>Agregar Producto</span>
-    </a>
-    <a class="nav-link" href="#" id="clientesLink">
-        <i class="fas fa-users"></i>
-        <span>Gestión Clientes</span>
-    </a>
-    <a class="nav-link" href="reportes.html">
-        <i class="fas fa-chart-bar"></i>
-        <span>Reportes</span>
-    </a>
-    <div class="mt-auto p-3">
-        <a class="nav-link text-danger" href="#" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Cerrar Sesión</span>
-        </a>
-    </div>
-</nav>
+            
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="dashboard.html">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a class="nav-link" href="inventario.html">
+                    <i class="fas fa-boxes me-2"></i>Inventario
+                </a>
+                <a class="nav-link" href="#" id="tiendaLink">
+                    <i class="fas fa-store me-2"></i>Tienda Online
+                </a>
+                <a class="nav-link" href="ventas.html">
+                    <i class="fas fa-cash-register me-2"></i>Registro Ventas
+                </a>
+                <a class="nav-link" href="inventario.html" onclick="inventario.nuevoProducto()">
+                    <i class="fas fa-plus-circle me-2"></i>Agregar Producto
+                </a>
+                <a class="nav-link" href="#" id="clientesLink">
+                    <i class="fas fa-users me-2"></i>Gestión Clientes
+                </a>
+                <a class="nav-link" href="reportes.html">
+                    <i class="fas fa-chart-bar me-2"></i>Reportes
+                </a>
+                <a class="nav-link text-danger mt-auto" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                </a>
+            </nav>
         </div>
 
         <!-- Main Content -->
-        <div class="main-content">
+        <div class="main-content" id="mainContent">
             <!-- Top Bar -->
             <div class="navbar-top">
                 <div>
@@ -784,24 +520,24 @@
             </div>
 
             <!-- Quick Actions -->
-<div class="quick-actions">
-    <a href="inventario.html" class="action-btn" id="addProductBtn">
-        <i class="fas fa-plus"></i>
-        <span>Agregar Producto</span>
-    </a>
-    <a href="ventas.html" class="action-btn" id="newSaleBtn">
-        <i class="fas fa-shopping-cart"></i>
-        <span>Nueva Venta</span>
-    </a>
-    <a href="inventario.html" class="action-btn" id="viewInventoryBtn">
-        <i class="fas fa-box-open"></i>
-        <span>Ver Inventario</span>
-    </a>
-    <a href="reportes.html" class="action-btn" id="reportsBtn">
-        <i class="fas fa-file-alt"></i>
-        <span>Generar Reporte</span>
-    </a>
-</div>
+            <div class="quick-actions">
+                <a href="inventario.html" class="action-btn" id="addProductBtn">
+                    <i class="fas fa-plus"></i>
+                    <span>Agregar Producto</span>
+                </a>
+                <a href="ventas.html" class="action-btn" id="newSaleBtn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Nueva Venta</span>
+                </a>
+                <a href="inventario.html" class="action-btn" id="viewInventoryBtn">
+                    <i class="fas fa-box-open"></i>
+                    <span>Ver Inventario</span>
+                </a>
+                <a href="reportes.html" class="action-btn" id="reportsBtn">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Generar Reporte</span>
+                </a>
+            </div>
 
             <!-- Statistics Cards -->
             <div class="row g-4 mb-4">
@@ -963,61 +699,72 @@
             }
 
             initEventListeners() {
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
-    
-    // Test buttons
-    document.getElementById('testAuthBtn').addEventListener('click', () => this.testAuth());
-    document.getElementById('testFirestoreBtn').addEventListener('click', () => this.testFirestore());
-    document.getElementById('refreshDataBtn').addEventListener('click', () => this.refreshData());
-    
-    // Navigation links - Solo los que no tienen página específica mostrarán alerta
-    const navLinks = ['tiendaLink', 'clientesLink'];
-    
-    navLinks.forEach(linkId => {
-        const element = document.getElementById(linkId);
-        if (element) {
-            element.addEventListener('click', (e) => {
-                e.preventDefault();
-                alert(`🚧 ${this.getLinkName(linkId)} - Esta funcionalidad está en desarrollo... kaizen`);
-            });
-        }
-    });
+                // Logout
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+                
+                // Test buttons
+                document.getElementById('testAuthBtn').addEventListener('click', () => this.testAuth());
+                document.getElementById('testFirestoreBtn').addEventListener('click', () => this.testFirestore());
+                document.getElementById('refreshDataBtn').addEventListener('click', () => this.refreshData());
+                
+                // Navigation links - Solo los que no tienen página específica mostrarán alerta
+                const navLinks = ['tiendaLink', 'clientesLink'];
+                
+                navLinks.forEach(linkId => {
+                    const element = document.getElementById(linkId);
+                    if (element) {
+                        element.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            alert(`🚧 ${this.getLinkName(linkId)} - Esta funcionalidad está en desarrollo... kaizen`);
+                        });
+                    }
+                });
 
-    // Quick Actions
-    document.getElementById('addProductBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = 'inventario.html';
-    });
+                // Quick Actions
+                document.getElementById('addProductBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = 'inventario.html';
+                });
 
-    document.getElementById('newSaleBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = 'ventas.html';
-    });
+                document.getElementById('newSaleBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = 'ventas.html';
+                });
 
-    document.getElementById('viewInventoryBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = 'inventario.html';
-    });
+                document.getElementById('viewInventoryBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = 'inventario.html';
+                });
 
-    document.getElementById('reportsBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = 'reportes.html';
-    });
-}
+                document.getElementById('reportsBtn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = 'reportes.html';
+                });
 
-// Agrega esta función auxiliar para obtener nombres de enlaces
-getLinkName(linkId) {
-    const linkNames = {
-        'tiendaLink': 'Tienda Online',
-        'clientesLink': 'Gestión de Clientes',
-        'inventarioLink': 'Inventario',
-        'ventasLink': 'Registro de Ventas',
-        'productosLink': 'Agregar Producto',
-        'reportesLink': 'Reportes'
-    };
-    return linkNames[linkId] || linkId;
-}
+                // Responsive sidebar toggle
+                document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
+                document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
+            }
+
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+
+            // Agrega esta función auxiliar para obtener nombres de enlaces
+            getLinkName(linkId) {
+                const linkNames = {
+                    'tiendaLink': 'Tienda Online',
+                    'clientesLink': 'Gestión de Clientes',
+                    'inventarioLink': 'Inventario',
+                    'ventasLink': 'Registro de Ventas',
+                    'productosLink': 'Agregar Producto',
+                    'reportesLink': 'Reportes'
+                };
+                return linkNames[linkId] || linkId;
+            }
 
             async checkAuth() {
                 console.log("🔐 Verificando autenticación...");
@@ -1056,7 +803,6 @@ getLinkName(linkId) {
             displayUserInfo(user) {
                 const userName = document.getElementById('userName');
                 const userAvatar = document.getElementById('userAvatar');
-                const mobileUserAvatar = document.getElementById('mobileUserAvatar');
                 const welcomeMessage = document.getElementById('welcomeMessage');
                 const welcomeTitle = document.getElementById('welcomeTitle');
                 
@@ -1065,7 +811,6 @@ getLinkName(linkId) {
                 
                 userName.textContent = displayName;
                 userAvatar.textContent = displayName.charAt(0).toUpperCase();
-                mobileUserAvatar.textContent = displayName.charAt(0).toUpperCase();
                 
                 welcomeTitle.textContent = `¡Bienvenido, ${displayName}!`;
                 welcomeMessage.textContent = `Estás conectado como ${email}. Gestiona tu tienda PowerPuffFit desde aquí.`;
@@ -1152,162 +897,157 @@ getLinkName(linkId) {
                 }
             }
 
-        
             async refreshData() {
-    try {
-        await this.loadStatistics();
-        await this.loadRecentActivity();
-        await this.loadLowStockProducts();
-        
-        // Actualizar gráficos
-        if (this.salesChart) this.salesChart.destroy();
-        if (this.categoryChart) this.categoryChart.destroy();
-        await this.initCharts();
-        
-        alert('✅ Datos actualizados correctamente');
-    } catch (error) {
-        console.error('❌ Error actualizando datos:', error);
-        alert('Error actualizando datos: ' + error.message);
-    }
-}
+                try {
+                    await this.loadStatistics();
+                    await this.loadRecentActivity();
+                    await this.loadLowStockProducts();
+                    
+                    // Actualizar gráficos
+                    if (this.salesChart) this.salesChart.destroy();
+                    if (this.categoryChart) this.categoryChart.destroy();
+                    await this.initCharts();
+                    
+                    alert('✅ Datos actualizados correctamente');
+                } catch (error) {
+                    console.error('❌ Error actualizando datos:', error);
+                    alert('Error actualizando datos: ' + error.message);
+                }
+            }
 
             async loadStatistics() {
-    try {
-        // Total productos
-        const productsSnapshot = await getDocs(collection(this.db, "productos"));
-        const totalProductos = productsSnapshot.size;
-        document.getElementById('totalProductos').textContent = totalProductos;
+                try {
+                    // Total productos
+                    const productsSnapshot = await getDocs(collection(this.db, "productos"));
+                    const totalProductos = productsSnapshot.size;
+                    document.getElementById('totalProductos').textContent = totalProductos;
 
-        // Productos con stock bajo
-        const lowStockQuery = query(
-            collection(this.db, "productos"), 
-            where("cantidad", "<", 5)
-        );
-        const lowStockSnapshot = await getDocs(lowStockQuery);
-        document.getElementById('stockBajo').textContent = lowStockSnapshot.size;
+                    // Productos con stock bajo
+                    const lowStockQuery = query(
+                        collection(this.db, "productos"), 
+                        where("cantidad", "<", 5)
+                    );
+                    const lowStockSnapshot = await getDocs(lowStockQuery);
+                    document.getElementById('stockBajo').textContent = lowStockSnapshot.size;
 
-        // Ventas del mes actual
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const ventasQuery = query(
-            collection(this.db, "ventas"),
-            where("fecha_venta", ">=", startOfMonth)
-        );
-        const ventasSnapshot = await getDocs(ventasQuery);
-        const totalVentas = ventasSnapshot.size;
-        document.getElementById('totalVentas').textContent = totalVentas;
+                    // Ventas del mes actual
+                    const now = new Date();
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const ventasQuery = query(
+                        collection(this.db, "ventas"),
+                        where("fecha_venta", ">=", startOfMonth)
+                    );
+                    const ventasSnapshot = await getDocs(ventasQuery);
+                    const totalVentas = ventasSnapshot.size;
+                    document.getElementById('totalVentas').textContent = totalVentas;
 
-        // Ingresos totales del mes
-        let ingresosTotales = 0;
-        ventasSnapshot.forEach(doc => {
-            const venta = doc.data();
-            ingresosTotales += venta.total || 0;
-        });
-        document.getElementById('ingresosTotales').textContent = `$${ingresosTotales.toFixed(2)}`;
+                    // Ingresos totales del mes
+                    let ingresosTotales = 0;
+                    ventasSnapshot.forEach(doc => {
+                        const venta = doc.data();
+                        ingresosTotales += venta.total || 0;
+                    });
+                    document.getElementById('ingresosTotales').textContent = `$${ingresosTotales.toFixed(2)}`;
 
-    } catch (error) {
-        console.error("❌ Error cargando estadísticas:", error);
-        // En caso de error, mostrar ceros
-        document.getElementById('totalVentas').textContent = '0';
-        document.getElementById('ingresosTotales').textContent = '$0';
-    }
-}
+                } catch (error) {
+                    console.error("❌ Error cargando estadísticas:", error);
+                    // En caso de error, mostrar ceros
+                    document.getElementById('totalVentas').textContent = '0';
+                    document.getElementById('ingresosTotales').textContent = '$0';
+                }
+            }
 
+            async loadRecentActivity() {
+                try {
+                    const container = document.getElementById('recentActivity');
+                    
+                    // Obtener las últimas ventas y productos como actividad
+                    const ventasQuery = query(
+                        collection(this.db, "ventas"),
+                        orderBy("fecha_venta", "desc"),
+                        limit(5)
+                    );
+                    
+                    const productosQuery = query(
+                        collection(this.db, "productos"),
+                        orderBy("fecha_registro", "desc"),
+                        limit(3)
+                    );
 
+                    const [ventasSnapshot, productosSnapshot] = await Promise.all([
+                        getDocs(ventasQuery),
+                        getDocs(productosQuery)
+                    ]);
 
+                    const activities = [];
 
-            
-async loadRecentActivity() {
-    try {
-        const container = document.getElementById('recentActivity');
-        
-        // Obtener las últimas ventas y productos como actividad
-        const ventasQuery = query(
-            collection(this.db, "ventas"),
-            orderBy("fecha_venta", "desc"),
-            limit(5)
-        );
-        
-        const productosQuery = query(
-            collection(this.db, "productos"),
-            orderBy("fecha_registro", "desc"),
-            limit(3)
-        );
+                    // Agregar ventas recientes
+                    ventasSnapshot.forEach(doc => {
+                        const venta = doc.data();
+                        activities.push({
+                            type: 'sale',
+                            title: `Venta registrada - $${venta.total?.toFixed(2) || '0.00'}`,
+                            time: this.formatTimeAgo(venta.fecha_venta?.toDate()),
+                            fecha: venta.fecha_venta?.toDate()
+                        });
+                    });
 
-        const [ventasSnapshot, productosSnapshot] = await Promise.all([
-            getDocs(ventasQuery),
-            getDocs(productosQuery)
-        ]);
+                    // Agregar productos recientes
+                    productosSnapshot.forEach(doc => {
+                        const producto = doc.data();
+                        activities.push({
+                            type: 'product',
+                            title: `Producto agregado: ${producto.nombre}`,
+                            time: this.formatTimeAgo(producto.fecha_registro?.toDate()),
+                            fecha: producto.fecha_registro?.toDate()
+                        });
+                    });
 
-        const activities = [];
+                    // Ordenar por fecha (más reciente primero) y limitar a 5
+                    activities.sort((a, b) => b.fecha - a.fecha);
+                    const recentActivities = activities.slice(0, 5);
 
-        // Agregar ventas recientes
-        ventasSnapshot.forEach(doc => {
-            const venta = doc.data();
-            activities.push({
-                type: 'sale',
-                title: `Venta registrada - $${venta.total?.toFixed(2) || '0.00'}`,
-                time: this.formatTimeAgo(venta.fecha_venta?.toDate()),
-                fecha: venta.fecha_venta?.toDate()
-            });
-        });
+                    if (recentActivities.length === 0) {
+                        container.innerHTML = '<p class="text-center text-muted">No hay actividad reciente</p>';
+                        return;
+                    }
 
-        // Agregar productos recientes
-        productosSnapshot.forEach(doc => {
-            const producto = doc.data();
-            activities.push({
-                type: 'product',
-                title: `Producto agregado: ${producto.nombre}`,
-                time: this.formatTimeAgo(producto.fecha_registro?.toDate()),
-                fecha: producto.fecha_registro?.toDate()
-            });
-        });
+                    container.innerHTML = recentActivities.map(activity => `
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-${this.getActivityIcon(activity.type)}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">${activity.title}</div>
+                                <div class="activity-time">${activity.time}</div>
+                            </div>
+                        </div>
+                    `).join('');
 
-        // Ordenar por fecha (más reciente primero) y limitar a 5
-        activities.sort((a, b) => b.fecha - a.fecha);
-        const recentActivities = activities.slice(0, 5);
+                } catch (error) {
+                    console.error("❌ Error cargando actividad:", error);
+                    const container = document.getElementById('recentActivity');
+                    container.innerHTML = '<p class="text-center text-muted">Error cargando actividad</p>';
+                }
+            }
 
-        if (recentActivities.length === 0) {
-            container.innerHTML = '<p class="text-center text-muted">No hay actividad reciente</p>';
-            return;
-        }
+            // Agrega esta función auxiliar para formatear el tiempo
+            formatTimeAgo(date) {
+                if (!date) return 'Fecha desconocida';
+                
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
 
-        container.innerHTML = recentActivities.map(activity => `
-            <div class="activity-item">
-                <div class="activity-icon">
-                    <i class="fas fa-${this.getActivityIcon(activity.type)}"></i>
-                </div>
-                <div class="activity-content">
-                    <div class="activity-title">${activity.title}</div>
-                    <div class="activity-time">${activity.time}</div>
-                </div>
-            </div>
-        `).join('');
-
-    } catch (error) {
-        console.error("❌ Error cargando actividad:", error);
-        const container = document.getElementById('recentActivity');
-        container.innerHTML = '<p class="text-center text-muted">Error cargando actividad</p>';
-    }
-}
-
-// Agrega esta función auxiliar para formatear el tiempo
-formatTimeAgo(date) {
-    if (!date) return 'Fecha desconocida';
-    
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Hace unos segundos';
-    if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
-    if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
-    if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
-    
-    return date.toLocaleDateString('es-ES');
-}
+                if (diffMins < 1) return 'Hace unos segundos';
+                if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+                if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+                if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+                
+                return date.toLocaleDateString('es-ES');
+            }
 
             getActivityIcon(type) {
                 const icons = {
@@ -1319,394 +1059,301 @@ formatTimeAgo(date) {
                 return icons[type] || 'info-circle';
             }
 
-           
-
             async loadLowStockProducts() {
-    try {
-        const lowStockQuery = query(
-            collection(this.db, "productos"), 
-            where("cantidad", "<", 5),
-            orderBy("cantidad", "asc"),
-            limit(5)
-        );
-        
-        const snapshot = await getDocs(lowStockQuery);
-        const container = document.getElementById('lowStockProducts');
-        
-        if (snapshot.empty) {
-            container.innerHTML = '<p class="text-center text-muted">No hay productos con stock bajo</p>';
-            return;
-        }
+                try {
+                    const lowStockQuery = query(
+                        collection(this.db, "productos"), 
+                        where("cantidad", "<", 5),
+                        orderBy("cantidad", "asc"),
+                        limit(5)
+                    );
+                    
+                    const snapshot = await getDocs(lowStockQuery);
+                    const container = document.getElementById('lowStockProducts');
+                    
+                    if (snapshot.empty) {
+                        container.innerHTML = '<p class="text-center text-muted">No hay productos con stock bajo</p>';
+                        return;
+                    }
 
-        container.innerHTML = '';
-        snapshot.forEach(doc => {
-            const product = doc.data();
-            const item = document.createElement('div');
-            item.className = 'activity-item';
-            item.innerHTML = `
-                <div class="activity-icon" style="background: #ffebee;">
-                    <i class="fas fa-exclamation-triangle" style="color: #f44336;"></i>
-                </div>
-                <div class="activity-content">
-                    <div class="activity-title">${product.nombre}</div>
-                    <div class="activity-time">Stock: ${product.cantidad} unidades - $${(product.precio || 0).toFixed(2)}</div>
-                </div>
-            `;
-            container.appendChild(item);
-        });
+                    container.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const product = doc.data();
+                        const item = document.createElement('div');
+                        item.className = 'activity-item';
+                        item.innerHTML = `
+                            <div class="activity-icon" style="background: #ffebee;">
+                                <i class="fas fa-exclamation-triangle" style="color: #f44336;"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">${product.nombre}</div>
+                                <div class="activity-time">Stock: ${product.cantidad} unidades - $${(product.precio || 0).toFixed(2)}</div>
+                            </div>
+                        `;
+                        container.appendChild(item);
+                    });
 
-    } catch (error) {
-        console.error("❌ Error cargando productos con stock bajo:", error);
-        const container = document.getElementById('lowStockProducts');
-        container.innerHTML = '<p class="text-center text-muted">Error cargando productos</p>';
-    }
-}
-
+                } catch (error) {
+                    console.error("❌ Error cargando productos con stock bajo:", error);
+                    const container = document.getElementById('lowStockProducts');
+                    container.innerHTML = '<p class="text-center text-muted">Error cargando productos</p>';
+                }
+            }
 
             async initCharts() {
-    await this.loadSalesChart();
-    await this.loadCategoryChart();
-}
+                await this.loadSalesChart();
+                await this.loadCategoryChart();
+            }
 
-
-async loadSalesChart() {
-    try {
-        // Obtener ventas de los últimos 7 días
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        
-        const ventasQuery = query(
-            collection(this.db, "ventas"),
-            where("fecha_venta", ">=", sevenDaysAgo),
-            orderBy("fecha_venta", "asc")
-        );
-        
-        const snapshot = await getDocs(ventasQuery);
-        
-        // Preparar datos para los últimos 7 días
-        const dates = [];
-        const salesData = [];
-        
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toISOString().split('T')[0];
-            dates.push(this.formatChartDate(date));
-            
-            // Calcular total de ventas para este día
-            let dailyTotal = 0;
-            snapshot.forEach(doc => {
-                const venta = doc.data();
-                const ventaDate = venta.fecha_venta?.toDate();
-                if (ventaDate && ventaDate.toISOString().split('T')[0] === dateStr) {
-                    dailyTotal += venta.total || 0;
-                }
-            });
-            salesData.push(dailyTotal);
-        }
-
-        // Verificar si hay datos de ventas
-        const hasSalesData = salesData.some(amount => amount > 0);
-
-        // Gráfico de ventas
-        const salesCtx = document.getElementById('salesChart').getContext('2d');
-        
-        if (this.salesChart) {
-            this.salesChart.destroy();
-        }
-
-        this.salesChart = new Chart(salesCtx, {
-            type: 'line',
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: 'Ventas ($)',
-                    data: salesData,
-                    borderColor: '#ff85a2',
-                    backgroundColor: hasSalesData ? 'rgba(255, 133, 162, 0.1)' : 'rgba(0,0,0,0.02)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    title: {
-                        display: !hasSalesData,
-                        text: 'No hay datos de ventas en los últimos 7 días'
+            async loadSalesChart() {
+                try {
+                    // Obtener ventas de los últimos 7 días
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                    
+                    const ventasQuery = query(
+                        collection(this.db, "ventas"),
+                        where("fecha_venta", ">=", sevenDaysAgo),
+                        orderBy("fecha_venta", "asc")
+                    );
+                    
+                    const snapshot = await getDocs(ventasQuery);
+                    
+                    // Preparar datos para los últimos 7 días
+                    const dates = [];
+                    const salesData = [];
+                    
+                    for (let i = 6; i >= 0; i--) {
+                        const date = new Date();
+                        date.setDate(date.getDate() - i);
+                        const dateStr = date.toISOString().split('T')[0];
+                        dates.push(this.formatChartDate(date));
+                        
+                        // Calcular total de ventas para este día
+                        let dailyTotal = 0;
+                        snapshot.forEach(doc => {
+                            const venta = doc.data();
+                            const ventaDate = venta.fecha_venta?.toDate();
+                            if (ventaDate && ventaDate.toISOString().split('T')[0] === dateStr) {
+                                dailyTotal += venta.total || 0;
+                            }
+                        });
+                        salesData.push(dailyTotal);
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
+
+                    // Verificar si hay datos de ventas
+                    const hasSalesData = salesData.some(amount => amount > 0);
+
+                    // Gráfico de ventas
+                    const salesCtx = document.getElementById('salesChart').getContext('2d');
+                    
+                    if (this.salesChart) {
+                        this.salesChart.destroy();
+                    }
+
+                    this.salesChart = new Chart(salesCtx, {
+                        type: 'line',
+                        data: {
+                            labels: dates,
+                            datasets: [{
+                                label: 'Ventas ($)',
+                                data: salesData,
+                                borderColor: '#ff85a2',
+                                backgroundColor: hasSalesData ? 'rgba(255, 133, 162, 0.1)' : 'rgba(0,0,0,0.02)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: !hasSalesData,
+                                    text: 'No hay datos de ventas en los últimos 7 días'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(0,0,0,0.1)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
                         }
+                    });
+
+                } catch (error) {
+                    console.error("❌ Error cargando gráfico de ventas:", error);
+                    // Gráfico vacío en caso de error
+                    this.createEmptySalesChart();
+                }
+            }
+
+            async loadCategoryChart() {
+                try {
+                    const productsSnapshot = await getDocs(collection(this.db, "productos"));
+                    
+                    // Contar productos por categoría
+                    const categoryCount = {};
+                    productsSnapshot.forEach(doc => {
+                        const product = doc.data();
+                        const categoria = product.categoria || 'general';
+                        categoryCount[categoria] = (categoryCount[categoria] || 0) + 1;
+                    });
+
+                    const labels = Object.keys(categoryCount);
+                    const data = Object.values(categoryCount);
+
+                    // Verificar si hay productos
+                    const hasProducts = labels.length > 0;
+
+                    // Gráfico de categorías
+                    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+                    
+                    if (this.categoryChart) {
+                        this.categoryChart.destroy();
+                    }
+
+                    this.categoryChart = new Chart(categoryCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: hasProducts ? labels.map(cat => this.getCategoriaNombre(cat)) : ['Sin productos'],
+                            datasets: [{
+                                data: hasProducts ? data : [1],
+                                backgroundColor: hasProducts ? [
+                                    '#ff85a2',
+                                    '#ffacc7',
+                                    '#ffd6e0',
+                                    '#8a2f5a',
+                                    '#ff6b9d',
+                                    '#ff4f81'
+                                ] : ['#ccc'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                },
+                                title: {
+                                    display: !hasProducts,
+                                    text: 'No hay productos registrados'
+                                }
+                            }
+                        }
+                    });
+
+                } catch (error) {
+                    console.error("❌ Error cargando gráfico de categorías:", error);
+                    // Gráfico vacío en caso de error
+                    this.createEmptyCategoryChart();
+                }
+            }
+
+            // Funciones auxiliares para gráficos vacíos
+            createEmptySalesChart() {
+                const salesCtx = document.getElementById('salesChart').getContext('2d');
+                
+                if (this.salesChart) {
+                    this.salesChart.destroy();
+                }
+                
+                this.salesChart = new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                        datasets: [{
+                            label: 'Ventas ($)',
+                            data: [0, 0, 0, 0, 0, 0, 0],
+                            borderColor: '#ccc',
+                            backgroundColor: 'rgba(0,0,0,0.02)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }]
                     },
-                    x: {
-                        grid: {
-                            display: false
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Error cargando datos de ventas'
+                            }
                         }
                     }
-                }
+                });
             }
-        });
 
-    } catch (error) {
-        console.error("❌ Error cargando gráfico de ventas:", error);
-        // Gráfico vacío en caso de error
-        this.createEmptySalesChart();
-    }
-}
-
-
-
-async loadCategoryChart() {
-    try {
-        const productsSnapshot = await getDocs(collection(this.db, "productos"));
-        
-        // Contar productos por categoría
-        const categoryCount = {};
-        productsSnapshot.forEach(doc => {
-            const product = doc.data();
-            const categoria = product.categoria || 'general';
-            categoryCount[categoria] = (categoryCount[categoria] || 0) + 1;
-        });
-
-        const labels = Object.keys(categoryCount);
-        const data = Object.values(categoryCount);
-
-        // Verificar si hay productos
-        const hasProducts = labels.length > 0;
-
-        // Gráfico de categorías
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        
-        if (this.categoryChart) {
-            this.categoryChart.destroy();
-        }
-
-        this.categoryChart = new Chart(categoryCtx, {
-            type: 'doughnut',
-            data: {
-                labels: hasProducts ? labels.map(cat => this.getCategoriaNombre(cat)) : ['Sin productos'],
-                datasets: [{
-                    data: hasProducts ? data : [1],
-                    backgroundColor: hasProducts ? [
-                        '#ff85a2',
-                        '#ffacc7',
-                        '#ffd6e0',
-                        '#8a2f5a',
-                        '#ff6b9d',
-                        '#ff4f81'
-                    ] : ['#ccc'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
+            createEmptyCategoryChart() {
+                const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+                
+                if (this.categoryChart) {
+                    this.categoryChart.destroy();
+                }
+                
+                this.categoryChart = new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Error'],
+                        datasets: [{
+                            data: [1],
+                            backgroundColor: ['#ccc'],
+                            borderWidth: 0
+                        }]
                     },
-                    title: {
-                        display: !hasProducts,
-                        text: 'No hay productos registrados'
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Error cargando categorías'
+                            }
+                        }
                     }
-                }
+                });
             }
-        });
 
-    } catch (error) {
-        console.error("❌ Error cargando gráfico de categorías:", error);
-        // Gráfico vacío en caso de error
-        this.createEmptyCategoryChart();
-    }
-}
-// Funciones auxiliares para gráficos vacíos
-// Funciones auxiliares para gráficos vacíos
-createEmptySalesChart() {
-    const salesCtx = document.getElementById('salesChart').getContext('2d');
-    
-    if (this.salesChart) {
-        this.salesChart.destroy();
-    }
-    
-    this.salesChart = new Chart(salesCtx, {
-        type: 'line',
-        data: {
-            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-            datasets: [{
-                label: 'Ventas ($)',
-                data: [0, 0, 0, 0, 0, 0, 0],
-                borderColor: '#ccc',
-                backgroundColor: 'rgba(0,0,0,0.02)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                title: {
-                    display: true,
-                    text: 'Error cargando datos de ventas'
-                }
+            // Función auxiliar para formatear fechas del gráfico
+            formatChartDate(date) {
+                return date.toLocaleDateString('es-ES', { weekday: 'short' });
+            }
+
+            // Función auxiliar para nombres de categoría (debe coincidir con la de inventario)
+            getCategoriaNombre(categoria) {
+                const categorias = {
+                    'ropa': 'Ropa Deportiva',
+                    'calzado': 'Calzado',
+                    'accesorios': 'Accesorios',
+                    'equipamiento': 'Equipamiento',
+                    'suplementos': 'Suplementos',
+                    'general': 'General'
+                };
+                return categorias[categoria] || categoria;
             }
         }
-    });
-}
-
-createEmptyCategoryChart() {
-    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-    
-    if (this.categoryChart) {
-        this.categoryChart.destroy();
-    }
-    
-    this.categoryChart = new Chart(categoryCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Error'],
-            datasets: [{
-                data: [1],
-                backgroundColor: ['#ccc'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                },
-                title: {
-                    display: true,
-                    text: 'Error cargando categorías'
-                }
-            }
-        }
-    });
-}
-
-
-
-// Función auxiliar para formatear fechas del gráfico
-formatChartDate(date) {
-    return date.toLocaleDateString('es-ES', { weekday: 'short' });
-}
-
-// Función auxiliar para nombres de categoría (debe coincidir con la de inventario)
-getCategoriaNombre(categoria) {
-    const categorias = {
-        'ropa': 'Ropa Deportiva',
-        'calzado': 'Calzado',
-        'accesorios': 'Accesorios',
-        'equipamiento': 'Equipamiento',
-        'suplementos': 'Suplementos',
-        'general': 'General'
-    };
-    return categorias[categoria] || categoria;
-}
-
-
-
-
-       
-}
-
 
         // Inicializar el dashboard cuando el DOM esté listo
-       
-                // Inicializar el dashboard cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', () => {
             window.dashboard = new Dashboard();
-            
-            // Controladores para el sidebar responsivo
-            const toggleSidebar = document.getElementById('toggleSidebar');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const sidebar = document.getElementById('sidebar');
-            
-            if (toggleSidebar) {
-                toggleSidebar.addEventListener('click', function() {
-                    sidebar.classList.toggle('collapsed');
-                    this.querySelector('i').classList.toggle('fa-chevron-left');
-                    this.querySelector('i').classList.toggle('fa-chevron-right');
-                });
-            }
-            
-            if (mobileMenuBtn) {
-                mobileMenuBtn.addEventListener('click', function() {
-                    const isOpening = !sidebar.classList.contains('mobile-open');
-                    sidebar.classList.toggle('mobile-open');
-                    
-                    if (isOpening) {
-                        // Agregar overlay cuando se abre el sidebar
-                        const overlay = document.createElement('div');
-                        overlay.className = 'sidebar-overlay';
-                        overlay.style.cssText = `
-                            position: fixed;
-                            top: 0;
-                            left: 0;
-                            right: 0;
-                            bottom: 0;
-                            background: rgba(0,0,0,0.5);
-                            z-index: 999;
-                            display: block;
-                        `;
-                        overlay.addEventListener('click', function() {
-                            sidebar.classList.remove('mobile-open');
-                            this.remove();
-                        });
-                        document.body.appendChild(overlay);
-                        
-                        // Prevenir scroll del body cuando el sidebar está abierto
-                        document.body.style.overflow = 'hidden';
-                    } else {
-                        // Remover overlay y restaurar scroll
-                        const existingOverlay = document.querySelector('.sidebar-overlay');
-                        if (existingOverlay) existingOverlay.remove();
-                        document.body.style.overflow = '';
-                    }
-                });
-            }
-
-            // Cerrar sidebar en móvil al hacer clic en un enlace
-            const navLinks = document.querySelectorAll('.sidebar .nav-link');
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    if (window.innerWidth <= 992) {
-                        // Solo para enlaces que no son el dashboard actual
-                        if (!this.classList.contains('active')) {
-                            sidebar.classList.remove('mobile-open');
-                            const overlay = document.querySelector('.sidebar-overlay');
-                            if (overlay) overlay.remove();
-                            document.body.style.overflow = '';
-                        }
-                    }
-                });
-            });
-
-            // Cerrar sidebar al redimensionar la ventana si se hace más grande
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 992) {
-                    sidebar.classList.remove('mobile-open');
-                    const overlay = document.querySelector('.sidebar-overlay');
-                    if (overlay) overlay.remove();
-                    document.body.style.overflow = '';
-                }
-            });
         });
-
-
-       </script>
+    </script>
 </body>
 </html>
