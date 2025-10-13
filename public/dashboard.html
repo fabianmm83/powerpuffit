@@ -49,13 +49,14 @@
         top: 0;
         z-index: 1000;
         transition: transform 0.3s ease;
+        box-shadow: 3px 0 15px rgba(138, 47, 90, 0.2);
     }
 
     .main-content {
         margin-left: 280px;
         padding: 20px;
         min-height: 100vh;
-        transition: margin-left 0.3s ease;
+        transition: all 0.3s ease;
         width: calc(100% - 280px);
         background: linear-gradient(135deg, #fff0f6 0%, #ffeef5 100%);
     }
@@ -87,6 +88,8 @@
         padding: 0.8rem 1.5rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
     }
 
     .nav-link:hover, .nav-link.active {
@@ -97,43 +100,14 @@
     .nav-link i {
         width: 20px;
         margin-right: 10px;
+        text-align: center;
     }
 
     .nav-link.text-danger:hover {
         background-color: rgba(220, 53, 69, 0.2);
     }
 
-    /* Responsive styles */
-    @media (max-width: 992px) {
-        .sidebar {
-            transform: translateX(-100%);
-        }
-        
-        .sidebar.active {
-            transform: translateX(0);
-        }
-        
-        .main-content {
-            margin-left: 0;
-        }
-        
-        .sidebar-toggle {
-            display: block !important;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .main-content {
-            padding: 15px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .main-content {
-            padding: 10px;
-        }
-    }
-
+    /* Botón toggle para móvil */
     .sidebar-toggle {
         display: none;
         position: fixed;
@@ -143,9 +117,10 @@
         background: var(--primary-color);
         color: white;
         border: none;
-        border-radius: 5px;
-        padding: 8px 12px;
+        border-radius: 8px;
+        padding: 10px 12px;
         font-size: 1.2rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
 
     .overlay {
@@ -161,6 +136,186 @@
 
     .overlay.active {
         display: block;
+    }
+
+    /* ===== RESPONSIVE DESIGN ===== */
+
+    /* Tablets */
+    @media (max-width: 992px) {
+        .sidebar {
+            transform: translateX(-100%);
+            width: 280px;
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+            box-shadow: 5px 0 25px rgba(0,0,0,0.3);
+        }
+        
+        .main-content {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding: 15px;
+        }
+        
+        .sidebar-toggle {
+            display: block;
+        }
+        
+        .navbar-top {
+            margin-top: 60px; /* Espacio para el botón toggle */
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+    }
+
+    /* Tablets pequeñas y móviles grandes */
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 15px;
+        }
+        
+        .navbar-top {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .quick-actions {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .stat-card {
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .chart-container, .activity-list {
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1.2rem;
+        }
+        
+        .activity-item {
+            padding: 1rem 0;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 1rem;
+            font-size: 1rem;
+        }
+    }
+
+    /* Móviles */
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 10px;
+        }
+        
+        .navbar-top {
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .quick-actions {
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+        }
+        
+        .stat-icon {
+            font-size: 2.2rem;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .activity-item {
+            padding: 0.8rem 0;
+        }
+        
+        .activity-title {
+            font-size: 0.9rem;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+        }
+        
+        .action-btn {
+            padding: 1.2rem 0.8rem;
+        }
+        
+        .action-btn i {
+            font-size: 1.5rem;
+        }
+        
+        .action-btn span {
+            font-size: 0.9rem;
+        }
+        
+        .chart-container, .activity-list {
+            padding: 1rem;
+        }
+        
+        .chart-container canvas {
+            max-height: 200px;
+        }
+        
+        .user-info {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            font-size: 1.1rem;
+        }
+    }
+
+    /* Móviles muy pequeños */
+    @media (max-width: 480px) {
+        .main-content {
+            padding: 8px;
+        }
+        
+        .navbar-top {
+            padding: 0.8rem;
+        }
+        
+        .chart-container, .activity-list {
+            padding: 0.8rem;
+        }
+        
+        .stat-card {
+            padding: 1.2rem;
+        }
+        
+        .stat-number {
+            font-size: 1.6rem;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+        }
+        
+        .sidebar-toggle {
+            padding: 8px 10px;
+            font-size: 1.1rem;
+        }
     }
 
     /* Resto de estilos del dashboard */
@@ -437,6 +592,11 @@
     .chart-container canvas {
         max-width: 100%;
         height: auto !important;
+    }
+
+    /* Prevenir scroll cuando el sidebar está abierto en móvil */
+    body.sidebar-open {
+        overflow: hidden;
     }
 </style>
 </head>
@@ -744,13 +904,42 @@
                 // Responsive sidebar toggle
                 document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
                 document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
+
+                // Cerrar sidebar al hacer clic en un enlace (en móvil)
+                const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (window.innerWidth <= 992) {
+                            this.toggleSidebar();
+                        }
+                    });
+                });
+
+                // Cerrar sidebar al redimensionar la ventana si se hace más grande
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 992) {
+                        const sidebar = document.getElementById('sidebar');
+                        const overlay = document.getElementById('overlay');
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                        document.body.classList.remove('sidebar-open');
+                    }
+                });
             }
 
             toggleSidebar() {
                 const sidebar = document.getElementById('sidebar');
                 const overlay = document.getElementById('overlay');
+                const isOpening = !sidebar.classList.contains('active');
+                
                 sidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
+                
+                if (isOpening) {
+                    document.body.classList.add('sidebar-open');
+                } else {
+                    document.body.classList.remove('sidebar-open');
+                }
             }
 
             // Agrega esta función auxiliar para obtener nombres de enlaces
