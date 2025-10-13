@@ -228,6 +228,91 @@ class PowerPuffApp {
         }
     }
 
+
+
+    // Métodos para gestión de clientes
+async getClientes() {
+    try {
+        const querySnapshot = await getDocs(collection(this.db, "clientes"));
+        const clientes = [];
+        querySnapshot.forEach((doc) => {
+            clientes.push({ id: doc.id, ...doc.data() });
+        });
+        return clientes;
+    } catch (error) {
+        console.error("Error obteniendo clientes:", error);
+        throw error;
+    }
+}
+
+async addCliente(clienteData) {
+    try {
+        const docRef = await addDoc(collection(this.db, "clientes"), {
+            ...clienteData,
+            fecha_registro: new Date(),
+            total_compras: 0,
+            monto_total: 0,
+            activo: true
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error("Error agregando cliente:", error);
+        throw error;
+    }
+}
+
+async updateCliente(clienteId, clienteData) {
+    try {
+        const clienteRef = doc(this.db, "clientes", clienteId);
+        await updateDoc(clienteRef, clienteData);
+    } catch (error) {
+        console.error("Error actualizando cliente:", error);
+        throw error;
+    }
+}
+
+// Métodos para reportes avanzados
+async getReporteClientesFrecuentes() {
+    try {
+        const clientesSnapshot = await getDocs(
+            query(collection(this.db, "clientes"), 
+            orderBy("total_compras", "desc"),
+            limit(10))
+        );
+        
+        const clientes = [];
+        clientesSnapshot.forEach((doc) => {
+            clientes.push({ id: doc.id, ...doc.data() });
+        });
+        
+        return clientes;
+    } catch (error) {
+        console.error("Error obteniendo clientes frecuentes:", error);
+        throw error;
+    }
+}
+
+async getProductosStockBajo(limite = 5) {
+    try {
+        const productosSnapshot = await getDocs(
+            query(collection(this.db, "productos"), 
+            where("cantidad", "<=", limite),
+            where("activo", "==", true))
+        );
+        
+        const productos = [];
+        productosSnapshot.forEach((doc) => {
+            productos.push({ id: doc.id, ...doc.data() });
+        });
+        
+        return productos;
+    } catch (error) {
+        console.error("Error obteniendo productos con stock bajo:", error);
+        throw error;
+    }
+}
+
+
     // Método para generar reportes
     async generarReporte(tipo, fechaInicio, fechaFin) {
         try {
