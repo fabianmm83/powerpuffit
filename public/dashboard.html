@@ -1479,34 +1479,70 @@ getCategoriaNombre(categoria) {
 
 
 
-        // Inicializar el dashboard cuando el DOM esté listo
+       
 }
-document.addEventListener('DOMContentLoaded', () => {
+
+        
+
+        // Inicializar el dashboard cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', () => {
             window.dashboard = new Dashboard();
-        });
-
-        // Controladores para el sidebar responsivo
-        document.getElementById('toggleSidebar').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            this.querySelector('i').classList.toggle('fa-chevron-left');
-            this.querySelector('i').classList.toggle('fa-chevron-right');
-        });
-
-        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-        });
-
-        // Cerrar sidebar en móvil al hacer clic fuera
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             
-            if (window.innerWidth <= 992 && 
-                !sidebar.contains(event.target) && 
-                !mobileMenuBtn.contains(event.target) &&
-                sidebar.classList.contains('mobile-open')) {
-                sidebar.classList.remove('mobile-open');
+            // Controladores para el sidebar responsivo - DENTRO del DOMContentLoaded
+            const toggleSidebar = document.getElementById('toggleSidebar');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (toggleSidebar) {
+                toggleSidebar.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                    this.querySelector('i').classList.toggle('fa-chevron-left');
+                    this.querySelector('i').classList.toggle('fa-chevron-right');
+                });
             }
+            
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('mobile-open');
+                    // Agregar overlay cuando se abre el sidebar en móvil
+                    const overlay = document.createElement('div');
+                    overlay.className = 'sidebar-overlay';
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0,0,0,0.5);
+                        z-index: 999;
+                        display: none;
+                    `;
+                    overlay.addEventListener('click', function() {
+                        sidebar.classList.remove('mobile-open');
+                        this.remove();
+                    });
+                    
+                    if (sidebar.classList.contains('mobile-open')) {
+                        document.body.appendChild(overlay);
+                        overlay.style.display = 'block';
+                    } else {
+                        const existingOverlay = document.querySelector('.sidebar-overlay');
+                        if (existingOverlay) existingOverlay.remove();
+                    }
+                });
+            }
+
+            // Cerrar sidebar en móvil al hacer clic en un enlace
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.remove('mobile-open');
+                        const overlay = document.querySelector('.sidebar-overlay');
+                        if (overlay) overlay.remove();
+                    }
+                });
+            });
         });
     </script>
 </body>
