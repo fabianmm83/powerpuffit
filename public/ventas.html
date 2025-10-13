@@ -220,7 +220,7 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <!-- Botón para mostrar/ocultar sidebar en móvil -->
@@ -986,6 +986,7 @@
         }
     }
 
+    
     // ===== SISTEMA DE TICKETS =====
     async generarTicket() {
     if (this.carrito.length === 0) {
@@ -1001,14 +1002,21 @@
         const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
         const total = subtotal - this.montoDescuento;
 
-        // Cargar el logo como base64
-        const logoResponse = await fetch('/images/logo.png');
-        const logoBlob = await logoResponse.blob();
-        const logoBase64 = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
-            reader.readAsDataURL(logoBlob);
-        });
+        // Cargar el logo como base64 (manejar error si no existe)
+        let logoBase64 = '';
+        try {
+            const logoResponse = await fetch('/images/logo.png');
+            if (logoResponse.ok) {
+                const logoBlob = await logoResponse.blob();
+                logoBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(logoBlob);
+                });
+            }
+        } catch (error) {
+            console.warn('No se pudo cargar el logo:', error);
+        }
 
         const ticketContent = `
 <!DOCTYPE html>
@@ -1022,331 +1030,318 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Courier New', monospace;
         }
         
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 14px;
             line-height: 1.4;
             color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            background: white;
+            padding: 10px;
         }
         
-        .ticket-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-            max-width: 400px;
-            width: 100%;
-            position: relative;
+        .ticket {
+            width: 300px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 15px;
         }
         
         .ticket-header {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-            padding: 25px 20px;
             text-align: center;
-            position: relative;
-        }
-        
-        .logo-container {
             margin-bottom: 15px;
-        }
-        
-        .logo {
-            max-width: 120px;
-            height: auto;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 10px;
         }
         
         .company-name {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
             margin-bottom: 5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         
         .company-tagline {
             font-size: 12px;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-        
-        .ticket-body {
-            padding: 25px;
+            color: #666;
         }
         
         .info-section {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px dashed #e0e0e0;
+            margin-bottom: 15px;
+            font-size: 12px;
         }
         
         .info-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-        
-        .info-label {
-            font-weight: 600;
-            color: #666;
-        }
-        
-        .info-value {
-            font-weight: 500;
-            color: #333;
+            margin-bottom: 5px;
         }
         
         .products-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin: 15px 0;
             font-size: 12px;
         }
         
         .products-table th {
-            background: #f8f9fa;
-            padding: 10px;
             text-align: left;
-            font-weight: 600;
-            color: #555;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 1px solid #ddd;
+            padding: 5px 0;
+            font-weight: bold;
         }
         
         .products-table td {
-            padding: 10px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .product-name {
-            font-weight: 500;
-        }
-        
-        .product-details {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
+            padding: 3px 0;
+            border-bottom: 1px dashed #eee;
         }
         
         .text-right {
             text-align: right;
         }
         
-        .text-center {
-            text-align: center;
-        }
-        
         .totals-section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
+            margin: 15px 0;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
         }
         
         .total-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 14px;
+            margin-bottom: 5px;
         }
         
         .grand-total {
-            font-size: 18px;
             font-weight: bold;
-            color: #e74c3c;
-            border-top: 2px solid #e0e0e0;
-            padding-top: 10px;
+            font-size: 16px;
             margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #333;
         }
         
         .payment-method {
-            background: #e8f5e8;
-            border: 1px solid #27ae60;
-            border-radius: 8px;
-            padding: 12px;
             text-align: center;
             margin: 15px 0;
-            font-weight: 600;
-            color: #27ae60;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            font-weight: bold;
         }
         
         .ticket-footer {
             text-align: center;
-            padding: 20px;
-            background: #f8f9fa;
-            border-top: 2px dashed #e0e0e0;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+            font-size: 11px;
+            color: #666;
         }
         
         .thank-you {
-            font-size: 16px;
             font-weight: bold;
-            color: #e74c3c;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
         
-        .contact-info {
-            font-size: 11px;
-            color: #888;
-            line-height: 1.5;
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-top: 1px solid #ddd;
         }
         
-        .barcode {
-            margin: 15px 0;
-            opacity: 0.7;
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
         }
         
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            
-            .ticket-container {
-                max-width: 100%;
-            }
-            
-            .ticket-body {
-                padding: 20px;
-            }
-            
-            .products-table {
-                font-size: 11px;
-            }
+        .btn-print {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-print:hover {
+            background: #218838;
+        }
+        
+        .btn-pdf {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-pdf:hover {
+            background: #0056b3;
+        }
+        
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background: #c82333;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
-    <div class="ticket-container">
+    <div class="ticket">
         <div class="ticket-header">
-            <div class="logo-container">
-                <img src="${logoBase64}" alt="PowerPuffFit" class="logo">
-            </div>
             <div class="company-name">PowerPuffFit</div>
             <div class="company-tagline">Tienda Deportiva Premium</div>
         </div>
         
-        <div class="ticket-body">
-            <div class="info-section">
-                <div class="info-row">
-                    <span class="info-label">Fecha y Hora:</span>
-                    <span class="info-value">${new Date().toLocaleString()}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Ticket #:</span>
-                    <span class="info-value">${Date.now().toString().slice(-6)}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Cliente:</span>
-                    <span class="info-value">${clienteNombre}</span>
-                </div>
+        <div class="info-section">
+            <div class="info-row">
+                <span>Fecha y Hora:</span>
+                <span>${new Date().toLocaleString()}</span>
             </div>
-            
-            <table class="products-table">
-                <thead>
+            <div class="info-row">
+                <span>Ticket #:</span>
+                <span>${Date.now().toString().slice(-6)}</span>
+            </div>
+            <div class="info-row">
+                <span>Cliente:</span>
+                <span>${clienteNombre}</span>
+            </div>
+        </div>
+        
+        <table class="products-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="text-right">Cant.</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${this.carrito.map(item => `
                     <tr>
-                        <th>Producto</th>
-                        <th class="text-right">Cant.</th>
-                        <th class="text-right">Total</th>
+                        <td>
+                            <div>${item.nombre}</div>
+                            <div style="font-size:10px;color:#666;">$${item.precio.toFixed(2)} c/u</div>
+                        </td>
+                        <td class="text-right">${item.cantidad}</td>
+                        <td class="text-right">$${(item.precio * item.cantidad).toFixed(2)}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    ${this.carrito.map(item => `
-                        <tr>
-                            <td>
-                                <div class="product-name">${item.nombre}</div>
-                                <div class="product-details">$${item.precio.toFixed(2)} c/u</div>
-                            </td>
-                            <td class="text-right">${item.cantidad}</td>
-                            <td class="text-right">$${(item.precio * item.cantidad).toFixed(2)}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-            
-            <div class="totals-section">
-                ${this.montoDescuento > 0 ? `
-                    <div class="total-row">
-                        <span>Subtotal:</span>
-                        <span>$${subtotal.toFixed(2)}</span>
-                    </div>
-                    <div class="total-row">
-                        <span>Descuento:</span>
-                        <span style="color: #e74c3c;">-$${this.montoDescuento.toFixed(2)}</span>
-                    </div>
-                ` : ''}
-                
-                <div class="total-row grand-total">
-                    <span>TOTAL:</span>
-                    <span>$${total.toFixed(2)}</span>
+                `).join('')}
+            </tbody>
+        </table>
+        
+        <div class="totals-section">
+            ${this.montoDescuento > 0 ? `
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span>$${subtotal.toFixed(2)}</span>
                 </div>
-            </div>
+                <div class="total-row">
+                    <span>Descuento:</span>
+                    <span style="color: #dc3545;">-$${this.montoDescuento.toFixed(2)}</span>
+                </div>
+            ` : ''}
             
-            <div class="payment-method">
-                Método de Pago: ${this.getMetodoPagoNombre(metodoPago)}
+            <div class="total-row grand-total">
+                <span>TOTAL:</span>
+                <span>$${total.toFixed(2)}</span>
             </div>
+        </div>
+        
+        <div class="payment-method">
+            Método de Pago: ${this.getMetodoPagoNombre(metodoPago)}
         </div>
         
         <div class="ticket-footer">
             <div class="thank-you">¡Gracias por su compra!</div>
-            <div class="contact-info">
+            <div>
                 www.powerpufffit.com<br>
                 contacto@powerpufffit.com<br>
                 Tel: (555) 123-4567
             </div>
-            <div class="barcode">
+            <div style="margin:10px 0;font-family:monospace;">
                 ║║║║║║║║║║║║║║║║║║║║║║║║
             </div>
-            <div class="contact-info">
+            <div>
                 ¡Vuelva pronto! • PowerPuffFit © 2024
             </div>
         </div>
+        
+        <div class="controls">
+            <button class="btn-print" onclick="window.print()">Imprimir</button>
+            <button class="btn-pdf" onclick="generarPDF()">Descargar PDF</button>
+            <button class="btn-cancel" onclick="window.close()">Cancelar</button>
+        </div>
     </div>
+
+    <script>
+        // Función para generar PDF (solo cuando el usuario lo solicite)
+        async function generarPDF() {
+            try {
+                // Usar la versión global de jsPDF
+                const { jsPDF } = window.jspdf;
+                
+                // Capturar el ticket como imagen
+                const element = document.querySelector('.ticket');
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                });
+                
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                
+                // Crear PDF
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: [80, 200] // Tamaño similar a ticket
+                });
+                
+                const imgWidth = 70;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'JPEG', 5, 5, imgWidth, imgHeight);
+                pdf.save('ticket_powerpufffit_' + Date.now().toString().slice(-6) + '.pdf');
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                alert('Error al generar el PDF: ' + error.message);
+            }
+        }
+        
+        // Evitar que se cierre la ventana con F5
+        window.onbeforeunload = function() {
+            return "¿Estás seguro de que quieres cerrar la previsualización?";
+        };
+    </script>
 </body>
 </html>
-        `;
+`;
 
-        // Crear ventana responsiva para previsualización
+        // Crear ventana para previsualización
         const ventana = window.open('', '_blank', 
-            'width=450,height=700,scrollbars=yes,resizable=yes');
+            'width=400,height=700,scrollbars=yes,resizable=yes,top=100,left=100');
+        
         ventana.document.write(ticketContent);
         ventana.document.close();
 
-        // Esperar a que cargue el contenido y luego generar PDF
-        ventana.onload = async function() {
-            // Usar html2pdf para generar el PDF
-            const { jsPDF } = window.jspdf;
-            const html2pdf = window.html2pdf;
-            
-            await html2pdf()
-                .set({
-                    margin: 10,
-                    filename: `ticket_powerpufffit_${Date.now().toString().slice(-6)}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true },
-                    jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' }
-                })
-                .from(ventana.document.body)
-                .save();
-            
-            // Cerrar la ventana después de un tiempo
-            setTimeout(() => {
-                ventana.close();
-            }, 2000);
-        };
+        // Enfocar la ventana
+        ventana.focus();
 
     } catch (error) {
         console.error('Error generando ticket:', error);
         alert('Error al generar el ticket. Por favor, intente nuevamente.');
     }
 }
-
+    
+       
 
 
 
