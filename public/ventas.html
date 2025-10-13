@@ -352,11 +352,14 @@
                             <form id="ventaForm">
                                 <div class="mb-3">
     <label class="form-label">Cliente</label>
+    <div class="mb-3">
+    <label class="form-label">Cliente *</label>
     <div class="input-group">
-        <select class="form-select" id="clienteSelect">
+        <select class="form-select" id="clienteSelect" required>
             <option value="">Seleccionar cliente...</option>
+            <!-- Los clientes se cargarán dinámicamente -->
         </select>
-        <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#clienteModal">
+        <button class="btn btn-outline-primary" type="button" id="agregarClienteBtn">
             <i class="fas fa-plus"></i>
         </button>
     </div>
@@ -424,6 +427,60 @@
         </div>
     </div>
 
+
+
+    <!-- Modal para Agregar Cliente -->
+<div class="modal fade" id="clienteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar Nuevo Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="clienteForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="clienteNombre" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="clienteEmail">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="clienteTelefono">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Documento</label>
+                            <input type="text" class="form-control" id="clienteDocumento">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Dirección</label>
+                            <textarea class="form-control" id="clienteDireccion" rows="2"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="clienteActivo" checked>
+                                <label class="form-check-label" for="clienteActivo">
+                                    Cliente Activo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="guardarClienteBtn">Guardar Cliente</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
@@ -440,95 +497,104 @@
         };
 
         class VentasManager {
-            constructor() {
-                this.app = initializeApp(firebaseConfig);
-                this.db = getFirestore(this.app);
-                this.auth = getAuth(this.app);
-                this.productos = [];
-                this.ventas = [];
-                this.carrito = [];
-                this.clientes = [];
-                this.montoDescuento = 0;
-                this.init();
-            }
+    constructor() {
+        this.app = initializeApp(firebaseConfig);
+        this.db = getFirestore(this.app);
+        this.auth = getAuth(this.app);
+        this.productos = [];
+        this.ventas = [];
+        this.carrito = [];
+        this.clientes = [];
+        this.montoDescuento = 0;
+        this.init();
+    }
 
-            async init() {
-                await this.checkAuth();
-                this.initEventListeners();
-                await this.cargarProductos();
-                await this.cargarVentas();
-                this.calcularResumen();
-            }
+    async init() {
+        await this.checkAuth();
+        this.initEventListeners();
+        await this.cargarClientes();
+        await this.cargarProductos();
+        await this.cargarVentas();
+        this.calcularResumen();
+    }
 
-            async checkAuth() {
-                return new Promise((resolve) => {
-                    onAuthStateChanged(this.auth, (user) => {
-                        if (!user) {
-                            window.location.href = 'index.html';
-                        } else {
-                            resolve(true);
-                        }
-                    });
-                });
-            }
+    async checkAuth() {
+        return new Promise((resolve) => {
+            onAuthStateChanged(this.auth, (user) => {
+                if (!user) {
+                    window.location.href = 'index.html';
+                } else {
+                    resolve(true);
+                }
+            });
+        });
+    }
 
-            initEventListeners() {
-                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
-                document.getElementById('finalizarVentaBtn').addEventListener('click', () => this.finalizarVenta());
-                 document.getElementById('imprimirTicketBtn').addEventListener('click', () => this.generarTicket());
-                document.getElementById('searchProduct').addEventListener('input', () => this.filtrarProductos());
-                
-                // Configurar el modal
-                document.getElementById('ventaModal').addEventListener('show.bs.modal', () => {
-                    this.carrito = [];
-                    this.actualizarCarrito();
-                    this.filtrarProductos();
-                });
+    initEventListeners() {
+        document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+        document.getElementById('finalizarVentaBtn').addEventListener('click', () => this.finalizarVenta());
+        document.getElementById('searchProduct').addEventListener('input', () => this.filtrarProductos());
+        document.getElementById('imprimirTicketBtn').addEventListener('click', () => this.generarTicket());
+        
+        // EVENT LISTENERS PARA CLIENTES
+        document.getElementById('agregarClienteBtn').addEventListener('click', () => this.mostrarModalCliente());
+        document.getElementById('guardarClienteBtn').addEventListener('click', () => this.guardarCliente());
+        
+        // EVENT LISTENERS PARA DESCUENTOS
+        document.getElementById('aplicarDescuento').addEventListener('click', () => this.aplicarDescuento());
+        
+        // Configurar el modal de venta
+        document.getElementById('ventaModal').addEventListener('show.bs.modal', () => {
+            this.carrito = [];
+            this.montoDescuento = 0;
+            this.actualizarCarrito();
+            this.filtrarProductos();
+            this.limpiarFormularioCliente();
+        });
 
-                // Responsive sidebar toggle
-                document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
-                document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
+        // Responsive sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
+        document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
 
-                // Cerrar sidebar al hacer clic en un enlace (en móvil)
-                const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
-                sidebarLinks.forEach(link => {
-                    link.addEventListener('click', () => {
-                        if (window.innerWidth <= 992) {
-                            this.toggleSidebar();
-                        }
-                    });
-                });
+        // Cerrar sidebar al hacer clic en un enlace (en móvil)
+        const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 992) {
+                    this.toggleSidebar();
+                }
+            });
+        });
 
-                // Cerrar sidebar al redimensionar la ventana si se hace más grande
-                window.addEventListener('resize', () => {
-                    if (window.innerWidth > 992) {
-                        const sidebar = document.getElementById('sidebar');
-                        const overlay = document.getElementById('overlay');
-                        sidebar.classList.remove('active');
-                        overlay.classList.remove('active');
-                        document.body.classList.remove('sidebar-open');
-                    }
-                });
-            }
-
-            toggleSidebar() {
+        // Cerrar sidebar al redimensionar la ventana si se hace más grande
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 992) {
                 const sidebar = document.getElementById('sidebar');
                 const overlay = document.getElementById('overlay');
-                const isOpening = !sidebar.classList.contains('active');
-                
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-                
-                if (isOpening) {
-                    document.body.classList.add('sidebar-open');
-                } else {
-                    document.body.classList.remove('sidebar-open');
-                }
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
             }
+        });
+    }
 
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const isOpening = !sidebar.classList.contains('active');
+        
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        
+        if (isOpening) {
+            document.body.classList.add('sidebar-open');
+        } else {
+            document.body.classList.remove('sidebar-open');
+        }
+    }
 
-
-             async cargarClientes() {
+    // ===== GESTIÓN DE CLIENTES =====
+    async cargarClientes() {
         try {
             const q = query(collection(this.db, "clientes"), orderBy("nombre"));
             const snapshot = await getDocs(q);
@@ -549,109 +615,390 @@
         this.clientes.forEach(cliente => {
             const option = document.createElement('option');
             option.value = cliente.id;
-            option.textContent = `${cliente.nombre} - ${cliente.email || ''}`;
+            option.textContent = `${cliente.nombre}${cliente.email ? ` - ${cliente.email}` : ''}`;
             select.appendChild(option);
         });
     }
 
-    async crearCliente(clienteData) {
+    mostrarModalCliente() {
+        const clienteModal = new bootstrap.Modal(document.getElementById('clienteModal'));
+        clienteModal.show();
+    }
+
+    async guardarCliente() {
+        const form = document.getElementById('clienteForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const clienteData = {
+            nombre: document.getElementById('clienteNombre').value.trim(),
+            email: document.getElementById('clienteEmail').value.trim() || '',
+            telefono: document.getElementById('clienteTelefono').value.trim() || '',
+            documento: document.getElementById('clienteDocumento').value.trim() || '',
+            direccion: document.getElementById('clienteDireccion').value.trim() || '',
+            activo: document.getElementById('clienteActivo').checked,
+            fecha_registro: new Date(),
+            total_compras: 0,
+            monto_total: 0
+        };
+
         try {
-            const docRef = await addDoc(collection(this.db, "clientes"), {
-                ...clienteData,
-                fecha_registro: new Date(),
-                total_compras: 0,
-                ultima_compra: null
+            const docRef = await addDoc(collection(this.db, "clientes"), clienteData);
+            
+            // Agregar el nuevo cliente a la lista local
+            this.clientes.push({
+                id: docRef.id,
+                ...clienteData
             });
-            return docRef.id;
+            
+            // Actualizar el select
+            this.mostrarClientesEnSelect();
+            
+            // Seleccionar automáticamente el nuevo cliente
+            document.getElementById('clienteSelect').value = docRef.id;
+            
+            // Cerrar el modal
+            const clienteModal = bootstrap.Modal.getInstance(document.getElementById('clienteModal'));
+            clienteModal.hide();
+            
+            // Limpiar el formulario
+            this.limpiarFormularioCliente();
+            
+            alert('✅ Cliente agregado correctamente');
+            
         } catch (error) {
-            console.error("Error creando cliente:", error);
-            throw error;
+            console.error("Error guardando cliente:", error);
+            alert("Error al guardar el cliente: " + error.message);
         }
     }
 
-
-
-
-    aplicarDescuento() {
-    const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-    const tipo = document.getElementById('tipoDescuento').value;
-    const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    
-    let montoDescuento = 0;
-    
-    if (tipo === 'porcentaje') {
-        montoDescuento = subtotal * (descuento / 100);
-    } else {
-        montoDescuento = Math.min(descuento, subtotal);
+    limpiarFormularioCliente() {
+        document.getElementById('clienteForm').reset();
+        document.getElementById('clienteActivo').checked = true;
     }
-    
-    this.montoDescuento = montoDescuento;
-    this.actualizarTotales();
-}
 
-actualizarTotales() {
-    const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    const total = subtotal - this.montoDescuento;
-    
-    document.getElementById('subtotalVenta').textContent = `$${subtotal.toFixed(2)}`;
-    document.getElementById('montoDescuento').textContent = `-$${this.montoDescuento.toFixed(2)}`;
-    document.getElementById('totalVenta').textContent = `$${total.toFixed(2)}`;
-}
-
-            async cargarProductos() {
-                try {
-                    const querySnapshot = await getDocs(collection(this.db, "productos"));
-                    this.productos = [];
-                    querySnapshot.forEach((doc) => {
-                        const producto = { id: doc.id, ...doc.data() };
-                        if (producto.activo !== false && producto.cantidad > 0) {
-                            this.productos.push(producto);
-                        }
-                    });
-                } catch (error) {
-                    console.error("Error cargando productos:", error);
-                }
-            }
-
-
-
-            async actualizarHistorialCliente(ventaData) {
-    if (ventaData.clienteId) {
-        const clienteRef = doc(this.db, "clientes", ventaData.clienteId);
-        const cliente = this.clientes.find(c => c.id === ventaData.clienteId);
+    // ===== SISTEMA DE DESCUENTOS =====
+    aplicarDescuento() {
+        const descuento = parseFloat(document.getElementById('descuento').value) || 0;
+        const tipo = document.getElementById('tipoDescuento').value;
+        const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
         
-        await updateDoc(clienteRef, {
-            total_compras: (cliente.total_compras || 0) + 1,
-            monto_total: (cliente.monto_total || 0) + ventaData.total,
-            ultima_compra: new Date()
+        let montoDescuento = 0;
+        
+        if (tipo === 'porcentaje') {
+            montoDescuento = subtotal * (descuento / 100);
+        } else {
+            montoDescuento = Math.min(descuento, subtotal);
+        }
+        
+        this.montoDescuento = montoDescuento;
+        this.actualizarTotales();
+    }
+
+    actualizarTotales() {
+        const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        const total = subtotal - this.montoDescuento;
+        
+        document.getElementById('subtotalVenta').textContent = `$${subtotal.toFixed(2)}`;
+        document.getElementById('montoDescuento').textContent = `-$${this.montoDescuento.toFixed(2)}`;
+        document.getElementById('totalVenta').textContent = `$${total.toFixed(2)}`;
+    }
+
+    // ===== GESTIÓN DE PRODUCTOS =====
+    async cargarProductos() {
+        try {
+            const querySnapshot = await getDocs(collection(this.db, "productos"));
+            this.productos = [];
+            querySnapshot.forEach((doc) => {
+                const producto = { id: doc.id, ...doc.data() };
+                if (producto.activo !== false && producto.cantidad > 0) {
+                    this.productos.push(producto);
+                }
+            });
+        } catch (error) {
+            console.error("Error cargando productos:", error);
+        }
+    }
+
+    filtrarProductos() {
+        const searchTerm = document.getElementById('searchProduct').value.toLowerCase();
+        const container = document.getElementById('productosList');
+        container.innerHTML = '';
+
+        const productosFiltrados = this.productos.filter(producto => 
+            producto.nombre.toLowerCase().includes(searchTerm)
+        );
+
+        productosFiltrados.forEach(producto => {
+            const productCard = document.createElement('div');
+            productCard.className = 'col-md-6 col-sm-12 mb-2';
+            productCard.innerHTML = `
+                <div class="card sale-item p-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${producto.nombre}</h6>
+                            <small class="text-muted">Stock: ${producto.cantidad}</small>
+                            <br>
+                            <strong class="text-primary">$${producto.precio?.toFixed(2)}</strong>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="ventasManager.agregarAlCarrito('${producto.id}')">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(productCard);
         });
     }
-}
 
-async obtenerComprasRecurrentes() {
-    const clientesFrecuentes = this.clientes
-        .filter(cliente => cliente.total_compras > 1)
-        .sort((a, b) => b.total_compras - a.total_compras)
-        .slice(0, 10);
-    
-    return clientesFrecuentes;
-}
+    // ===== GESTIÓN DEL CARRITO =====
+    agregarAlCarrito(productId) {
+        const producto = this.productos.find(p => p.id === productId);
+        if (!producto) return;
 
+        const itemExistente = this.carrito.find(item => item.id === productId);
+        
+        if (itemExistente) {
+            if (itemExistente.cantidad < producto.cantidad) {
+                itemExistente.cantidad++;
+            } else {
+                alert('No hay suficiente stock disponible');
+                return;
+            }
+        } else {
+            this.carrito.push({
+                id: producto.id,
+                nombre: producto.nombre,
+                precio: producto.precio,
+                cantidad: 1,
+                stock_disponible: producto.cantidad
+            });
+        }
 
-// En la clase VentasManager, agrega este método
-generarTicket() {
-    if (this.carrito.length === 0) {
-        alert('No hay productos en el carrito para generar ticket');
-        return;
+        this.actualizarCarrito();
+        this.actualizarTotales();
     }
 
-    const cliente = document.getElementById('clienteSelect').value;
-    const clienteNombre = this.clientes.find(c => c.id === cliente)?.nombre || 'Cliente General';
-    const metodoPago = document.getElementById('metodo_pago').value;
-    const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    const total = subtotal - this.montoDescuento;
+    actualizarCarrito() {
+        const container = document.getElementById('carrito');
+        container.innerHTML = '';
 
-    const ticketContent = `
+        this.carrito.forEach((item, index) => {
+            const subtotal = item.precio * item.cantidad;
+
+            const itemElement = document.createElement('div');
+            itemElement.className = 'd-flex justify-content-between align-items-center border-bottom pb-2 mb-2';
+            itemElement.innerHTML = `
+                <div>
+                    <small><strong>${item.nombre}</strong></small>
+                    <br>
+                    <small>$${item.precio.toFixed(2)} x ${item.cantidad} = $${subtotal.toFixed(2)}</small>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="ventasManager.modificarCantidad(${index}, -1)">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="ventasManager.modificarCantidad(${index}, 1)">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger ms-1" onclick="ventasManager.eliminarDelCarrito(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(itemElement);
+        });
+
+        this.actualizarTotales();
+    }
+
+    modificarCantidad(index, cambio) {
+        const item = this.carrito[index];
+        const nuevaCantidad = item.cantidad + cambio;
+
+        if (nuevaCantidad <= 0) {
+            this.eliminarDelCarrito(index);
+            return;
+        }
+
+        if (nuevaCantidad > item.stock_disponible) {
+            alert('No hay suficiente stock disponible');
+            return;
+        }
+
+        item.cantidad = nuevaCantidad;
+        this.actualizarCarrito();
+    }
+
+    eliminarDelCarrito(index) {
+        this.carrito.splice(index, 1);
+        this.actualizarCarrito();
+    }
+
+    // ===== GESTIÓN DE VENTAS =====
+    async cargarVentas() {
+        try {
+            const q = query(collection(this.db, "ventas"), orderBy("fecha_venta", "desc"));
+            const querySnapshot = await getDocs(q);
+            this.ventas = [];
+            querySnapshot.forEach((doc) => {
+                this.ventas.push({ id: doc.id, ...doc.data() });
+            });
+            this.mostrarVentas();
+        } catch (error) {
+            console.error("Error cargando ventas:", error);
+        }
+    }
+
+    mostrarVentas() {
+        const tbody = document.getElementById('ventasTable');
+        tbody.innerHTML = '';
+
+        this.ventas.forEach(venta => {
+            const productosText = venta.productos?.map(p => 
+                `${p.nombre} (${p.cantidad})`
+            ).join(', ') || 'N/A';
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${venta.id.substring(0, 8)}...</td>
+                <td>${venta.cliente || 'Cliente General'}</td>
+                <td>${productosText}</td>
+                <td>$${venta.total?.toFixed(2) || '0.00'}</td>
+                <td>${venta.fecha_venta ? new Date(venta.fecha_venta.toDate()).toLocaleDateString() : 'N/A'}</td>
+                <td><span class="badge bg-secondary">${this.getMetodoPagoNombre(venta.metodo_pago)}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-danger" onclick="ventasManager.eliminarVenta('${venta.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    getMetodoPagoNombre(metodo) {
+        const metodos = {
+            'efectivo': 'Efectivo',
+            'tarjeta': 'Tarjeta',
+            'transferencia': 'Transferencia'
+        };
+        return metodos[metodo] || metodo;
+    }
+
+    async finalizarVenta() {
+        if (this.carrito.length === 0) {
+            alert('Agrega al menos un producto a la venta');
+            return;
+        }
+
+        const clienteSelect = document.getElementById('clienteSelect');
+        const clienteId = clienteSelect.value;
+        const cliente = this.clientes.find(c => c.id === clienteId)?.nombre || 'Cliente General';
+        const metodo_pago = document.getElementById('metodo_pago').value;
+        const notas = document.getElementById('notas').value;
+
+        const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        const total = subtotal - this.montoDescuento;
+
+        try {
+            // Registrar la venta
+            const ventaData = {
+                cliente: cliente,
+                clienteId: clienteId,
+                productos: this.carrito,
+                subtotal: subtotal,
+                descuento: this.montoDescuento,
+                total: total,
+                metodo_pago: metodo_pago,
+                notas: notas,
+                fecha_venta: new Date(),
+                estado: 'completada'
+            };
+
+            await addDoc(collection(this.db, "ventas"), ventaData);
+
+            // Actualizar stock de productos
+            for (const item of this.carrito) {
+                const productoRef = doc(this.db, "productos", item.id);
+                const producto = this.productos.find(p => p.id === item.id);
+                const nuevoStock = producto.cantidad - item.cantidad;
+                
+                await updateDoc(productoRef, {
+                    cantidad: nuevoStock
+                });
+            }
+
+            // Actualizar historial del cliente
+            if (clienteId) {
+                await this.actualizarHistorialCliente(clienteId, total);
+            }
+
+            alert('✅ Venta registrada exitosamente');
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('ventaModal'));
+            modal.hide();
+
+            // Recargar datos
+            await this.cargarProductos();
+            await this.cargarVentas();
+            await this.cargarClientes();
+            this.calcularResumen();
+
+        } catch (error) {
+            console.error("Error finalizando venta:", error);
+            alert("Error al registrar la venta: " + error.message);
+        }
+    }
+
+    async actualizarHistorialCliente(clienteId, montoVenta) {
+        try {
+            const clienteRef = doc(this.db, "clientes", clienteId);
+            const cliente = this.clientes.find(c => c.id === clienteId);
+            
+            await updateDoc(clienteRef, {
+                total_compras: (cliente.total_compras || 0) + 1,
+                monto_total: (cliente.monto_total || 0) + montoVenta,
+                ultima_compra: new Date()
+            });
+        } catch (error) {
+            console.error("Error actualizando historial del cliente:", error);
+        }
+    }
+
+    async eliminarVenta(ventaId) {
+        if (!confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
+            return;
+        }
+
+        try {
+            await deleteDoc(doc(this.db, "ventas", ventaId));
+            alert('✅ Venta eliminada correctamente');
+            await this.cargarVentas();
+            this.calcularResumen();
+        } catch (error) {
+            console.error("Error eliminando venta:", error);
+            alert("Error al eliminar la venta: " + error.message);
+        }
+    }
+
+    // ===== SISTEMA DE TICKETS =====
+    generarTicket() {
+        if (this.carrito.length === 0) {
+            alert('No hay productos en el carrito para generar ticket');
+            return;
+        }
+
+        const clienteSelect = document.getElementById('clienteSelect');
+        const clienteId = clienteSelect.value;
+        const clienteNombre = this.clientes.find(c => c.id === clienteId)?.nombre || 'Cliente General';
+        const metodoPago = document.getElementById('metodo_pago').value;
+        const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        const total = subtotal - this.montoDescuento;
+
+        const ticketContent = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -741,290 +1088,55 @@ generarTicket() {
     </div>
 </body>
 </html>
-    `;
+        `;
 
-    // Crear ventana para imprimir
-    const ventana = window.open('', '_blank', 'width=350,height=600');
-    ventana.document.write(ticketContent);
-    ventana.document.close();
-    
-    // Esperar a que cargue el contenido y luego imprimir
-    ventana.onload = function() {
-        ventana.print();
-        // Cerrar ventana después de imprimir (opcional)
-        // ventana.close();
-    };
-}
-            async cargarVentas() {
-                try {
-                    const q = query(collection(this.db, "ventas"), orderBy("fecha_venta", "desc"));
-                    const querySnapshot = await getDocs(q);
-                    this.ventas = [];
-                    querySnapshot.forEach((doc) => {
-                        this.ventas.push({ id: doc.id, ...doc.data() });
-                    });
-                    this.mostrarVentas();
-                } catch (error) {
-                    console.error("Error cargando ventas:", error);
-                }
-            }
+        // Crear ventana para imprimir
+        const ventana = window.open('', '_blank', 'width=350,height=600');
+        ventana.document.write(ticketContent);
+        ventana.document.close();
+        
+        // Esperar a que cargue el contenido y luego imprimir
+        ventana.onload = function() {
+            ventana.print();
+        };
+    }
 
-            mostrarVentas() {
-                const tbody = document.getElementById('ventasTable');
-                tbody.innerHTML = '';
+    // ===== MÉTRICAS Y REPORTES =====
+    calcularResumen() {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        
+        const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
 
-                this.ventas.forEach(venta => {
-                    const productosText = venta.productos?.map(p => 
-                        `${p.nombre} (${p.cantidad})`
-                    ).join(', ') || 'N/A';
+        const ventasHoy = this.ventas.filter(venta => {
+            const fechaVenta = venta.fecha_venta?.toDate();
+            return fechaVenta >= hoy;
+        });
 
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${venta.id.substring(0, 8)}...</td>
-                        <td>${venta.cliente || 'Cliente General'}</td>
-                        <td>${productosText}</td>
-                        <td>$${venta.total?.toFixed(2) || '0.00'}</td>
-                        <td>${venta.fecha_venta ? new Date(venta.fecha_venta.toDate()).toLocaleDateString() : 'N/A'}</td>
-                        <td><span class="badge bg-secondary">${this.getMetodoPagoNombre(venta.metodo_pago)}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-danger" onclick="ventasManager.eliminarVenta('${venta.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
+        const ventasMes = this.ventas.filter(venta => {
+            const fechaVenta = venta.fecha_venta?.toDate();
+            return fechaVenta >= inicioMes;
+        });
 
-            getMetodoPagoNombre(metodo) {
-                const metodos = {
-                    'efectivo': 'Efectivo',
-                    'tarjeta': 'Tarjeta',
-                    'transferencia': 'Transferencia'
-                };
-                return metodos[metodo] || metodo;
-            }
+        document.getElementById('totalVentasHoy').textContent = ventasHoy.length;
+        document.getElementById('ingresosHoy').textContent = '$' + 
+            ventasHoy.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
+        
+        document.getElementById('totalVentasMes').textContent = ventasMes.length;
+        document.getElementById('ingresosMes').textContent = '$' + 
+            ventasMes.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
+    }
 
-            filtrarProductos() {
-                const searchTerm = document.getElementById('searchProduct').value.toLowerCase();
-                const container = document.getElementById('productosList');
-                container.innerHTML = '';
-
-                const productosFiltrados = this.productos.filter(producto => 
-                    producto.nombre.toLowerCase().includes(searchTerm)
-                );
-
-                productosFiltrados.forEach(producto => {
-                    const productCard = document.createElement('div');
-                    productCard.className = 'col-md-6 col-sm-12 mb-2';
-                    productCard.innerHTML = `
-                        <div class="card sale-item p-2">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">${producto.nombre}</h6>
-                                    <small class="text-muted">Stock: ${producto.cantidad}</small>
-                                    <br>
-                                    <strong class="text-primary">$${producto.precio?.toFixed(2)}</strong>
-                                </div>
-                                <button class="btn btn-sm btn-primary" onclick="ventasManager.agregarAlCarrito('${producto.id}')">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(productCard);
-                });
-            }
-
-            agregarAlCarrito(productId) {
-                const producto = this.productos.find(p => p.id === productId);
-                if (!producto) return;
-
-                const itemExistente = this.carrito.find(item => item.id === productId);
-                
-                if (itemExistente) {
-                    if (itemExistente.cantidad < producto.cantidad) {
-                        itemExistente.cantidad++;
-                    } else {
-                        alert('No hay suficiente stock disponible');
-                        return;
-                    }
-                } else {
-                    this.carrito.push({
-                        id: producto.id,
-                        nombre: producto.nombre,
-                        precio: producto.precio,
-                        cantidad: 1,
-                        stock_disponible: producto.cantidad
-                    });
-                }
-
-                this.actualizarCarrito();
-            }
-
-            actualizarCarrito() {
-                const container = document.getElementById('carrito');
-                const totalElement = document.getElementById('totalVenta');
-                
-                container.innerHTML = '';
-                let total = 0;
-
-                this.carrito.forEach((item, index) => {
-                    const subtotal = item.precio * item.cantidad;
-                    total += subtotal;
-
-                    const itemElement = document.createElement('div');
-                    itemElement.className = 'd-flex justify-content-between align-items-center border-bottom pb-2 mb-2';
-                    itemElement.innerHTML = `
-                        <div>
-                            <small><strong>${item.nombre}</strong></small>
-                            <br>
-                            <small>$${item.precio.toFixed(2)} x ${item.cantidad} = $${subtotal.toFixed(2)}</small>
-                        </div>
-                        <div>
-                            <button class="btn btn-sm btn-outline-secondary me-1" onclick="ventasManager.modificarCantidad(${index}, -1)">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="ventasManager.modificarCantidad(${index}, 1)">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger ms-1" onclick="ventasManager.eliminarDelCarrito(${index})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(itemElement);
-                });
-
-                totalElement.textContent = `$${total.toFixed(2)}`;
-            }
-
-            modificarCantidad(index, cambio) {
-                const item = this.carrito[index];
-                const nuevaCantidad = item.cantidad + cambio;
-
-                if (nuevaCantidad <= 0) {
-                    this.eliminarDelCarrito(index);
-                    return;
-                }
-
-                if (nuevaCantidad > item.stock_disponible) {
-                    alert('No hay suficiente stock disponible');
-                    return;
-                }
-
-                item.cantidad = nuevaCantidad;
-                this.actualizarCarrito();
-            }
-
-            eliminarDelCarrito(index) {
-                this.carrito.splice(index, 1);
-                this.actualizarCarrito();
-            }
-
-            async finalizarVenta() {
-                if (this.carrito.length === 0) {
-                    alert('Agrega al menos un producto a la venta');
-                    return;
-                }
-
-                const cliente = document.getElementById('cliente').value || 'Cliente General';
-                const metodo_pago = document.getElementById('metodo_pago').value;
-                const notas = document.getElementById('notas').value;
-
-                const total = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-
-                try {
-                    // Registrar la venta
-                    const ventaData = {
-                        cliente: cliente,
-                        productos: this.carrito,
-                        total: total,
-                        metodo_pago: metodo_pago,
-                        notas: notas,
-                        fecha_venta: new Date(),
-                        estado: 'completada'
-                    };
-
-                    await addDoc(collection(this.db, "ventas"), ventaData);
-
-                    // Actualizar stock de productos
-                    for (const item of this.carrito) {
-                        const productoRef = doc(this.db, "productos", item.id);
-                        const producto = this.productos.find(p => p.id === item.id);
-                        const nuevoStock = producto.cantidad - item.cantidad;
-                        
-                        await updateDoc(productoRef, {
-                            cantidad: nuevoStock
-                        });
-                    }
-
-                    alert('✅ Venta registrada exitosamente');
-                    
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('ventaModal'));
-                    modal.hide();
-
-                    // Recargar datos
-                    await this.cargarProductos();
-                    await this.cargarVentas();
-                    this.calcularResumen();
-
-                } catch (error) {
-                    console.error("Error finalizando venta:", error);
-                    alert("Error al registrar la venta: " + error.message);
-                }
-            }
-
-            async eliminarVenta(ventaId) {
-                if (!confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
-                    return;
-                }
-
-                try {
-                    await deleteDoc(doc(this.db, "ventas", ventaId));
-                    alert('✅ Venta eliminada correctamente');
-                    await this.cargarVentas();
-                    this.calcularResumen();
-                } catch (error) {
-                    console.error("Error eliminando venta:", error);
-                    alert("Error al eliminar la venta: " + error.message);
-                }
-            }
-
-            calcularResumen() {
-                const hoy = new Date();
-                hoy.setHours(0, 0, 0, 0);
-                
-                const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-
-                const ventasHoy = this.ventas.filter(venta => {
-                    const fechaVenta = venta.fecha_venta?.toDate();
-                    return fechaVenta >= hoy;
-                });
-
-                const ventasMes = this.ventas.filter(venta => {
-                    const fechaVenta = venta.fecha_venta?.toDate();
-                    return fechaVenta >= inicioMes;
-                });
-
-                document.getElementById('totalVentasHoy').textContent = ventasHoy.length;
-                document.getElementById('ingresosHoy').textContent = '$' + 
-                    ventasHoy.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
-                
-                document.getElementById('totalVentasMes').textContent = ventasMes.length;
-                document.getElementById('ingresosMes').textContent = '$' + 
-                    ventasMes.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
-            }
-
-            async logout() {
-                try {
-                    await signOut(this.auth);
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    console.error('Error al cerrar sesión:', error);
-                }
-            }
+    async logout() {
+        try {
+            await signOut(this.auth);
+            window.location.href = 'index.html';
+        } catch (error) {
+            console.error('Error al cerrar sesión:', error);
         }
+    }
+}
+
 
         // Inicializar el gestor de ventas
         document.addEventListener('DOMContentLoaded', () => {
