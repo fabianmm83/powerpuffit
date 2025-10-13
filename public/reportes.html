@@ -17,13 +17,27 @@
             --text-dark: #5a2a3a;
         }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             background: linear-gradient(135deg, #fff0f6 0%, #ffeef5 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             color: var(--text-dark);
+            overflow-x: hidden;
         }
 
+        /* Layout Principal */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Igual que dashboard */
         .sidebar {
             background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-color) 100%);
             color: white;
@@ -34,15 +48,136 @@
             top: 0;
             z-index: 1000;
             transition: transform 0.3s ease;
+            box-shadow: 3px 0 15px rgba(138, 47, 90, 0.2);
         }
 
         .main-content {
             margin-left: 280px;
             padding: 20px;
             min-height: 100vh;
-            transition: margin-left 0.3s ease;
+            transition: all 0.3s ease;
+            width: calc(100% - 280px);
+            background: linear-gradient(135deg, #fff0f6 0%, #ffeef5 100%);
         }
 
+        .sidebar-brand {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand img {
+            height: 50px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-brand h5 {
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+
+        .sidebar-brand small {
+            opacity: 0.8;
+            font-size: 0.8rem;
+        }
+
+        .nav-link {
+            color: white !important;
+            padding: 0.8rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding-left: 2rem;
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+            text-align: center;
+        }
+
+        .nav-link.text-danger:hover {
+            background-color: rgba(220, 53, 69, 0.2);
+        }
+
+        /* Botón toggle para móvil */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+                box-shadow: 5px 0 25px rgba(0,0,0,0.3);
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 15px;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+        }
+
+        /* Prevenir scroll cuando el sidebar está abierto en móvil */
+        body.sidebar-open {
+            overflow: hidden;
+        }
+
+        /* Estilos específicos de reportes */
         .card {
             border-radius: 15px;
             border: none;
@@ -66,30 +201,7 @@
             width: 100%;
         }
 
-        /* Responsive styles */
-        @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .sidebar-toggle {
-                display: block !important;
-            }
-        }
-
         @media (max-width: 768px) {
-            .main-content {
-                padding: 15px;
-            }
-            
             .card-body {
                 padding: 15px;
             }
@@ -104,10 +216,6 @@
         }
 
         @media (max-width: 576px) {
-            .main-content {
-                padding: 10px;
-            }
-            
             .d-flex.justify-content-between {
                 flex-direction: column;
                 gap: 15px;
@@ -121,66 +229,40 @@
                 height: 200px;
             }
         }
-
-        .sidebar-toggle {
-            display: none;
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1100;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 8px 12px;
-            font-size: 1.2rem;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .overlay.active {
-            display: block;
-        }
     </style>
 </head>
 <body>
+    <!-- Botón para mostrar/ocultar sidebar en móvil -->
     <button class="sidebar-toggle" id="sidebarToggle">
         <i class="fas fa-bars"></i>
     </button>
     
+    <!-- Overlay para móvil -->
     <div class="overlay" id="overlay"></div>
     
     <div class="app-container">
-        <!-- Sidebar (mismo que dashboard) -->
+        <!-- Sidebar - Actualizado para coincidir con dashboard -->
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-brand p-3 text-center">
+            <div class="sidebar-brand">
                 <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
                 <h5>PowerPuffFit</h5>
                 <small>Reportes</small>
             </div>
+            
             <nav class="nav flex-column">
-                <a class="nav-link text-white" href="dashboard.html">
+                <a class="nav-link" href="dashboard.html">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
-                <a class="nav-link text-white" href="inventario.html">
+                <a class="nav-link" href="inventario.html">
                     <i class="fas fa-boxes me-2"></i>Inventario
                 </a>
-                <a class="nav-link text-white" href="ventas.html">
+                <a class="nav-link" href="ventas.html">
                     <i class="fas fa-cash-register me-2"></i>Ventas
                 </a>
-                <a class="nav-link text-white active" href="reportes.html">
+                <a class="nav-link active" href="reportes.html">
                     <i class="fas fa-chart-bar me-2"></i>Reportes
                 </a>
-                <a class="nav-link text-white mt-auto" href="#" id="logoutBtn">
+                <a class="nav-link text-danger mt-auto" href="#" id="logoutBtn">
                     <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
                 </a>
             </nav>
@@ -400,13 +482,42 @@
                 // Responsive sidebar toggle
                 document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
                 document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
+
+                // Cerrar sidebar al hacer clic en un enlace (en móvil)
+                const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (window.innerWidth <= 992) {
+                            this.toggleSidebar();
+                        }
+                    });
+                });
+
+                // Cerrar sidebar al redimensionar la ventana si se hace más grande
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 992) {
+                        const sidebar = document.getElementById('sidebar');
+                        const overlay = document.getElementById('overlay');
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                        document.body.classList.remove('sidebar-open');
+                    }
+                });
             }
 
             toggleSidebar() {
                 const sidebar = document.getElementById('sidebar');
                 const overlay = document.getElementById('overlay');
+                const isOpening = !sidebar.classList.contains('active');
+                
                 sidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
+                
+                if (isOpening) {
+                    document.body.classList.add('sidebar-open');
+                } else {
+                    document.body.classList.remove('sidebar-open');
+                }
             }
 
             configurarFechas() {
