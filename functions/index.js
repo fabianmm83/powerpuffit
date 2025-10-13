@@ -45,19 +45,22 @@ app.get('/products', async (req, res) => {
 // Ruta para crear producto (solo para testing)
 app.post('/products', async (req, res) => {
     try {
-        const { nombre, descripcion, precio, cantidad, categoria } = req.body;
+        const { nombre, descripcion, costo, precio, cantidad, categoria, proveedor, imagen_url } = req.body;
         
-        if (!nombre || !precio) {
-            return res.status(400).json({ error: 'Nombre y precio son requeridos' });
+        if (!nombre || !costo || !precio) {
+            return res.status(400).json({ error: 'Nombre, costo y precio son requeridos' });
         }
 
         const db = admin.firestore();
         const productRef = await db.collection('productos').add({
             nombre,
             descripcion: descripcion || '',
+            costo: parseFloat(costo),
             precio: parseFloat(precio),
             cantidad: parseInt(cantidad) || 0,
             categoria: categoria || 'general',
+            proveedor: proveedor || '',
+            imagen_url: imagen_url || '',
             activo: true,
             fecha_registro: admin.firestore.FieldValue.serverTimestamp()
         });

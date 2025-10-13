@@ -148,18 +148,18 @@ class PowerPuffApp {
     }
 
     async addProduct(productData) {
-        try {
-            const docRef = await addDoc(collection(this.db, "productos"), {
-                ...productData,
-                fecha_creacion: new Date(),
-                activo: true
-            });
-            return docRef.id;
-        } catch (error) {
-            console.error("Error agregando producto:", error);
-            throw error;
-        }
+    try {
+        const docRef = await addDoc(collection(this.db, "productos"), {
+            ...productData,
+            fecha_creacion: new Date(),
+            activo: true
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error("Error agregando producto:", error);
+        throw error;
     }
+}
 
     async updateProduct(productId, productData) {
         try {

@@ -157,6 +157,25 @@
         .overlay.active {
             display: block;
         }
+
+        .product-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.img-placeholder {
+    width: 50px;
+    height: 50px;
+    background-color: var(--light-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dark);
+}
+
     </style>
 </head>
 <body>
@@ -181,9 +200,17 @@
                 <a class="nav-link text-white active" href="inventario.html">
                     <i class="fas fa-boxes me-2"></i>Inventario
                 </a>
+                <a class="nav-link" href="#" id="tiendaLink">
+        <i class="fas fa-store"></i>
+        <span>Tienda Online</span>
+    </a>
                 <a class="nav-link text-white" href="ventas.html">
                     <i class="fas fa-cash-register me-2"></i>Ventas
                 </a>
+                <a class="nav-link" href="#" id="clientesLink">
+        <i class="fas fa-users"></i>
+        <span>Gestión Clientes</span>
+    </a>
                 <a class="nav-link text-white" href="reportes.html">
                     <i class="fas fa-chart-bar me-2"></i>Reportes
                 </a>
@@ -217,7 +244,6 @@
                                 <option value="ropa">Ropa Deportiva</option>
                                 <option value="calzado">Calzado</option>
                                 <option value="accesorios">Accesorios</option>
-                                <option value="equipamiento">Equipamiento</option>
                                 <option value="suplementos">Suplementos</option>
                             </select>
                         </div>
@@ -225,7 +251,7 @@
                             <label class="form-label">Estado Stock</label>
                             <select class="form-select" id="stockFilter">
                                 <option value="">Todos</option>
-                                <option value="low">Stock Bajo (< 10)</option>
+                                <option value="low">Stock Bajo (< 2)</option>
                                 <option value="out">Sin Stock</option>
                             </select>
                         </div>
@@ -271,50 +297,54 @@
                     <form id="productoForm">
                         <input type="hidden" id="productId">
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Nombre del Producto</label>
-                                <input type="text" class="form-control" id="nombre" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Categoría</label>
-                                <select class="form-select" id="categoria" required>
-                                    <option value="">Seleccionar categoría</option>
-                                    <option value="ropa">Ropa Deportiva</option>
-                                    <option value="calzado">Calzado</option>
-                                    <option value="accesorios">Accesorios</option>
-                                    <option value="equipamiento">Equipamiento</option>
-                                    <option value="suplementos">Suplementos</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Precio ($)</label>
-                                <input type="number" class="form-control" id="precio" step="0.01" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Cantidad en Stock</label>
-                                <input type="number" class="form-control" id="cantidad" required>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Descripción</label>
-                                <textarea class="form-control" id="descripcion" rows="3"></textarea>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Proveedor</label>
-                                <input type="text" class="form-control" id="proveedor">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Código de Barras</label>
-                                <input type="text" class="form-control" id="codigo_barras">
-                            </div>
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="activo" checked>
-                                    <label class="form-check-label" for="activo">
-                                        Producto Activo
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+    <div class="col-md-6">
+        <label class="form-label">Nombre del Producto</label>
+        <input type="text" class="form-control" id="nombre" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Categoría</label>
+        <select class="form-select" id="categoria" required>
+            <option value="">Seleccionar categoría</option>
+            <option value="ropa">Ropa Deportiva</option>
+            <option value="calzado">Calzado</option>
+            <option value="accesorios">Accesorios</option>
+            <option value="equipamiento">Equipamiento</option>
+            <option value="suplementos">Suplementos</option>
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Costo ($)</label>
+        <input type="number" class="form-control" id="costo" step="0.01" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Precio de Venta ($)</label>
+        <input type="number" class="form-control" id="precio" step="0.01" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Cantidad en Stock</label>
+        <input type="number" class="form-control" id="cantidad" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">URL de la Imagen</label>
+        <input type="url" class="form-control" id="imagen_url" placeholder="https://ejemplo.com/imagen.jpg">
+    </div>
+    <div class="col-12">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-control" id="descripcion" rows="3"></textarea>
+    </div>
+    <div class="col-12">
+        <label class="form-label">Proveedor</label>
+        <input type="text" class="form-control" id="proveedor">
+    </div>
+    <div class="col-12">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="activo" checked>
+            <label class="form-check-label" for="activo">
+                Producto Activo
+            </label>
+        </div>
+    </div>
+</div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -413,36 +443,43 @@
             }
 
             mostrarProductos(productos = this.productos) {
-                const tbody = document.getElementById('productosTable');
-                tbody.innerHTML = '';
+    const tbody = document.getElementById('productosTable');
+    tbody.innerHTML = '';
 
-                productos.forEach(producto => {
-                    const estadoStock = this.getEstadoStock(producto.cantidad);
-                    const badgeClass = this.getBadgeClass(estadoStock);
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>
-                            <strong>${producto.nombre}</strong>
-                            ${producto.descripcion ? `<br><small class="text-muted">${producto.descripcion.substring(0, 50)}...</small>` : ''}
-                        </td>
-                        <td><span class="badge bg-light text-dark">${this.getCategoriaNombre(producto.categoria)}</span></td>
-                        <td>$${producto.precio?.toFixed(2) || '0.00'}</td>
-                        <td>${producto.cantidad}</td>
-                        <td><span class="badge ${badgeClass}">${estadoStock}</span></td>
-                        <td>${producto.fecha_registro ? new Date(producto.fecha_registro.toDate()).toLocaleDateString() : 'N/A'}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#productoModal" data-product-id="${producto.id}">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="inventarioManager.eliminarProducto('${producto.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
+    productos.forEach(producto => {
+        const estadoStock = this.getEstadoStock(producto.cantidad);
+        const badgeClass = this.getBadgeClass(estadoStock);
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                ${producto.imagen_url ? 
+                    `<img src="${producto.imagen_url}" alt="${producto.nombre}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">` : 
+                    '<div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="fas fa-image text-muted"></i></div>'
+                }
+            </td>
+            <td>
+                <strong>${producto.nombre}</strong>
+                ${producto.descripcion ? `<br><small class="text-muted">${producto.descripcion.substring(0, 50)}...</small>` : ''}
+            </td>
+            <td><span class="badge bg-light text-dark">${this.getCategoriaNombre(producto.categoria)}</span></td>
+            <td>$${producto.costo?.toFixed(2) || '0.00'}</td>
+            <td>$${producto.precio?.toFixed(2) || '0.00'}</td>
+            <td>${producto.cantidad}</td>
+            <td><span class="badge ${badgeClass}">${estadoStock}</span></td>
+            <td>${producto.proveedor || 'N/A'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#productoModal" data-product-id="${producto.id}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="inventarioManager.eliminarProducto('${producto.id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
 
             getCategoriaNombre(categoria) {
                 const categorias = {
@@ -497,20 +534,21 @@
             }
 
             async cargarProductoParaEditar(productId) {
-                const producto = this.productos.find(p => p.id === productId);
-                if (!producto) return;
+    const producto = this.productos.find(p => p.id === productId);
+    if (!producto) return;
 
-                document.getElementById('modalTitle').textContent = 'Editar Producto';
-                document.getElementById('productId').value = producto.id;
-                document.getElementById('nombre').value = producto.nombre || '';
-                document.getElementById('categoria').value = producto.categoria || '';
-                document.getElementById('precio').value = producto.precio || '';
-                document.getElementById('cantidad').value = producto.cantidad || '';
-                document.getElementById('descripcion').value = producto.descripcion || '';
-                document.getElementById('proveedor').value = producto.proveedor || '';
-                document.getElementById('codigo_barras').value = producto.codigo_barras || '';
-                document.getElementById('activo').checked = producto.activo !== false;
-            }
+    document.getElementById('modalTitle').textContent = 'Editar Producto';
+    document.getElementById('productId').value = producto.id;
+    document.getElementById('nombre').value = producto.nombre || '';
+    document.getElementById('categoria').value = producto.categoria || '';
+    document.getElementById('costo').value = producto.costo || '';
+    document.getElementById('precio').value = producto.precio || '';
+    document.getElementById('cantidad').value = producto.cantidad || '';
+    document.getElementById('descripcion').value = producto.descripcion || '';
+    document.getElementById('proveedor').value = producto.proveedor || '';
+    document.getElementById('imagen_url').value = producto.imagen_url || '';
+    document.getElementById('activo').checked = producto.activo !== false;
+}
 
             limpiarFormulario() {
                 document.getElementById('modalTitle').textContent = 'Agregar Producto';
@@ -520,47 +558,48 @@
             }
 
             async guardarProducto() {
-                const form = document.getElementById('productoForm');
-                if (!form.checkValidity()) {
-                    form.reportValidity();
-                    return;
-                }
+    const form = document.getElementById('productoForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
 
-                const productId = document.getElementById('productId').value;
-                const productoData = {
-                    nombre: document.getElementById('nombre').value,
-                    categoria: document.getElementById('categoria').value,
-                    precio: parseFloat(document.getElementById('precio').value),
-                    cantidad: parseInt(document.getElementById('cantidad').value),
-                    descripcion: document.getElementById('descripcion').value,
-                    proveedor: document.getElementById('proveedor').value,
-                    codigo_barras: document.getElementById('codigo_barras').value,
-                    activo: document.getElementById('activo').checked,
-                    fecha_actualizacion: new Date()
-                };
+    const productId = document.getElementById('productId').value;
+    const productoData = {
+        nombre: document.getElementById('nombre').value,
+        categoria: document.getElementById('categoria').value,
+        costo: parseFloat(document.getElementById('costo').value),
+        precio: parseFloat(document.getElementById('precio').value),
+        cantidad: parseInt(document.getElementById('cantidad').value),
+        descripcion: document.getElementById('descripcion').value,
+        proveedor: document.getElementById('proveedor').value,
+        imagen_url: document.getElementById('imagen_url').value,
+        activo: document.getElementById('activo').checked,
+        fecha_actualizacion: new Date()
+    };
 
-                try {
-                    if (productId) {
-                        // Actualizar producto existente
-                        await updateDoc(doc(this.db, "productos", productId), productoData);
-                        alert('✅ Producto actualizado correctamente');
-                    } else {
-                        // Crear nuevo producto
-                        productoData.fecha_registro = new Date();
-                        await addDoc(collection(this.db, "productos"), productoData);
-                        alert('✅ Producto agregado correctamente');
-                    }
+    try {
+        if (productId) {
+            // Actualizar producto existente
+            await updateDoc(doc(this.db, "productos", productId), productoData);
+            alert('✅ Producto actualizado correctamente');
+        } else {
+            // Crear nuevo producto
+            productoData.fecha_registro = new Date();
+            await addDoc(collection(this.db, "productos"), productoData);
+            alert('✅ Producto agregado correctamente');
+        }
 
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('productoModal'));
-                    modal.hide();
+        const modal = bootstrap.Modal.getInstance(document.getElementById('productoModal'));
+        modal.hide();
 
-                    await this.cargarProductos();
+        await this.cargarProductos();
 
-                } catch (error) {
-                    console.error("Error guardando producto:", error);
-                    alert("Error al guardar el producto: " + error.message);
-                }
-            }
+    } catch (error) {
+        console.error("Error guardando producto:", error);
+        alert("Error al guardar el producto: " + error.message);
+    }
+}
 
             async eliminarProducto(productId) {
                 if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
