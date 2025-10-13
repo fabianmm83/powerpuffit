@@ -165,6 +165,23 @@
     border-radius: 8px;
 }
 
+.badge-profit {
+    background-color: #17a2b8;
+}
+
+.badge-high-profit {
+    background-color: #28a745;
+}
+
+.badge-low-profit {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.badge-negative-profit {
+    background-color: #dc3545;
+}
+
 .img-placeholder {
     width: 50px;
     height: 50px;
@@ -251,7 +268,7 @@
                             <label class="form-label">Estado Stock</label>
                             <select class="form-select" id="stockFilter">
                                 <option value="">Todos</option>
-                                <option value="low">Stock Bajo (< 2)</option>
+                                <option value="low">Stock Bajo (< 5)</option>
                                 <option value="out">Sin Stock</option>
                             </select>
                         </div>
@@ -442,6 +459,7 @@
                 }
             }
 
+          
             mostrarProductos(productos = this.productos) {
     const tbody = document.getElementById('productosTable');
     tbody.innerHTML = '';
@@ -449,13 +467,15 @@
     productos.forEach(producto => {
         const estadoStock = this.getEstadoStock(producto.cantidad);
         const badgeClass = this.getBadgeClass(estadoStock);
+        const margenInfo = this.calcularMargen(producto.costo, producto.precio);
+        const fechaRegistro = this.formatearFecha(producto.fecha_registro);
         
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>
                 ${producto.imagen_url ? 
-                    `<img src="${producto.imagen_url}" alt="${producto.nombre}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">` : 
-                    '<div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;"><i class="fas fa-image text-muted"></i></div>'
+                    `<img src="${producto.imagen_url}" alt="${producto.nombre}" class="rounded product-img">` : 
+                    '<div class="img-placeholder"><i class="fas fa-image text-muted"></i></div>'
                 }
             </td>
             <td>
@@ -465,9 +485,15 @@
             <td><span class="badge bg-light text-dark">${this.getCategoriaNombre(producto.categoria)}</span></td>
             <td>$${producto.costo?.toFixed(2) || '0.00'}</td>
             <td>$${producto.precio?.toFixed(2) || '0.00'}</td>
+            <td>
+                <span class="badge ${margenInfo.badgeClass}" title="Ganancia: $${margenInfo.gananciaNeta?.toFixed(2)}">
+                    ${margenInfo.porcentaje}%
+                </span>
+            </td>
             <td>${producto.cantidad}</td>
             <td><span class="badge ${badgeClass}">${estadoStock}</span></td>
             <td>${producto.proveedor || 'N/A'}</td>
+            <td>${fechaRegistro}</td>
             <td>
                 <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#productoModal" data-product-id="${producto.id}">
                     <i class="fas fa-edit"></i>
@@ -479,6 +505,54 @@
         `;
         tbody.appendChild(row);
     });
+}
+
+
+calcularMargen(costo, precio) {
+    if (!costo || !precio || costo === 0) {
+        return { porcentaje: '0', gananciaNeta: 0, badgeClass: 'badge-secondary' };
+    }
+    
+    const gananciaNeta = precio - costo;
+    const porcentajeMargen = ((gananciaNeta / costo) * 100).toFixed(1);
+    
+    let badgeClass = 'badge-profit';
+    
+    if (gananciaNeta < 0) {
+        badgeClass = 'badge-negative-profit';
+    } else if (porcentajeMargen > 50) {
+        badgeClass = 'badge-high-profit';
+    } else if (porcentajeMargen < 20) {
+        badgeClass = 'badge-low-profit';
+    }
+    
+    return {
+        porcentaje: porcentajeMargen,
+        gananciaNeta: gananciaNeta,
+        badgeClass: badgeClass
+    };
+}
+
+formatearFecha(fechaFirestore) {
+    if (!fechaFirestore) return 'N/A';
+    
+    try {
+        // Si es un timestamp de Firestore
+        if (fechaFirestore.toDate) {
+            return fechaFirestore.toDate().toLocaleDateString('es-ES');
+        }
+        // Si ya es un objeto Date
+        else if (fechaFirestore instanceof Date) {
+            return fechaFirestore.toLocaleDateString('es-ES');
+        }
+        // Si es un string o número
+        else {
+            return new Date(fechaFirestore).toLocaleDateString('es-ES');
+        }
+    } catch (error) {
+        console.error('Error formateando fecha:', error, fechaFirestore);
+        return 'Fecha inválida';
+    }
 }
 
             getCategoriaNombre(categoria) {
@@ -493,11 +567,11 @@
             }
 
             getEstadoStock(cantidad) {
-                if (cantidad === 0) return 'Sin Stock';
-                if (cantidad < 10) return 'Stock Bajo';
-                if (cantidad < 20) return 'Stock Medio';
-                return 'Stock Alto';
-            }
+    if (cantidad === 0) return 'Sin Stock';
+    if (cantidad < 5) return 'Stock Bajo';  // Cambiado de 2 a 5
+    if (cantidad < 15) return 'Stock Medio'; // Cambiado de 20 a 15
+    return 'Stock Alto';
+}
 
             getBadgeClass(estado) {
                 switch(estado) {
@@ -526,12 +600,12 @@
             }
 
             matchesStockFilter(cantidad, filter) {
-                switch(filter) {
-                    case 'low': return cantidad < 10;
-                    case 'out': return cantidad === 0;
-                    default: return true;
-                }
-            }
+    switch(filter) {
+        case 'low': return cantidad < 5;  // Cambiado de 2 a 5
+        case 'out': return cantidad === 0;
+        default: return true;
+    }
+}
 
             async cargarProductoParaEditar(productId) {
     const producto = this.productos.find(p => p.id === productId);
