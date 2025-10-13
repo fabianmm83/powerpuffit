@@ -39,7 +39,7 @@
         min-height: 100vh;
     }
 
-    /* Sidebar */
+        /* Sidebar */
     .sidebar {
         background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-color) 100%);
         color: white;
@@ -51,142 +51,22 @@
         top: 0;
         z-index: 1000;
         transition: all 0.3s ease;
+        overflow-y: auto;
+        height: 100vh;
     }
 
     .sidebar.collapsed {
         width: 80px;
     }
 
-    .sidebar-brand {
-        padding: 2rem 1.5rem;
-        text-align: center;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .sidebar.collapsed .sidebar-brand {
-        padding: 1.5rem 0.5rem;
-    }
-
-    .sidebar-brand img {
-        height: 60px;
-        width: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid white;
-        margin-bottom: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .sidebar.collapsed .sidebar-brand img {
-        height: 40px;
-        width: 40px;
-        margin-bottom: 0.5rem;
-    }
-
-    .sidebar-brand h4 {
-        font-weight: 800;
-        margin: 0;
-        font-size: 1.3rem;
-        transition: all 0.3s ease;
-    }
-
-    .sidebar.collapsed .sidebar-brand h4 {
-        font-size: 0;
-        opacity: 0;
-    }
-
-    .sidebar-brand small {
-        opacity: 0.8;
-        transition: all 0.3s ease;
-    }
-
-    .sidebar.collapsed .sidebar-brand small {
-        font-size: 0;
-        opacity: 0;
-    }
-
-    .nav-link {
-        color: white !important;
-        padding: 1rem 1.5rem;
-        margin: 0.3rem 1rem;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        white-space: nowrap;
-    }
-
-    .sidebar.collapsed .nav-link {
-        padding: 1rem;
-        margin: 0.3rem 0.5rem;
-        justify-content: center;
-    }
-
-    .nav-link:hover, .nav-link.active {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateX(5px);
-    }
-
-    .sidebar.collapsed .nav-link:hover {
-        transform: translateX(0) scale(1.05);
-    }
-
-    .nav-link i {
-        width: 25px;
-        text-align: center;
-        margin-right: 12px;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-    }
-
-    .sidebar.collapsed .nav-link i {
-        margin-right: 0;
-        font-size: 1.3rem;
-    }
-
-    .nav-link span {
-        transition: all 0.3s ease;
-    }
-
-    .sidebar.collapsed .nav-link span {
-        opacity: 0;
-        width: 0;
-        font-size: 0;
-    }
-
-    .toggle-sidebar {
-        position: absolute;
-        top: 20px;
-        right: -15px;
-        background: var(--primary-color);
-        border: 3px solid white;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        cursor: pointer;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-        z-index: 1001;
-    }
-
-    .toggle-sidebar:hover {
-        transform: scale(1.1);
-    }
-
     /* Main Content */
     .main-content {
-        flex: 1;
         margin-left: 280px;
         padding: 20px;
         transition: all 0.3s ease;
         min-height: 100vh;
         width: calc(100% - 280px);
+        background: linear-gradient(135deg, #fff0f6 0%, #ffeef5 100%);
     }
 
     .sidebar.collapsed ~ .main-content {
@@ -194,7 +74,7 @@
         width: calc(100% - 80px);
     }
 
-    .navbar-top {
+        .navbar-top {
         background: white;
         box-shadow: 0 2px 15px rgba(138, 47, 90, 0.1);
         border-radius: 15px;
@@ -205,6 +85,8 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 1rem;
+        position: relative;
+        z-index: 1;
     }
 
     .user-info {
@@ -489,11 +371,12 @@
         }
     }
 
-    /* Tablets */
+        /* Tablets */
     @media (max-width: 992px) {
         .sidebar {
             transform: translateX(-100%);
             width: 280px;
+            z-index: 1000;
         }
         
         .sidebar.mobile-open {
@@ -503,12 +386,15 @@
         
         .main-content {
             margin-left: 0 !important;
-            width: 100%;
-            padding-top: 80px;
+            width: 100% !important;
+            padding: 20px;
+            padding-top: 80px; /* Espacio para el mobile header */
         }
         
         .mobile-header {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
         .quick-actions {
@@ -519,6 +405,7 @@
             flex-direction: column;
             gap: 1rem;
             text-align: center;
+            margin-top: 0;
         }
         
         .toggle-sidebar {
@@ -528,8 +415,35 @@
         .stat-card {
             margin-bottom: 1rem;
         }
+        
+        /* Asegurar que el contenido sea accesible */
+        body {
+            overflow-x: hidden;
+        }
     }
 
+    /* Tablets pequeñas y móviles grandes */
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 15px;
+            padding-top: 70px;
+        }
+        
+        .navbar-top {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Ajustar el grid para mejor visualización */
+        .row.g-4 {
+            margin-left: -0.5rem;
+            margin-right: -0.5rem;
+        }
+        
+        .row.g-4 > [class*="col-"] {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+    }
     /* Tablets pequeñas y móviles grandes */
     @media (max-width: 768px) {
         .quick-actions {
@@ -1711,10 +1625,12 @@ getCategoriaNombre(categoria) {
 
 
         // Inicializar el dashboard cuando el DOM esté listo
+       
+                // Inicializar el dashboard cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', () => {
             window.dashboard = new Dashboard();
             
-            // Controladores para el sidebar responsivo - DENTRO del DOMContentLoaded
+            // Controladores para el sidebar responsivo
             const toggleSidebar = document.getElementById('toggleSidebar');
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             const sidebar = document.getElementById('sidebar');
@@ -1729,31 +1645,36 @@ getCategoriaNombre(categoria) {
             
             if (mobileMenuBtn) {
                 mobileMenuBtn.addEventListener('click', function() {
+                    const isOpening = !sidebar.classList.contains('mobile-open');
                     sidebar.classList.toggle('mobile-open');
-                    // Agregar overlay cuando se abre el sidebar en móvil
-                    const overlay = document.createElement('div');
-                    overlay.className = 'sidebar-overlay';
-                    overlay.style.cssText = `
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: rgba(0,0,0,0.5);
-                        z-index: 999;
-                        display: none;
-                    `;
-                    overlay.addEventListener('click', function() {
-                        sidebar.classList.remove('mobile-open');
-                        this.remove();
-                    });
                     
-                    if (sidebar.classList.contains('mobile-open')) {
+                    if (isOpening) {
+                        // Agregar overlay cuando se abre el sidebar
+                        const overlay = document.createElement('div');
+                        overlay.className = 'sidebar-overlay';
+                        overlay.style.cssText = `
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: rgba(0,0,0,0.5);
+                            z-index: 999;
+                            display: block;
+                        `;
+                        overlay.addEventListener('click', function() {
+                            sidebar.classList.remove('mobile-open');
+                            this.remove();
+                        });
                         document.body.appendChild(overlay);
-                        overlay.style.display = 'block';
+                        
+                        // Prevenir scroll del body cuando el sidebar está abierto
+                        document.body.style.overflow = 'hidden';
                     } else {
+                        // Remover overlay y restaurar scroll
                         const existingOverlay = document.querySelector('.sidebar-overlay');
                         if (existingOverlay) existingOverlay.remove();
+                        document.body.style.overflow = '';
                     }
                 });
             }
@@ -1761,15 +1682,31 @@ getCategoriaNombre(categoria) {
             // Cerrar sidebar en móvil al hacer clic en un enlace
             const navLinks = document.querySelectorAll('.sidebar .nav-link');
             navLinks.forEach(link => {
-                link.addEventListener('click', function() {
+                link.addEventListener('click', function(e) {
                     if (window.innerWidth <= 992) {
-                        sidebar.classList.remove('mobile-open');
-                        const overlay = document.querySelector('.sidebar-overlay');
-                        if (overlay) overlay.remove();
+                        // Solo para enlaces que no son el dashboard actual
+                        if (!this.classList.contains('active')) {
+                            sidebar.classList.remove('mobile-open');
+                            const overlay = document.querySelector('.sidebar-overlay');
+                            if (overlay) overlay.remove();
+                            document.body.style.overflow = '';
+                        }
                     }
                 });
             });
+
+            // Cerrar sidebar al redimensionar la ventana si se hace más grande
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 992) {
+                    sidebar.classList.remove('mobile-open');
+                    const overlay = document.querySelector('.sidebar-overlay');
+                    if (overlay) overlay.remove();
+                    document.body.style.overflow = '';
+                }
+            });
         });
-    </script>
+
+
+       </script>
 </body>
 </html>
