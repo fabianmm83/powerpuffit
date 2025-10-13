@@ -786,7 +786,7 @@
                 await this.loadStatistics();
                 await this.loadRecentActivity();
                 await this.loadLowStockProducts();
-                this.initCharts();
+                await this.initCharts(); 
             }
 
             updateCurrentDate() {
@@ -991,69 +991,162 @@ getLinkName(linkId) {
                 }
             }
 
+        
             async refreshData() {
-                try {
-                    await this.loadStatistics();
-                    await this.loadRecentActivity();
-                    await this.loadLowStockProducts();
-                    alert('✅ Datos actualizados correctamente');
-                } catch (error) {
-                    console.error('❌ Error actualizando datos:', error);
-                    alert('Error actualizando datos: ' + error.message);
-                }
-            }
+    try {
+        await this.loadStatistics();
+        await this.loadRecentActivity();
+        await this.loadLowStockProducts();
+        
+        // Actualizar gráficos
+        if (this.salesChart) this.salesChart.destroy();
+        if (this.categoryChart) this.categoryChart.destroy();
+        await this.initCharts();
+        
+        alert('✅ Datos actualizados correctamente');
+    } catch (error) {
+        console.error('❌ Error actualizando datos:', error);
+        alert('Error actualizando datos: ' + error.message);
+    }
+}
 
             async loadStatistics() {
-                try {
-                    // Total productos
-                    const productsSnapshot = await getDocs(collection(this.db, "productos"));
-                    document.getElementById('totalProductos').textContent = productsSnapshot.size;
+    try {
+        // Total productos
+        const productsSnapshot = await getDocs(collection(this.db, "productos"));
+        const totalProductos = productsSnapshot.size;
+        document.getElementById('totalProductos').textContent = totalProductos;
 
-                    // Productos con stock bajo
-                    const lowStockQuery = query(
-                        collection(this.db, "productos"), 
-                        where("cantidad", "<", 10)
-                    );
-                    const lowStockSnapshot = await getDocs(lowStockQuery);
-                    document.getElementById('stockBajo').textContent = lowStockSnapshot.size;
+        // Productos con stock bajo
+        const lowStockQuery = query(
+            collection(this.db, "productos"), 
+            where("cantidad", "<", 5)
+        );
+        const lowStockSnapshot = await getDocs(lowStockQuery);
+        document.getElementById('stockBajo').textContent = lowStockSnapshot.size;
 
-                    // Datos de ejemplo
-                    document.getElementById('totalVentas').textContent = Math.floor(productsSnapshot.size * 1.5);
-                    document.getElementById('ingresosTotales').textContent = `$${(productsSnapshot.size * 89.99).toFixed(2)}`;
+        // Ventas del mes actual
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const ventasQuery = query(
+            collection(this.db, "ventas"),
+            where("fecha_venta", ">=", startOfMonth)
+        );
+        const ventasSnapshot = await getDocs(ventasQuery);
+        const totalVentas = ventasSnapshot.size;
+        document.getElementById('totalVentas').textContent = totalVentas;
 
-                } catch (error) {
-                    console.error("❌ Error cargando estadísticas:", error);
-                }
-            }
+        // Ingresos totales del mes
+        let ingresosTotales = 0;
+        ventasSnapshot.forEach(doc => {
+            const venta = doc.data();
+            ingresosTotales += venta.total || 0;
+        });
+        document.getElementById('ingresosTotales').textContent = `$${ingresosTotales.toFixed(2)}`;
 
-            async loadRecentActivity() {
-                try {
-                    const container = document.getElementById('recentActivity');
-                    
-                    // Datos de ejemplo para actividad reciente
-                    const activities = [
-                        { type: 'sale', title: 'Nueva venta registrada', time: 'Hace 5 minutos' },
-                        { type: 'product', title: 'Producto agregado al inventario', time: 'Hace 15 minutos' },
-                        { type: 'user', title: 'Nuevo cliente registrado', time: 'Hace 1 hora' },
-                        { type: 'update', title: 'Stock actualizado', time: 'Hace 2 horas' }
-                    ];
+    } catch (error) {
+        console.error("❌ Error cargando estadísticas:", error);
+        // En caso de error, mostrar ceros
+        document.getElementById('totalVentas').textContent = '0';
+        document.getElementById('ingresosTotales').textContent = '$0';
+    }
+}
 
-                    container.innerHTML = activities.map(activity => `
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-${this.getActivityIcon(activity.type)}"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">${activity.title}</div>
-                                <div class="activity-time">${activity.time}</div>
-                            </div>
-                        </div>
-                    `).join('');
 
-                } catch (error) {
-                    console.error("❌ Error cargando actividad:", error);
-                }
-            }
+
+
+            
+async loadRecentActivity() {
+    try {
+        const container = document.getElementById('recentActivity');
+        
+        // Obtener las últimas ventas y productos como actividad
+        const ventasQuery = query(
+            collection(this.db, "ventas"),
+            orderBy("fecha_venta", "desc"),
+            limit(5)
+        );
+        
+        const productosQuery = query(
+            collection(this.db, "productos"),
+            orderBy("fecha_registro", "desc"),
+            limit(3)
+        );
+
+        const [ventasSnapshot, productosSnapshot] = await Promise.all([
+            getDocs(ventasQuery),
+            getDocs(productosQuery)
+        ]);
+
+        const activities = [];
+
+        // Agregar ventas recientes
+        ventasSnapshot.forEach(doc => {
+            const venta = doc.data();
+            activities.push({
+                type: 'sale',
+                title: `Venta registrada - $${venta.total?.toFixed(2) || '0.00'}`,
+                time: this.formatTimeAgo(venta.fecha_venta?.toDate()),
+                fecha: venta.fecha_venta?.toDate()
+            });
+        });
+
+        // Agregar productos recientes
+        productosSnapshot.forEach(doc => {
+            const producto = doc.data();
+            activities.push({
+                type: 'product',
+                title: `Producto agregado: ${producto.nombre}`,
+                time: this.formatTimeAgo(producto.fecha_registro?.toDate()),
+                fecha: producto.fecha_registro?.toDate()
+            });
+        });
+
+        // Ordenar por fecha (más reciente primero) y limitar a 5
+        activities.sort((a, b) => b.fecha - a.fecha);
+        const recentActivities = activities.slice(0, 5);
+
+        if (recentActivities.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted">No hay actividad reciente</p>';
+            return;
+        }
+
+        container.innerHTML = recentActivities.map(activity => `
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-${this.getActivityIcon(activity.type)}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">${activity.title}</div>
+                    <div class="activity-time">${activity.time}</div>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error("❌ Error cargando actividad:", error);
+        const container = document.getElementById('recentActivity');
+        container.innerHTML = '<p class="text-center text-muted">Error cargando actividad</p>';
+    }
+}
+
+// Agrega esta función auxiliar para formatear el tiempo
+formatTimeAgo(date) {
+    if (!date) return 'Fecha desconocida';
+    
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Hace unos segundos';
+    if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+    if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+    if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+    
+    return date.toLocaleDateString('es-ES');
+}
 
             getActivityIcon(type) {
                 const icons = {
@@ -1065,116 +1158,330 @@ getLinkName(linkId) {
                 return icons[type] || 'info-circle';
             }
 
+           
+
             async loadLowStockProducts() {
-                try {
-                    const lowStockQuery = query(
-                        collection(this.db, "productos"), 
-                        where("cantidad", "<", 10),
-                        orderBy("cantidad", "asc"),
-                        limit(5)
-                    );
-                    
-                    const snapshot = await getDocs(lowStockQuery);
-                    const container = document.getElementById('lowStockProducts');
-                    
-                    if (snapshot.empty) {
-                        container.innerHTML = '<p class="text-center text-muted">No hay productos con stock bajo</p>';
-                        return;
-                    }
-
-                    container.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const product = doc.data();
-                        const item = document.createElement('div');
-                        item.className = 'activity-item';
-                        item.innerHTML = `
-                            <div class="activity-icon" style="background: #ffebee;">
-                                <i class="fas fa-exclamation-triangle" style="color: #f44336;"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">${product.nombre}</div>
-                                <div class="activity-time">Stock: ${product.cantidad} unidades - $${product.precio}</div>
-                            </div>
-                        `;
-                        container.appendChild(item);
-                    });
-
-                } catch (error) {
-                    console.error("❌ Error cargando productos con stock bajo:", error);
-                }
-            }
-
-            initCharts() {
-                // Gráfico de ventas
-                const salesCtx = document.getElementById('salesChart').getContext('2d');
-                this.salesChart = new Chart(salesCtx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-                        datasets: [{
-                            label: 'Ventas ($)',
-                            data: [1200, 1900, 1500, 2000, 1800, 2200, 2400],
-                            borderColor: '#ff85a2',
-                            backgroundColor: 'rgba(255, 133, 162, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0,0,0,0.1)'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        }
-                    }
-                });
-
-                // Gráfico de categorías
-                const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-                this.categoryChart = new Chart(categoryCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Ropa', 'Calzado', 'Accesorios', 'Equipamiento'],
-                        datasets: [{
-                            data: [35, 25, 20, 20],
-                            backgroundColor: [
-                                '#ff85a2',
-                                '#ffacc7',
-                                '#ffd6e0',
-                                '#8a2f5a'
-                            ],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            }
-                        }
-                    }
-                });
-            }
+    try {
+        const lowStockQuery = query(
+            collection(this.db, "productos"), 
+            where("cantidad", "<", 5),
+            orderBy("cantidad", "asc"),
+            limit(5)
+        );
+        
+        const snapshot = await getDocs(lowStockQuery);
+        const container = document.getElementById('lowStockProducts');
+        
+        if (snapshot.empty) {
+            container.innerHTML = '<p class="text-center text-muted">No hay productos con stock bajo</p>';
+            return;
         }
 
+        container.innerHTML = '';
+        snapshot.forEach(doc => {
+            const product = doc.data();
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            item.innerHTML = `
+                <div class="activity-icon" style="background: #ffebee;">
+                    <i class="fas fa-exclamation-triangle" style="color: #f44336;"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">${product.nombre}</div>
+                    <div class="activity-time">Stock: ${product.cantidad} unidades - $${(product.precio || 0).toFixed(2)}</div>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+
+    } catch (error) {
+        console.error("❌ Error cargando productos con stock bajo:", error);
+        const container = document.getElementById('lowStockProducts');
+        container.innerHTML = '<p class="text-center text-muted">Error cargando productos</p>';
+    }
+}
+
+
+            async initCharts() {
+    await this.loadSalesChart();
+    await this.loadCategoryChart();
+}
+
+
+async loadSalesChart() {
+    try {
+        // Obtener ventas de los últimos 7 días
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        
+        const ventasQuery = query(
+            collection(this.db, "ventas"),
+            where("fecha_venta", ">=", sevenDaysAgo),
+            orderBy("fecha_venta", "asc")
+        );
+        
+        const snapshot = await getDocs(ventasQuery);
+        
+        // Preparar datos para los últimos 7 días
+        const dates = [];
+        const salesData = [];
+        
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            dates.push(this.formatChartDate(date));
+            
+            // Calcular total de ventas para este día
+            let dailyTotal = 0;
+            snapshot.forEach(doc => {
+                const venta = doc.data();
+                const ventaDate = venta.fecha_venta?.toDate();
+                if (ventaDate && ventaDate.toISOString().split('T')[0] === dateStr) {
+                    dailyTotal += venta.total || 0;
+                }
+            });
+            salesData.push(dailyTotal);
+        }
+
+        // Verificar si hay datos de ventas
+        const hasSalesData = salesData.some(amount => amount > 0);
+
+        // Gráfico de ventas
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        
+        if (this.salesChart) {
+            this.salesChart.destroy();
+        }
+
+        this.salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Ventas ($)',
+                    data: salesData,
+                    borderColor: '#ff85a2',
+                    backgroundColor: hasSalesData ? 'rgba(255, 133, 162, 0.1)' : 'rgba(0,0,0,0.02)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: !hasSalesData,
+                        text: 'No hay datos de ventas en los últimos 7 días'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("❌ Error cargando gráfico de ventas:", error);
+        // Gráfico vacío en caso de error
+        this.createEmptySalesChart();
+    }
+}
+
+
+
+async loadCategoryChart() {
+    try {
+        const productsSnapshot = await getDocs(collection(this.db, "productos"));
+        
+        // Contar productos por categoría
+        const categoryCount = {};
+        productsSnapshot.forEach(doc => {
+            const product = doc.data();
+            const categoria = product.categoria || 'general';
+            categoryCount[categoria] = (categoryCount[categoria] || 0) + 1;
+        });
+
+        const labels = Object.keys(categoryCount);
+        const data = Object.values(categoryCount);
+
+        // Verificar si hay productos
+        const hasProducts = labels.length > 0;
+
+        // Gráfico de categorías
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        
+        if (this.categoryChart) {
+            this.categoryChart.destroy();
+        }
+
+        this.categoryChart = new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: hasProducts ? labels.map(cat => this.getCategoriaNombre(cat)) : ['Sin productos'],
+                datasets: [{
+                    data: hasProducts ? data : [1],
+                    backgroundColor: hasProducts ? [
+                        '#ff85a2',
+                        '#ffacc7',
+                        '#ffd6e0',
+                        '#8a2f5a',
+                        '#ff6b9d',
+                        '#ff4f81'
+                    ] : ['#ccc'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: !hasProducts,
+                        text: 'No hay productos registrados'
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("❌ Error cargando gráfico de categorías:", error);
+        // Gráfico vacío en caso de error
+        this.createEmptyCategoryChart();
+    }
+}
+// Funciones auxiliares para gráficos vacíos
+// Funciones auxiliares para gráficos vacíos
+createEmptySalesChart() {
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    
+    if (this.salesChart) {
+        this.salesChart.destroy();
+    }
+    
+    this.salesChart = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+            datasets: [{
+                label: 'Ventas ($)',
+                data: [0, 0, 0, 0, 0, 0, 0],
+                borderColor: '#ccc',
+                backgroundColor: 'rgba(0,0,0,0.02)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Error cargando datos de ventas'
+                }
+            }
+        }
+    });
+}
+
+createEmptyCategoryChart() {
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    
+    if (this.categoryChart) {
+        this.categoryChart.destroy();
+    }
+    
+    this.categoryChart = new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Error'],
+            datasets: [{
+                data: [1],
+                backgroundColor: ['#ccc'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Error cargando categorías'
+                }
+            }
+        }
+    });
+}
+createEmptyCategoryChart() {
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    this.categoryChart = new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Sin datos'],
+            datasets: [{
+                data: [1],
+                backgroundColor: ['#ccc'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Función auxiliar para formatear fechas del gráfico
+formatChartDate(date) {
+    return date.toLocaleDateString('es-ES', { weekday: 'short' });
+}
+
+// Función auxiliar para nombres de categoría (debe coincidir con la de inventario)
+getCategoriaNombre(categoria) {
+    const categorias = {
+        'ropa': 'Ropa Deportiva',
+        'calzado': 'Calzado',
+        'accesorios': 'Accesorios',
+        'equipamiento': 'Equipamiento',
+        'suplementos': 'Suplementos',
+        'general': 'General'
+    };
+    return categorias[categoria] || categoria;
+}
+
+
+
+
         // Inicializar el dashboard cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', () => {
+}
+document.addEventListener('DOMContentLoaded', () => {
             window.dashboard = new Dashboard();
         });
 
