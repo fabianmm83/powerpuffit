@@ -6,6 +6,9 @@
     <title>Ventas - PowerPuffFit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Scripts para tickets -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --primary-color: #ff85a2;
@@ -219,8 +222,7 @@
             }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
 </head>
 <body>
     <!-- Botón para mostrar/ocultar sidebar en móvil -->
@@ -988,7 +990,9 @@
 
     
     // ===== SISTEMA DE TICKETS =====
-    async generarTicket() {
+ 
+    // ===== SISTEMA DE TICKETS - VERSIÓN SIMPLIFICADA =====
+async generarTicket() {
     if (this.carrito.length === 0) {
         alert('No hay productos en el carrito para generar ticket');
         return;
@@ -1001,348 +1005,62 @@
         const metodoPago = document.getElementById('metodo_pago').value;
         const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
         const total = subtotal - this.montoDescuento;
+        const ticketId = Date.now().toString().slice(-6);
 
-        // Cargar el logo como base64 (manejar error si no existe)
-        let logoBase64 = '';
-        try {
-            const logoResponse = await fetch('/images/logo.png');
-            if (logoResponse.ok) {
-                const logoBlob = await logoResponse.blob();
-                logoBase64 = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.readAsDataURL(logoBlob);
-                });
-            }
-        } catch (error) {
-            console.warn('No se pudo cargar el logo:', error);
-        }
-
-        const ticketContent = `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Ticket de Venta - PowerPuffFit</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Courier New', monospace;
-        }
-        
-        body { 
-            font-size: 14px;
-            line-height: 1.4;
-            color: #333;
-            background: white;
-            padding: 10px;
-        }
-        
-        .ticket {
-            width: 300px;
-            margin: 0 auto;
-            border: 1px solid #ddd;
-            padding: 15px;
-        }
-        
-        .ticket-header {
-            text-align: center;
-            margin-bottom: 15px;
-            border-bottom: 1px dashed #ccc;
-            padding-bottom: 10px;
-        }
-        
-        .company-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .company-tagline {
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .info-section {
-            margin-bottom: 15px;
-            font-size: 12px;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        
-        .products-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            font-size: 12px;
-        }
-        
-        .products-table th {
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-            padding: 5px 0;
-            font-weight: bold;
-        }
-        
-        .products-table td {
-            padding: 3px 0;
-            border-bottom: 1px dashed #eee;
-        }
-        
-        .text-right {
-            text-align: right;
-        }
-        
-        .totals-section {
-            margin: 15px 0;
-            padding-top: 10px;
-            border-top: 1px dashed #ccc;
-        }
-        
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        
-        .grand-total {
-            font-weight: bold;
-            font-size: 16px;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 2px solid #333;
-        }
-        
-        .payment-method {
-            text-align: center;
-            margin: 15px 0;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        
-        .ticket-footer {
-            text-align: center;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px dashed #ccc;
-            font-size: 11px;
-            color: #666;
-        }
-        
-        .thank-you {
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f9f9f9;
-            border-top: 1px solid #ddd;
-        }
-        
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        
-        .btn-print {
-            background: #28a745;
-            color: white;
-        }
-        
-        .btn-print:hover {
-            background: #218838;
-        }
-        
-        .btn-pdf {
-            background: #007bff;
-            color: white;
-        }
-        
-        .btn-pdf:hover {
-            background: #0056b3;
-        }
-        
-        .btn-cancel {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .btn-cancel:hover {
-            background: #c82333;
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-</head>
-<body>
-    <div class="ticket">
-        <div class="ticket-header">
-            <div class="company-name">PowerPuffFit</div>
-            <div class="company-tagline">Tienda Deportiva Premium</div>
-        </div>
-        
-        <div class="info-section">
-            <div class="info-row">
-                <span>Fecha y Hora:</span>
-                <span>${new Date().toLocaleString()}</span>
-            </div>
-            <div class="info-row">
-                <span>Ticket #:</span>
-                <span>${Date.now().toString().slice(-6)}</span>
-            </div>
-            <div class="info-row">
-                <span>Cliente:</span>
-                <span>${clienteNombre}</span>
-            </div>
-        </div>
-        
-        <table class="products-table">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th class="text-right">Cant.</th>
-                    <th class="text-right">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${this.carrito.map(item => `
-                    <tr>
-                        <td>
-                            <div>${item.nombre}</div>
-                            <div style="font-size:10px;color:#666;">$${item.precio.toFixed(2)} c/u</div>
-                        </td>
-                        <td class="text-right">${item.cantidad}</td>
-                        <td class="text-right">$${(item.precio * item.cantidad).toFixed(2)}</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-        
-        <div class="totals-section">
-            ${this.montoDescuento > 0 ? `
-                <div class="total-row">
-                    <span>Subtotal:</span>
-                    <span>$${subtotal.toFixed(2)}</span>
-                </div>
-                <div class="total-row">
-                    <span>Descuento:</span>
-                    <span style="color: #dc3545;">-$${this.montoDescuento.toFixed(2)}</span>
-                </div>
-            ` : ''}
-            
-            <div class="total-row grand-total">
-                <span>TOTAL:</span>
-                <span>$${total.toFixed(2)}</span>
-            </div>
-        </div>
-        
-        <div class="payment-method">
-            Método de Pago: ${this.getMetodoPagoNombre(metodoPago)}
-        </div>
-        
-        <div class="ticket-footer">
-            <div class="thank-you">¡Gracias por su compra!</div>
-            <div>
-                www.powerpufffit.com<br>
-                contacto@powerpufffit.com<br>
-                Tel: (555) 123-4567
-            </div>
-            <div style="margin:10px 0;font-family:monospace;">
-                ║║║║║║║║║║║║║║║║║║║║║║║║
-            </div>
-            <div>
-                ¡Vuelva pronto! • PowerPuffFit © 2024
-            </div>
-        </div>
-        
-        <div class="controls">
-            <button class="btn-print" onclick="window.print()">Imprimir</button>
-            <button class="btn-pdf" onclick="generarPDF()">Descargar PDF</button>
-            <button class="btn-cancel" onclick="window.close()">Cancelar</button>
-        </div>
-    </div>
-
-    <script>
-        // Función para generar PDF (solo cuando el usuario lo solicite)
-        async function generarPDF() {
-            try {
-                // Usar la versión global de jsPDF
-                const { jsPDF } = window.jspdf;
-                
-                // Capturar el ticket como imagen
-                const element = document.querySelector('.ticket');
-                const canvas = await html2canvas(element, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                });
-                
-                const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                
-                // Crear PDF
-                const pdf = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: [80, 200] // Tamaño similar a ticket
-                });
-                
-                const imgWidth = 70;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                
-                pdf.addImage(imgData, 'JPEG', 5, 5, imgWidth, imgHeight);
-                pdf.save('ticket_powerpufffit_' + Date.now().toString().slice(-6) + '.pdf');
-            } catch (error) {
-                console.error('Error generando PDF:', error);
-                alert('Error al generar el PDF: ' + error.message);
-            }
-        }
-        
-        // Evitar que se cierre la ventana con F5
-        window.onbeforeunload = function() {
-            return "¿Estás seguro de que quieres cerrar la previsualización?";
-        };
-    </script>
-</body>
-</html>
+        // Crear contenido simple del ticket
+        let ticketContent = `
+================================
+        POWERPUFFFIT
+    Tienda Deportiva Premium
+================================
+Fecha: ${new Date().toLocaleString()}
+Ticket: ${ticketId}
+Cliente: ${clienteNombre}
+================================
+PRODUCTOS:
 `;
 
-        // Crear ventana para previsualización
-        const ventana = window.open('', '_blank', 
-            'width=400,height=700,scrollbars=yes,resizable=yes,top=100,left=100');
-        
-        ventana.document.write(ticketContent);
-        ventana.document.close();
+        // Agregar productos
+        this.carrito.forEach(item => {
+            ticketContent += `
+${item.nombre}
+  $${item.precio.toFixed(2)} x ${item.cantidad} = $${(item.precio * item.cantidad).toFixed(2)}
+`;
+        });
 
-        // Enfocar la ventana
+        // Agregar totales
+        ticketContent += `
+================================
+Subtotal: $${subtotal.toFixed(2)}`;
+
+        if (this.montoDescuento > 0) {
+            ticketContent += `
+Descuento: -$${this.montoDescuento.toFixed(2)}`;
+        }
+
+        ticketContent += `
+TOTAL: $${total.toFixed(2)}
+================================
+Método de Pago: ${this.getMetodoPagoNombre(metodoPago)}
+================================
+¡Gracias por su compra!
+www.powerpufffit.com
+================================
+`;
+
+        // Abrir ventana para imprimir
+        const ventana = window.open('', '_blank', 'width=400,height=600');
+        ventana.document.write('<pre style="font-family: monospace; font-size: 12px; padding: 20px;">' + ticketContent + '</pre>');
+        ventana.document.write('<div style="text-align: center; margin-top: 20px;"><button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Imprimir Ticket</button></div>');
+        ventana.document.close();
         ventana.focus();
 
     } catch (error) {
         console.error('Error generando ticket:', error);
-        alert('Error al generar el ticket. Por favor, intente nuevamente.');
+        alert('Error al generar el ticket: ' + error.message);
     }
 }
     
-       
-
 
 
 
