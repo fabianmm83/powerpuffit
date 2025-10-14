@@ -287,6 +287,174 @@
             margin-top: 10px;
         }
 
+        /* Estilos para métricas modernas */
+        .metric-card {
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 
+                0 10px 30px rgba(138, 47, 90, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 40px rgba(138, 47, 90, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .metric-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.03;
+            z-index: 1;
+        }
+
+        .metric-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        .shape-1 {
+            width: 120px;
+            height: 120px;
+            top: -40px;
+            right: -40px;
+            opacity: 0.1;
+        }
+
+        .shape-2 {
+            width: 80px;
+            height: 80px;
+            bottom: -20px;
+            left: -20px;
+            opacity: 0.05;
+        }
+
+        .metric-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .metric-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 133, 162, 0.3);
+            flex-shrink: 0;
+        }
+
+        .metric-info {
+            flex: 1;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(135deg, var(--text-dark), var(--dark-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .metric-label {
+            color: var(--text-dark);
+            opacity: 0.8;
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .metric-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                var(--primary-color) 0%, 
+                var(--secondary-color) 50%, 
+                var(--accent-color) 100%);
+            border-radius: 0 0 20px 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .metric-card:hover .metric-wave {
+            opacity: 1;
+        }
+
+        /* Colores específicos para cada tarjeta */
+        .metric-card:nth-child(1) .metric-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .metric-card:nth-child(2) .metric-icon {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .metric-card:nth-child(3) .metric-icon {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .metric-card:nth-child(4) .metric-icon {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        /* Animaciones sutiles */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .metric-card:hover .metric-icon {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        /* Responsive para métricas */
+        @media (max-width: 768px) {
+            .metric-card {
+                padding: 20px;
+            }
+            
+            .metric-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .metric-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .metric-value {
+                font-size: 1.5rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .card-body {
                 padding: 15px;
@@ -323,7 +491,7 @@
     <div class="overlay" id="overlay"></div>
     
     <div class="app-container">
-        <!-- Sidebar - Actualizado para coincidir con dashboard -->
+        <!-- Sidebar - Actualizado -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-brand">
                 <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
@@ -367,67 +535,86 @@
 
             <!-- Métricas Rápidas -->
             <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card bg-primary text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h4 class="mb-0" id="totalProductos">0</h4>
-                                    <small>Total Productos</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-boxes fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-success text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h4 class="mb-0" id="valorInventario">$0</h4>
-                                    <small>Valor Inventario</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-dollar-sign fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-warning text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h4 class="mb-0" id="productosBajos">0</h4>
-                                    <small>Stock Bajo</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-exclamation-triangle fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-info text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h4 class="mb-0" id="productosSinStock">0</h4>
-                                    <small>Sin Stock</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-times-circle fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Total Productos -->
+    <div class="col-md-3 mb-3">
+        <div class="metric-card">
+            <div class="metric-background">
+                <div class="metric-shape shape-1"></div>
+                <div class="metric-shape shape-2"></div>
             </div>
+            <div class="metric-content">
+                <div class="metric-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 class="metric-value" id="totalProductos">0</h3>
+                    <p class="metric-label">Total Productos</p>
+                </div>
+                <div class="metric-wave"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Valor Inventario -->
+    <div class="col-md-3 mb-3">
+        <div class="metric-card">
+            <div class="metric-background">
+                <div class="metric-shape shape-1"></div>
+                <div class="metric-shape shape-2"></div>
+            </div>
+            <div class="metric-content">
+                <div class="metric-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 class="metric-value" id="valorInventario">$0</h3>
+                    <p class="metric-label">Valor Inventario</p>
+                </div>
+                <div class="metric-wave"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Bajo -->
+    <div class="col-md-3 mb-3">
+        <div class="metric-card">
+            <div class="metric-background">
+                <div class="metric-shape shape-1"></div>
+                <div class="metric-shape shape-2"></div>
+            </div>
+            <div class="metric-content">
+                <div class="metric-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 class="metric-value" id="productosBajos">0</h3>
+                    <p class="metric-label">Stock Bajo</p>
+                </div>
+                <div class="metric-wave"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sin Stock -->
+    <div class="col-md-3 mb-3">
+        <div class="metric-card">
+            <div class="metric-background">
+                <div class="metric-shape shape-1"></div>
+                <div class="metric-shape shape-2"></div>
+            </div>
+            <div class="metric-content">
+                <div class="metric-icon">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <div class="metric-info">
+                    <h3 class="metric-value" id="productosSinStock">0</h3>
+                    <p class="metric-label">Sin Stock</p>
+                </div>
+                <div class="metric-wave"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Filtros -->
             <div class="card mb-4">
