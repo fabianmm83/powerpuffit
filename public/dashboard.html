@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#ff85a2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PowerPuffFit">
+<link rel="apple-touch-icon" href="../images/icon-192x192.png">
     <title>Dashboard - PowerPufFit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -598,6 +604,43 @@
     body.sidebar-open {
         overflow: hidden;
     }
+    /* Mejoras para PWA */
+.pwa-mode .sidebar-toggle {
+    top: env(safe-area-inset-top, 15px);
+}
+
+@media (display-mode: standalone) {
+    body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    .navbar-top {
+        margin-top: calc(env(safe-area-inset-top) + 10px);
+    }
+}
+
+/* Prevenir zoom en inputs en iOS */
+@media (max-width: 768px) {
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Mejorar botones para touch */
+.btn, .nav-link, .action-btn {
+    touch-action: manipulation;
+}
+
+/* Optimizar scroll para PWA */
+body {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Safe areas para notches */
+.sidebar {
+    padding-top: env(safe-area-inset-top);
+}
 </style>
 </head>
 <body>
@@ -1544,5 +1587,20 @@
             window.dashboard = new Dashboard();
         });
     </script>
+    <script>
+// Service Worker para todas las páginas
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('✅ SW registrado en dashboard'))
+        .catch(err => console.log('❌ Error SW:', err));
+}
+
+// Detectar modo standalone (PWA instalada)
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    console.log('📱 Ejecutándose como PWA');
+    document.body.classList.add('pwa-mode');
+}
+</script>
+
 </body>
 </html>
