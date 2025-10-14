@@ -989,8 +989,7 @@
     }
 
     
-    // ===== SISTEMA DE TICKETS =====
- 
+   
     // ===== SISTEMA DE TICKETS - VERSIÓN SIMPLIFICADA =====
 async generarTicket() {
     if (this.carrito.length === 0) {
@@ -1007,51 +1006,252 @@ async generarTicket() {
         const total = subtotal - this.montoDescuento;
         const ticketId = Date.now().toString().slice(-6);
 
-        // Crear contenido simple del ticket
-        let ticketContent = `
-================================
-        POWERPUFFFIT
-    Tienda Deportiva Premium
-================================
-Fecha: ${new Date().toLocaleString()}
-Ticket: ${ticketId}
-Cliente: ${clienteNombre}
-================================
-PRODUCTOS:
-`;
+        // URL del logo - ajusta esta ruta según donde esté tu logo
+        const logoUrl = 'https://powerpuffit.web.app/images/logo.png'; // o la ruta correcta
 
-        // Agregar productos
-        this.carrito.forEach(item => {
-            ticketContent += `
-${item.nombre}
-  $${item.precio.toFixed(2)} x ${item.cantidad} = $${(item.precio * item.cantidad).toFixed(2)}
-`;
-        });
-
-        // Agregar totales
-        ticketContent += `
-================================
-Subtotal: $${subtotal.toFixed(2)}`;
-
-        if (this.montoDescuento > 0) {
-            ticketContent += `
-Descuento: -$${this.montoDescuento.toFixed(2)}`;
+        const ticketContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ticket de Venta - PowerPuffFit</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
         }
+        body { 
+            font-size: 14px;
+            line-height: 1.4;
+            color: #333;
+            background: white;
+            padding: 10px;
+        }
+        .ticket {
+            width: 300px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+        }
+        .ticket-header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 10px;
+        }
+        .logo {
+            height: 50px;
+            margin-bottom: 10px;
+        }
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ff85a2;
+        }
+        .company-tagline {
+            font-size: 12px;
+            color: #666;
+        }
+        .info-section {
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 12px;
+        }
+        .products-table th {
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            padding: 5px 0;
+            font-weight: bold;
+        }
+        .products-table td {
+            padding: 3px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .totals-section {
+            margin: 15px 0;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .grand-total {
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #333;
+        }
+        .payment-method {
+            text-align: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .ticket-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+            font-size: 11px;
+            color: #666;
+        }
+        .thank-you {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-top: 1px solid #ddd;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-print {
+            background: #28a745;
+            color: white;
+        }
+        .btn-print:hover {
+            background: #218838;
+        }
+        .btn-pdf {
+            background: #007bff;
+            color: white;
+        }
+        .btn-pdf:hover {
+            background: #0056b3;
+        }
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-cancel:hover {
+            background: #c82333;
+        }
+        @media print {
+            .controls { display: none; }
+            body { padding: 0; }
+            .ticket { border: none; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket">
+        <div class="ticket-header">
+            <img src="${logoUrl}" alt="PowerPuffFit" class="logo" onerror="this.style.display='none'">
+            <div class="company-name">PowerPuffFit</div>
+            <div class="company-tagline">Tienda Deportiva </div>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-row">
+                <span>Fecha y Hora:</span>
+                <span>${new Date().toLocaleString()}</span>
+            </div>
+            <div class="info-row">
+                <span>Ticket #:</span>
+                <span>${ticketId}</span>
+            </div>
+            <div class="info-row">
+                <span>Cliente:</span>
+                <span>${clienteNombre}</span>
+            </div>
+        </div>
+        
+        <table class="products-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="text-right">Cant.</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${this.carrito.map(item => `
+                    <tr>
+                        <td>
+                            <div>${item.nombre}</div>
+                            <div style="font-size:10px;color:#666;">$${item.precio.toFixed(2)} c/u</div>
+                        </td>
+                        <td class="text-right">${item.cantidad}</td>
+                        <td class="text-right">$${(item.precio * item.cantidad).toFixed(2)}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        
+        <div class="totals-section">
+            ${this.montoDescuento > 0 ? `
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span>$${subtotal.toFixed(2)}</span>
+                </div>
+                <div class="total-row">
+                    <span>Descuento:</span>
+                    <span style="color: #dc3545;">-$${this.montoDescuento.toFixed(2)}</span>
+                </div>
+            ` : ''}
+            <div class="total-row grand-total">
+                <span>TOTAL:</span>
+                <span>$${total.toFixed(2)}</span>
+            </div>
+        </div>
+        
+        <div class="payment-method">
+            Método de Pago: ${this.getMetodoPagoNombre(metodoPago)}
+        </div>
+        
+        <div class="ticket-footer">
+            <div class="thank-you">¡Gracias por su compra!</div>
+            <div>
+                https://powerpuffit.web.app/<br>
+                contacto@powerpufffit.com
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-print" onclick="window.print()">Imprimir Ticket</button>
+            <button class="btn-cancel" onclick="window.close()">Cerrar</button>
+        </div>
+    </div>
+</body>
+</html>`;
 
-        ticketContent += `
-TOTAL: $${total.toFixed(2)}
-================================
-Método de Pago: ${this.getMetodoPagoNombre(metodoPago)}
-================================
-¡Gracias por su compra!
-www.powerpufffit.com
-================================
-`;
-
-        // Abrir ventana para imprimir
-        const ventana = window.open('', '_blank', 'width=400,height=600');
-        ventana.document.write('<pre style="font-family: monospace; font-size: 12px; padding: 20px;">' + ticketContent + '</pre>');
-        ventana.document.write('<div style="text-align: center; margin-top: 20px;"><button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Imprimir Ticket</button></div>');
+        // Abrir ventana para previsualización
+        const ventana = window.open('', '_blank', 'width=400,height=700,scrollbars=yes,resizable=yes');
+        ventana.document.write(ticketContent);
         ventana.document.close();
         ventana.focus();
 
@@ -1060,8 +1260,6 @@ www.powerpufffit.com
         alert('Error al generar el ticket: ' + error.message);
     }
 }
-    
-
 
 
 
