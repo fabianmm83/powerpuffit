@@ -247,6 +247,46 @@
             color: var(--text-dark);
         }
 
+        /* Estilos para el input de archivo */
+        .form-control[type="file"] {
+            padding: 0.5rem;
+        }
+
+        .form-control[type="file"]::file-selector-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin-right: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-control[type="file"]::file-selector-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(255, 133, 162, 0.3);
+        }
+
+        /* Preview de imagen */
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            border-radius: 8px;
+            display: none;
+            border: 2px dashed var(--accent-color);
+        }
+
+        .image-preview.show {
+            display: block;
+        }
+
+        .image-preview-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
         @media (max-width: 768px) {
             .card-body {
                 padding: 15px;
@@ -488,8 +528,16 @@
                                 <input type="number" class="form-control" id="cantidad" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">URL de la Imagen</label>
-                                <input type="url" class="form-control" id="imagen_url" placeholder="https://ejemplo.com/imagen.jpg">
+                                <label class="form-label">Imagen del Producto</label>
+                                <input type="file" class="form-control" id="imagen_file" accept="image/*" capture="environment">
+                                <small class="form-text text-muted">
+                                    Puedes subir una imagen o tomar una foto directamente
+                                </small>
+                            </div>
+                            <div class="col-12">
+                                <div class="image-preview-container">
+                                    <img id="imagePreview" class="image-preview" alt="Vista previa">
+                                </div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Descripción</label>
@@ -520,6 +568,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
@@ -538,7 +587,9 @@
                 this.app = initializeApp(firebaseConfig);
                 this.db = getFirestore(this.app);
                 this.auth = getAuth(this.app);
+                this.storage = getStorage(this.app);
                 this.productos = [];
+                this.archivoImagen = null;
                 this.init();
             }
 
@@ -560,6 +611,36 @@
                 });
             }
 
+            async subirImagen(archivo, productId = null) {
+                try {
+                    // Si hay un productId, usarlo en el nombre del archivo
+                    const nombreArchivo = productId ? `productos/${productId}` : `productos/${Date.now()}_${archivo.name}`;
+                    const storageRef = ref(this.storage, nombreArchivo);
+                    
+                    // Subir el archivo
+                    const snapshot = await uploadBytes(storageRef, archivo);
+                    
+                    // Obtener la URL de descarga
+                    const downloadURL = await getDownloadURL(snapshot.ref);
+                    
+                    return downloadURL;
+                } catch (error) {
+                    console.error("Error subiendo imagen:", error);
+                    throw error;
+                }
+            }
+
+            // Método para eliminar imagen del storage
+            async eliminarImagen(url) {
+                try {
+                    // Crear una referencia a partir de la URL
+                    const storageRef = ref(this.storage, url);
+                    await deleteObject(storageRef);
+                } catch (error) {
+                    console.error("Error eliminando imagen:", error);
+                }
+            }
+
             initEventListeners() {
                 document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
                 document.getElementById('saveProductBtn').addEventListener('click', () => this.guardarProducto());
@@ -567,6 +648,24 @@
                 document.getElementById('categoryFilter').addEventListener('change', () => this.filtrarProductos());
                 document.getElementById('stockFilter').addEventListener('change', () => this.filtrarProductos());
                 
+                // Event listener para el input de archivo
+                document.getElementById('imagen_file').addEventListener('change', (e) => {
+                    this.archivoImagen = e.target.files[0];
+                    
+                    // Mostrar preview
+                    if (this.archivoImagen) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const preview = document.getElementById('imagePreview');
+                            preview.src = e.target.result;
+                            preview.classList.add('show');
+                        };
+                        reader.readAsDataURL(this.archivoImagen);
+                    } else {
+                        document.getElementById('imagePreview').classList.remove('show');
+                    }
+                });
+
                 // Configurar el modal
                 document.getElementById('productoModal').addEventListener('show.bs.modal', (event) => {
                     const button = event.relatedTarget;
@@ -577,6 +676,13 @@
                     } else {
                         this.limpiarFormulario();
                     }
+                });
+
+                // Limpiar el archivo cuando se cierre el modal
+                document.getElementById('productoModal').addEventListener('hidden.bs.modal', () => {
+                    this.archivoImagen = null;
+                    document.getElementById('imagen_file').value = '';
+                    document.getElementById('imagePreview').classList.remove('show');
                 });
 
                 // Responsive sidebar toggle
@@ -635,119 +741,115 @@
                 }
             }
 
-          
-            
-
             mostrarProductos(productos = this.productos) {
-    const tbody = document.getElementById('productosTable');
-    tbody.innerHTML = '';
+                const tbody = document.getElementById('productosTable');
+                tbody.innerHTML = '';
 
-    productos.forEach(producto => {
-        const estadoStock = this.getEstadoStock(producto.cantidad);
-        const badgeClass = this.getBadgeClass(estadoStock);
-        const margenInfo = this.calcularMargen(producto.costo, producto.precio);
-        const fechaRegistro = this.formatearFecha(producto.fecha_registro);
-        
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>
-                ${producto.imagen_url ? 
-                    `<img src="${producto.imagen_url}" alt="${producto.nombre}" class="rounded product-img">` : 
-                    '<div class="img-placeholder"><i class="fas fa-image text-muted"></i></div>'
+                productos.forEach(producto => {
+                    const estadoStock = this.getEstadoStock(producto.cantidad);
+                    const badgeClass = this.getBadgeClass(estadoStock);
+                    const margenInfo = this.calcularMargen(producto.costo, producto.precio);
+                    const fechaRegistro = this.formatearFecha(producto.fecha_registro);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            ${producto.imagen_url ? 
+                                `<img src="${producto.imagen_url}" alt="${producto.nombre}" class="rounded product-img">` : 
+                                '<div class="img-placeholder"><i class="fas fa-image text-muted"></i></div>'
+                            }
+                        </td>
+                        <td>
+                            <strong>${producto.nombre}</strong>
+                            ${producto.descripcion ? `<br><small class="text-muted">${producto.descripcion.substring(0, 50)}...</small>` : ''}
+                        </td>
+                        <td><span class="badge bg-light text-dark">${this.getCategoriaNombre(producto.categoria)}</span></td>
+                        <td>$${producto.costo?.toFixed(2) || '0.00'}</td>
+                        <td>$${producto.precio?.toFixed(2) || '0.00'}</td>
+                        <td>
+                            <span class="badge ${margenInfo.badgeClass}" title="Ganancia: $${margenInfo.gananciaNeta?.toFixed(2)}">
+                                ${margenInfo.porcentaje}%
+                            </span>
+                        </td>
+                        <td>${producto.cantidad}</td>
+                        <td><span class="badge ${badgeClass}">${estadoStock}</span></td>
+                        <td>${producto.proveedor || 'N/A'}</td>
+                        <td>${fechaRegistro}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#productoModal" data-product-id="${producto.id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="inventarioManager.eliminarProducto('${producto.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            actualizarMetricas() {
+                const totalProductos = this.productos.length;
+                const productosBajos = this.productos.filter(p => p.cantidad < 5 && p.cantidad > 0).length;
+                const productosSinStock = this.productos.filter(p => p.cantidad === 0).length;
+                
+                // Calcular valor total del inventario (costo * cantidad)
+                const valorInventario = this.productos.reduce((total, producto) => {
+                    return total + (producto.costo || 0) * (producto.cantidad || 0);
+                }, 0);
+
+                document.getElementById('totalProductos').textContent = totalProductos;
+                document.getElementById('productosBajos').textContent = productosBajos;
+                document.getElementById('productosSinStock').textContent = productosSinStock;
+                document.getElementById('valorInventario').textContent = `$${valorInventario.toFixed(2)}`;
+            }
+
+            calcularMargen(costo, precio) {
+                if (!costo || !precio || costo === 0) {
+                    return { porcentaje: '0', gananciaNeta: 0, badgeClass: 'badge-secondary' };
                 }
-            </td>
-            <td>
-                <strong>${producto.nombre}</strong>
-                ${producto.descripcion ? `<br><small class="text-muted">${producto.descripcion.substring(0, 50)}...</small>` : ''}
-            </td>
-            <td><span class="badge bg-light text-dark">${this.getCategoriaNombre(producto.categoria)}</span></td>
-            <td>$${producto.costo?.toFixed(2) || '0.00'}</td>
-            <td>$${producto.precio?.toFixed(2) || '0.00'}</td>
-            <td>
-                <span class="badge ${margenInfo.badgeClass}" title="Ganancia: $${margenInfo.gananciaNeta?.toFixed(2)}">
-                    ${margenInfo.porcentaje}%
-                </span>
-            </td>
-            <td>${producto.cantidad}</td>
-            <td><span class="badge ${badgeClass}">${estadoStock}</span></td>
-            <td>${producto.proveedor || 'N/A'}</td>
-            <td>${fechaRegistro}</td>
-            <td>
-                <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#productoModal" data-product-id="${producto.id}">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="inventarioManager.eliminarProducto('${producto.id}')">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
+                
+                const gananciaNeta = precio - costo;
+                const porcentajeMargen = ((gananciaNeta / costo) * 100).toFixed(1);
+                
+                let badgeClass = 'badge-profit';
+                
+                if (gananciaNeta < 0) {
+                    badgeClass = 'badge-negative-profit';
+                } else if (porcentajeMargen > 50) {
+                    badgeClass = 'badge-high-profit';
+                } else if (porcentajeMargen < 20) {
+                    badgeClass = 'badge-low-profit';
+                }
+                
+                return {
+                    porcentaje: porcentajeMargen,
+                    gananciaNeta: gananciaNeta,
+                    badgeClass: badgeClass
+                };
+            }
 
-actualizarMetricas() {
-    const totalProductos = this.productos.length;
-    const productosBajos = this.productos.filter(p => p.cantidad < 5 && p.cantidad > 0).length;
-    const productosSinStock = this.productos.filter(p => p.cantidad === 0).length;
-    
-    // Calcular valor total del inventario (costo * cantidad)
-    const valorInventario = this.productos.reduce((total, producto) => {
-        return total + (producto.costo || 0) * (producto.cantidad || 0);
-    }, 0);
-
-    document.getElementById('totalProductos').textContent = totalProductos;
-    document.getElementById('productosBajos').textContent = productosBajos;
-    document.getElementById('productosSinStock').textContent = productosSinStock;
-    document.getElementById('valorInventario').textContent = `$${valorInventario.toFixed(2)}`;
-}
-
-
-calcularMargen(costo, precio) {
-    if (!costo || !precio || costo === 0) {
-        return { porcentaje: '0', gananciaNeta: 0, badgeClass: 'badge-secondary' };
-    }
-    
-    const gananciaNeta = precio - costo;
-    const porcentajeMargen = ((gananciaNeta / costo) * 100).toFixed(1);
-    
-    let badgeClass = 'badge-profit';
-    
-    if (gananciaNeta < 0) {
-        badgeClass = 'badge-negative-profit';
-    } else if (porcentajeMargen > 50) {
-        badgeClass = 'badge-high-profit';
-    } else if (porcentajeMargen < 20) {
-        badgeClass = 'badge-low-profit';
-    }
-    
-    return {
-        porcentaje: porcentajeMargen,
-        gananciaNeta: gananciaNeta,
-        badgeClass: badgeClass
-    };
-}
-
-formatearFecha(fechaFirestore) {
-    if (!fechaFirestore) return 'N/A';
-    
-    try {
-        // Si es un timestamp de Firestore
-        if (fechaFirestore.toDate) {
-            return fechaFirestore.toDate().toLocaleDateString('es-ES');
-        }
-        // Si ya es un objeto Date
-        else if (fechaFirestore instanceof Date) {
-            return fechaFirestore.toLocaleDateString('es-ES');
-        }
-        // Si es un string o número
-        else {
-            return new Date(fechaFirestore).toLocaleDateString('es-ES');
-        }
-    } catch (error) {
-        console.error('Error formateando fecha:', error, fechaFirestore);
-        return 'Fecha inválida';
-    }
-}
+            formatearFecha(fechaFirestore) {
+                if (!fechaFirestore) return 'N/A';
+                
+                try {
+                    // Si es un timestamp de Firestore
+                    if (fechaFirestore.toDate) {
+                        return fechaFirestore.toDate().toLocaleDateString('es-ES');
+                    }
+                    // Si ya es un objeto Date
+                    else if (fechaFirestore instanceof Date) {
+                        return fechaFirestore.toLocaleDateString('es-ES');
+                    }
+                    // Si es un string o número
+                    else {
+                        return new Date(fechaFirestore).toLocaleDateString('es-ES');
+                    }
+                } catch (error) {
+                    console.error('Error formateando fecha:', error, fechaFirestore);
+                    return 'Fecha inválida';
+                }
+            }
 
             getCategoriaNombre(categoria) {
                 const categorias = {
@@ -761,11 +863,11 @@ formatearFecha(fechaFirestore) {
             }
 
             getEstadoStock(cantidad) {
-    if (cantidad === 0) return 'Sin Stock';
-    if (cantidad < 5) return 'Stock Bajo';  // Cambiado de 2 a 5
-    if (cantidad < 15) return 'Stock Medio'; // Cambiado de 20 a 15
-    return 'Stock Alto';
-}
+                if (cantidad === 0) return 'Sin Stock';
+                if (cantidad < 5) return 'Stock Bajo';
+                if (cantidad < 15) return 'Stock Medio';
+                return 'Stock Alto';
+            }
 
             getBadgeClass(estado) {
                 switch(estado) {
@@ -794,80 +896,111 @@ formatearFecha(fechaFirestore) {
             }
 
             matchesStockFilter(cantidad, filter) {
-    switch(filter) {
-        case 'low': return cantidad < 5;  // Cambiado de 2 a 5
-        case 'out': return cantidad === 0;
-        default: return true;
-    }
-}
+                switch(filter) {
+                    case 'low': return cantidad < 5;
+                    case 'out': return cantidad === 0;
+                    default: return true;
+                }
+            }
 
             async cargarProductoParaEditar(productId) {
-    const producto = this.productos.find(p => p.id === productId);
-    if (!producto) return;
+                const producto = this.productos.find(p => p.id === productId);
+                if (!producto) return;
 
-    document.getElementById('modalTitle').textContent = 'Editar Producto';
-    document.getElementById('productId').value = producto.id;
-    document.getElementById('nombre').value = producto.nombre || '';
-    document.getElementById('categoria').value = producto.categoria || '';
-    document.getElementById('costo').value = producto.costo || '';
-    document.getElementById('precio').value = producto.precio || '';
-    document.getElementById('cantidad').value = producto.cantidad || '';
-    document.getElementById('descripcion').value = producto.descripcion || '';
-    document.getElementById('proveedor').value = producto.proveedor || '';
-    document.getElementById('imagen_url').value = producto.imagen_url || '';
-    document.getElementById('activo').checked = producto.activo !== false;
-}
+                document.getElementById('modalTitle').textContent = 'Editar Producto';
+                document.getElementById('productId').value = producto.id;
+                document.getElementById('nombre').value = producto.nombre || '';
+                document.getElementById('categoria').value = producto.categoria || '';
+                document.getElementById('costo').value = producto.costo || '';
+                document.getElementById('precio').value = producto.precio || '';
+                document.getElementById('cantidad').value = producto.cantidad || '';
+                document.getElementById('descripcion').value = producto.descripcion || '';
+                document.getElementById('proveedor').value = producto.proveedor || '';
+                document.getElementById('activo').checked = producto.activo !== false;
+                
+                // Mostrar imagen actual si existe
+                if (producto.imagen_url) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = producto.imagen_url;
+                    preview.classList.add('show');
+                } else {
+                    document.getElementById('imagePreview').classList.remove('show');
+                }
+                
+                // Limpiar el input de archivo
+                document.getElementById('imagen_file').value = '';
+                this.archivoImagen = null;
+            }
 
             limpiarFormulario() {
                 document.getElementById('modalTitle').textContent = 'Agregar Producto';
                 document.getElementById('productoForm').reset();
                 document.getElementById('productId').value = '';
                 document.getElementById('activo').checked = true;
+                document.getElementById('imagePreview').classList.remove('show');
             }
 
             async guardarProducto() {
-    const form = document.getElementById('productoForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
+                const form = document.getElementById('productoForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
 
-    const productId = document.getElementById('productId').value;
-    const productoData = {
-        nombre: document.getElementById('nombre').value,
-        categoria: document.getElementById('categoria').value,
-        costo: parseFloat(document.getElementById('costo').value),
-        precio: parseFloat(document.getElementById('precio').value),
-        cantidad: parseInt(document.getElementById('cantidad').value),
-        descripcion: document.getElementById('descripcion').value,
-        proveedor: document.getElementById('proveedor').value,
-        imagen_url: document.getElementById('imagen_url').value,
-        activo: document.getElementById('activo').checked,
-        fecha_actualizacion: new Date()
-    };
+                const productId = document.getElementById('productId').value;
+                let imagen_url = null;
 
-    try {
-        if (productId) {
-            // Actualizar producto existente
-            await updateDoc(doc(this.db, "productos", productId), productoData);
-            alert('✅ Producto actualizado correctamente');
-        } else {
-            // Crear nuevo producto
-            productoData.fecha_registro = new Date();
-            await addDoc(collection(this.db, "productos"), productoData);
-            alert('✅ Producto agregado correctamente');
-        }
+                try {
+                    // Si se seleccionó un archivo, subirlo
+                    if (this.archivoImagen) {
+                        imagen_url = await this.subirImagen(this.archivoImagen, productId);
+                    }
 
-        const modal = bootstrap.Modal.getInstance(document.getElementById('productoModal'));
-        modal.hide();
+                    const productoData = {
+                        nombre: document.getElementById('nombre').value,
+                        categoria: document.getElementById('categoria').value,
+                        costo: parseFloat(document.getElementById('costo').value),
+                        precio: parseFloat(document.getElementById('precio').value),
+                        cantidad: parseInt(document.getElementById('cantidad').value),
+                        descripcion: document.getElementById('descripcion').value,
+                        proveedor: document.getElementById('proveedor').value,
+                        activo: document.getElementById('activo').checked,
+                        fecha_actualizacion: new Date()
+                    };
 
-        await this.cargarProductos();
+                    // Solo agregar imagen_url si existe
+                    if (imagen_url) {
+                        productoData.imagen_url = imagen_url;
+                    }
 
-    } catch (error) {
-        console.error("Error guardando producto:", error);
-        alert("Error al guardar el producto: " + error.message);
-    }
-}
+                    if (productId) {
+                        // Actualizar producto existente
+                        await updateDoc(doc(this.db, "productos", productId), productoData);
+                        alert('✅ Producto actualizado correctamente');
+                    } else {
+                        // Crear nuevo producto
+                        productoData.fecha_registro = new Date();
+                        const docRef = await addDoc(collection(this.db, "productos"), productoData);
+                        
+                        // Si se subió una imagen y es un nuevo producto, actualizar con el ID real
+                        if (this.archivoImagen) {
+                            const nuevaImagenUrl = await this.subirImagen(this.archivoImagen, docRef.id);
+                            await updateDoc(docRef, { imagen_url: nuevaImagenUrl });
+                        }
+                        
+                        alert('✅ Producto agregado correctamente');
+                    }
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('productoModal'));
+                    modal.hide();
+
+                    await this.cargarProductos();
+
+                } catch (error) {
+                    console.error("Error guardando producto:", error);
+                    alert("Error al guardar el producto: " + error.message);
+                }
+            }
 
             async eliminarProducto(productId) {
                 if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
@@ -875,6 +1008,13 @@ formatearFecha(fechaFirestore) {
                 }
 
                 try {
+                    const producto = this.productos.find(p => p.id === productId);
+                    
+                    // Eliminar la imagen del storage si existe
+                    if (producto?.imagen_url) {
+                        await this.eliminarImagen(producto.imagen_url);
+                    }
+                    
                     await deleteDoc(doc(this.db, "productos", productId));
                     alert('✅ Producto eliminado correctamente');
                     await this.cargarProductos();
