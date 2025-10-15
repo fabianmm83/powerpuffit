@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#ff85a2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PowerPuffFit">
+    <link rel="apple-touch-icon" href="../images/icon-192x192.png">
+    <title>Gestión de Clientes - PowerPuffFit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #ff85a2;
+            --secondary-color: #ffacc7;
+            --accent-color: #ffd6e0;
+            --dark-color: #8a2f5a;
+            --light-color: #fff0f6;
+            --text-dark: #5a2a3a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff0f6 0%, #ffeef5 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Layout Principal */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Igual que dashboard */
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--dark-color) 100%);
+            color: white;
+            width: 280px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 3px 0 15px rgba(138, 47, 90, 0.2);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+            width: calc(100% - 280px);
+            background: linear-gradient(135deg, #fff0f6 0%, #ffeef5 100%);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand img {
+            height: 50px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-brand h5 {
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+
+        .sidebar-brand small {
+            opacity: 0.8;
+            font-size: 0.8rem;
+        }
+
+        .nav-link {
+            color: white !important;
+            padding: 0.8rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding-left: 2rem;
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+            text-align: center;
+        }
+
+        .nav-link.text-danger:hover {
+            background-color: rgba(220, 53, 69, 0.2);
+        }
+
+        /* Botón toggle para móvil */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+                box-shadow: 5px 0 25px rgba(0,0,0,0.3);
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 15px;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+        }
+
+        /* Prevenir scroll cuando el sidebar está abierto en móvil */
+        body.sidebar-open {
+            overflow: hidden;
+        }
+
+        /* Estilos específicos de clientes */
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(138, 47, 90, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 133, 162, 0.4);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Estilos para tarjetas de cliente */
+        .client-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .client-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(138, 47, 90, 0.15);
+        }
+
+        .client-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .client-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .client-metric {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .client-metric .number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        .client-metric .label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Badges para segmentación */
+        .badge-vip {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #856404;
+        }
+
+        .badge-frecuente {
+            background: linear-gradient(135deg, #6f42c1, #8e63d2);
+            color: white;
+        }
+
+        .badge-nuevo {
+            background: linear-gradient(135deg, #20c997, #3dd5a8);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 15px;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            .client-avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .client-metric .number {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .d-flex.justify-content-between h2 {
+                text-align: center;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+            
+            .btn-group {
+                width: 100%;
+            }
+            
+            .btn-group .btn {
+                flex: 1;
+            }
+        }
+
+        /* Mejoras para PWA */
+        .pwa-mode .sidebar-toggle {
+            top: env(safe-area-inset-top, 15px);
+        }
+
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            
+            .navbar-top {
+                margin-top: calc(env(safe-area-inset-top) + 10px);
+            }
+        }
+
+        /* Prevenir zoom en inputs en iOS */
+        @media (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Mejorar botones para touch */
+        .btn, .nav-link, .action-btn {
+            touch-action: manipulation;
+        }
+
+        /* Optimizar scroll para PWA */
+        body {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Safe areas para notches */
+        .sidebar {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        /* Modal personalizado */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 133, 162, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón para mostrar/ocultar sidebar en móvil -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Overlay para móvil -->
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
+                <h5>PowerPuffFit</h5>
+                <small>Gestión de Clientes</small>
+            </div>
+            
+            <nav class="nav flex-column">
+                <a class="nav-link" href="dashboard.html">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a class="nav-link" href="inventario.html">
+                    <i class="fas fa-boxes me-2"></i>Inventario
+                </a>
+                <a class="nav-link" href="ventas.html">
+                    <i class="fas fa-cash-register me-2"></i>Ventas
+                </a>
+                <a class="nav-link" href="reportes.html">
+                    <i class="fas fa-chart-bar me-2"></i>Reportes
+                </a>
+                <a class="nav-link active" href="clientes.html">
+                    <i class="fas fa-users me-2"></i>Clientes
+                </a>
+                <a class="nav-link text-danger mt-auto" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Gestión de Clientes</h2>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="nuevoClienteBtn">
+                        <i class="fas fa-user-plus me-2"></i>Nuevo Cliente
+                    </button>
+                    <button class="btn btn-outline-primary" id="exportClientesBtn">
+                        <i class="fas fa-download me-2"></i>Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Métricas Rápidas -->
+            <div class="row mb-4">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-primary" id="totalClientes">0</h3>
+                            <p class="mb-0">Total Clientes</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-success" id="clientesActivos">0</h3>
+                            <p class="mb-0">Clientes Activos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-info" id="ingresosClientes">$0</h3>
+                            <p class="mb-0">Ingresos Totales</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-warning" id="promedioCompras">0</h3>
+                            <p class="mb-0">Compras/Cliente</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros y Búsqueda -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Buscar Cliente</label>
+                            <input type="text" class="form-control" id="buscarCliente" placeholder="Nombre, email o teléfono...">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" id="filtroEstado">
+                                <option value="todos">Todos</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Segmento</label>
+                            <select class="form-select" id="filtroSegmento">
+                                <option value="todos">Todos</option>
+                                <option value="vip">VIP</option>
+                                <option value="frecuente">Frecuentes</option>
+                                <option value="nuevo">Nuevos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button class="btn btn-outline-secondary w-100" id="limpiarFiltrosBtn">
+                                <i class="fas fa-times me-2"></i>Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos de Clientes -->
+            <div class="row mb-4">
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Segmentación de Clientes</h5>
+                            <div class="chart-container">
+                                <canvas id="segmentacionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Clientes por Mes</h5>
+                            <div class="chart-container">
+                                <canvas id="clientesMesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Clientes -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Lista de Clientes</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Contacto</th>
+                                    <th>Total Compras</th>
+                                    <th>Monto Total</th>
+                                    <th>Última Compra</th>
+                                    <th>Segmento</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaClientes">
+                                <!-- Los clientes se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Clientes -->
+            <div class="row mt-4">
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Top 5 Clientes VIP</h5>
+                            <div id="topClientesVIP">
+                                <!-- Top clientes se cargarán aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Clientes Recientes</h5>
+                            <div id="clientesRecientes">
+                                <!-- Clientes recientes se cargarán aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Nuevo/Editar Cliente -->
+    <div class="modal fade" id="clienteModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitulo">Nuevo Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="clienteForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="clienteNombre" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Apellido *</label>
+                                <input type="text" class="form-control" id="clienteApellido" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="clienteEmail" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="clienteTelefono">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Dirección</label>
+                                <textarea class="form-control" id="clienteDireccion" rows="2"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="clienteNacimiento">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Segmento</label>
+                                <select class="form-select" id="clienteSegmento">
+                                    <option value="regular">Regular</option>
+                                    <option value="frecuente">Frecuente</option>
+                                    <option value="vip">VIP</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="clienteActivo" checked>
+                                    <label class="form-check-label" for="clienteActivo">
+                                        Cliente Activo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="guardarClienteBtn">Guardar Cliente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJIhyjLP2EEcg7RKgLHREmMosKA5cL6Qw",
+            authDomain: "powerpuffit.firebaseapp.com",
+            projectId: "powerpuffit",
+            storageBucket: "powerpuffit.appspot.com",
+            messagingSenderId: "450568163513",
+            appId: "1:450568163513:web:ee8ccfa9fbfe1075d34b68"
+        };
+
+        class ClientesManager {
+            constructor() {
+                this.app = initializeApp(firebaseConfig);
+                this.db = getFirestore(this.app);
+                this.auth = getAuth(this.app);
+                this.clientes = [];
+                this.ventas = [];
+                this.clienteEditando = null;
+                this.charts = {};
+                this.init();
+            }
+
+            async init() {
+                await this.checkAuth();
+                this.initEventListeners();
+                await this.cargarDatos();
+                this.actualizarUI();
+            }
+
+            async checkAuth() {
+                return new Promise((resolve) => {
+                    onAuthStateChanged(this.auth, (user) => {
+                        if (!user) {
+                            window.location.href = 'index.html';
+                        } else {
+                            resolve(true);
+                        }
+                    });
+                });
+            }
+
+            initEventListeners() {
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+                document.getElementById('nuevoClienteBtn').addEventListener('click', () => this.mostrarModalNuevoCliente());
+                document.getElementById('guardarClienteBtn').addEventListener('click', () => this.guardarCliente());
+                document.getElementById('exportClientesBtn').addEventListener('click', () => this.exportarClientes());
+                document.getElementById('limpiarFiltrosBtn').addEventListener('click', () => this.limpiarFiltros());
+
+                // Filtros
+                document.getElementById('buscarCliente').addEventListener('input', () => this.aplicarFiltros());
+                document.getElementById('filtroEstado').addEventListener('change', () => this.aplicarFiltros());
+                document.getElementById('filtroSegmento').addEventListener('change', () => this.aplicarFiltros());
+
+                // Responsive sidebar
+                document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
+                document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
+
+                const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (window.innerWidth <= 992) {
+                            this.toggleSidebar();
+                        }
+                    });
+                });
+
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 992) {
+                        const sidebar = document.getElementById('sidebar');
+                        const overlay = document.getElementById('overlay');
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                        document.body.classList.remove('sidebar-open');
+                    }
+                });
+            }
+
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                const isOpening = !sidebar.classList.contains('active');
+                
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                
+                if (isOpening) {
+                    document.body.classList.add('sidebar-open');
+                } else {
+                    document.body.classList.remove('sidebar-open');
+                }
+            }
+
+            async cargarDatos() {
+                await this.cargarClientes();
+                await this.cargarVentas();
+            }
+
+            async cargarClientes() {
+                try {
+                    const q = query(collection(this.db, "clientes"), orderBy("fecha_registro", "desc"));
+                    const querySnapshot = await getDocs(q);
+                    this.clientes = [];
+                    querySnapshot.forEach((doc) => {
+                        this.clientes.push({ id: doc.id, ...doc.data() });
+                    });
+                } catch (error) {
+                    console.error("Error cargando clientes:", error);
+                }
+            }
+
+            async cargarVentas() {
+                try {
+                    const q = query(collection(this.db, "ventas"), orderBy("fecha_venta", "desc"));
+                    const querySnapshot = await getDocs(q);
+                    this.ventas = [];
+                    querySnapshot.forEach((doc) => {
+                        this.ventas.push({ id: doc.id, ...doc.data() });
+                    });
+                } catch (error) {
+                    console.error("Error cargando ventas:", error);
+                }
+            }
+
+            actualizarUI() {
+                this.calcularMetricas();
+                this.mostrarListaClientes();
+                this.mostrarTopClientes();
+                this.generarGraficos();
+            }
+
+            calcularMetricas() {
+                const totalClientes = this.clientes.length;
+                const clientesActivos = this.clientes.filter(c => c.activo !== false).length;
+                
+                let ingresosTotales = 0;
+                let totalCompras = 0;
+
+                this.clientes.forEach(cliente => {
+                    const ventasCliente = this.ventas.filter(v => v.cliente_id === cliente.id);
+                    totalCompras += ventasCliente.length;
+                    ingresosTotales += ventasCliente.reduce((sum, venta) => sum + (venta.total || 0), 0);
+                });
+
+                const promedioCompras = totalClientes > 0 ? (totalCompras / totalClientes).toFixed(1) : 0;
+
+                document.getElementById('totalClientes').textContent = totalClientes;
+                document.getElementById('clientesActivos').textContent = clientesActivos;
+                document.getElementById('ingresosClientes').textContent = '$' + ingresosTotales.toFixed(2);
+                document.getElementById('promedioCompras').textContent = promedioCompras;
+            }
+
+            mostrarListaClientes() {
+                const tbody = document.getElementById('tablaClientes');
+                tbody.innerHTML = '';
+
+                const clientesFiltrados = this.filtrarClientes();
+
+                clientesFiltrados.forEach(cliente => {
+                    const ventasCliente = this.ventas.filter(v => v.cliente_id === cliente.id);
+                    const totalCompras = ventasCliente.length;
+                    const montoTotal = ventasCliente.reduce((sum, venta) => sum + (venta.total || 0), 0);
+                    const ultimaCompra = ventasCliente.length > 0 ? 
+                        new Date(ventasCliente[0].fecha_venta?.toDate()).toLocaleDateString() : 'Sin compras';
+
+                    const iniciales = this.getIniciales(cliente.nombre, cliente.apellido);
+                    const segmentoBadge = this.getSegmentoBadge(cliente.segmento);
+                    const estadoBadge = cliente.activo !== false ? 
+                        '<span class="badge status-active">Activo</span>' : 
+                        '<span class="badge status-inactive">Inactivo</span>';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="client-avatar me-3">${iniciales}</div>
+                                <div>
+                                    <strong>${cliente.nombre} ${cliente.apellido}</strong>
+                                    <br><small class="text-muted">ID: ${cliente.id.substring(0, 8)}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>${cliente.email || 'N/A'}</div>
+                            <small class="text-muted">${cliente.telefono || 'Sin teléfono'}</small>
+                        </td>
+                        <td>${totalCompras}</td>
+                        <td>$${montoTotal.toFixed(2)}</td>
+                        <td>${ultimaCompra}</td>
+                        <td>${segmentoBadge}</td>
+                        <td>${estadoBadge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="clientesManager.editarCliente('${cliente.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="clientesManager.eliminarCliente('${cliente.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            filtrarClientes() {
+                let clientesFiltrados = [...this.clientes];
+                
+                // Filtro por búsqueda
+                const busqueda = document.getElementById('buscarCliente').value.toLowerCase();
+                if (busqueda) {
+                    clientesFiltrados = clientesFiltrados.filter(cliente => 
+                        cliente.nombre.toLowerCase().includes(busqueda) ||
+                        cliente.apellido.toLowerCase().includes(busqueda) ||
+                        (cliente.email && cliente.email.toLowerCase().includes(busqueda)) ||
+                        (cliente.telefono && cliente.telefono.includes(busqueda))
+                    );
+                }
+
+                // Filtro por estado
+                const estado = document.getElementById('filtroEstado').value;
+                if (estado === 'activo') {
+                    clientesFiltrados = clientesFiltrados.filter(cliente => cliente.activo !== false);
+                } else if (estado === 'inactivo') {
+                    clientesFiltrados = clientesFiltrados.filter(cliente => cliente.activo === false);
+                }
+
+                // Filtro por segmento
+                const segmento = document.getElementById('filtroSegmento').value;
+                if (segmento !== 'todos') {
+                    clientesFiltrados = clientesFiltrados.filter(cliente => cliente.segmento === segmento);
+                }
+
+                return clientesFiltrados;
+            }
+
+            aplicarFiltros() {
+                this.mostrarListaClientes();
+            }
+
+            limpiarFiltros() {
+                document.getElementById('buscarCliente').value = '';
+                document.getElementById('filtroEstado').value = 'todos';
+                document.getElementById('filtroSegmento').value = 'todos';
+                this.mostrarListaClientes();
+            }
+
+            getIniciales(nombre, apellido) {
+                return ((nombre?.charAt(0) || '') + (apellido?.charAt(0) || '')).toUpperCase();
+            }
+
+            getSegmentoBadge(segmento) {
+                const badges = {
+                    'vip': '<span class="badge badge-vip">VIP</span>',
+                    'frecuente': '<span class="badge badge-frecuente">Frecuente</span>',
+                    'nuevo': '<span class="badge badge-nuevo">Nuevo</span>',
+                    'regular': '<span class="badge bg-secondary">Regular</span>'
+                };
+                return badges[segmento] || '<span class="badge bg-secondary">Regular</span>';
+            }
+
+            mostrarTopClientes() {
+                // Top 5 clientes VIP por monto gastado
+                const clientesConGasto = this.clientes.map(cliente => {
+                    const ventasCliente = this.ventas.filter(v => v.cliente_id === cliente.id);
+                    const montoTotal = ventasCliente.reduce((sum, venta) => sum + (venta.total || 0), 0);
+                    return { ...cliente, montoTotal };
+                }).filter(c => c.montoTotal > 0)
+                  .sort((a, b) => b.montoTotal - a.montoTotal)
+                  .slice(0, 5);
+
+                const topVIPContainer = document.getElementById('topClientesVIP');
+                topVIPContainer.innerHTML = clientesConGasto.map(cliente => `
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                        <div class="d-flex align-items-center">
+                            <div class="client-avatar me-2" style="width: 40px; height: 40px; font-size: 1rem;">
+                                ${this.getIniciales(cliente.nombre, cliente.apellido)}
+                            </div>
+                            <div>
+                                <div class="fw-bold">${cliente.nombre} ${cliente.apellido}</div>
+                                <small class="text-muted">${cliente.email}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success">$${cliente.montoTotal.toFixed(2)}</div>
+                            <small class="text-muted">${this.ventas.filter(v => v.cliente_id === cliente.id).length} compras</small>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Clientes recientes (últimos 5 registrados)
+                const clientesRecientes = [...this.clientes]
+                    .sort((a, b) => new Date(b.fecha_registro?.toDate()) - new Date(a.fecha_registro?.toDate()))
+                    .slice(0, 5);
+
+                const recientesContainer = document.getElementById('clientesRecientes');
+                recientesContainer.innerHTML = clientesRecientes.map(cliente => `
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                        <div class="d-flex align-items-center">
+                            <div class="client-avatar me-2" style="width: 40px; height: 40px; font-size: 1rem;">
+                                ${this.getIniciales(cliente.nombre, cliente.apellido)}
+                            </div>
+                            <div>
+                                <div class="fw-bold">${cliente.nombre} ${cliente.apellido}</div>
+                                <small class="text-muted">${cliente.email}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">${this.formatFecha(cliente.fecha_registro?.toDate())}</small>
+                            <div>${this.getSegmentoBadge(cliente.segmento)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            formatFecha(fecha) {
+                if (!fecha) return 'N/A';
+                return new Date(fecha).toLocaleDateString('es-ES');
+            }
+
+            generarGraficos() {
+                this.generarGraficoSegmentacion();
+                this.generarGraficoClientesMes();
+            }
+
+            generarGraficoSegmentacion() {
+                const ctx = document.getElementById('segmentacionChart').getContext('2d');
+                
+                if (this.charts.segmentacion) {
+                    this.charts.segmentacion.destroy();
+                }
+
+                const segmentos = {
+                    'regular': 0,
+                    'frecuente': 0,
+                    'vip': 0,
+                    'nuevo': 0
+                };
+
+                this.clientes.forEach(cliente => {
+                    segmentos[cliente.segmento] = (segmentos[cliente.segmento] || 0) + 1;
+                });
+
+                const labels = ['Regular', 'Frecuente', 'VIP', 'Nuevo'];
+                const data = [segmentos.regular, segmentos.frecuente, segmentos.vip, segmentos.nuevo];
+                const backgroundColors = ['#6c757d', '#6f42c1', '#ffd700', '#20c997'];
+
+                this.charts.segmentacion = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: backgroundColors,
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            generarGraficoClientesMes() {
+                const ctx = document.getElementById('clientesMesChart').getContext('2d');
+                
+                if (this.charts.clientesMes) {
+                    this.charts.clientesMes.destroy();
+                }
+
+                // Agrupar clientes por mes de registro (últimos 6 meses)
+                const meses = [];
+                const datos = [];
+
+                for (let i = 5; i >= 0; i--) {
+                    const fecha = new Date();
+                    fecha.setMonth(fecha.getMonth() - i);
+                    const mesKey = `${fecha.getFullYear()}-${fecha.getMonth() + 1}`;
+                    const mesLabel = fecha.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
+                    
+                    meses.push(mesLabel);
+                    
+                    const clientesMes = this.clientes.filter(cliente => {
+                        const fechaRegistro = cliente.fecha_registro?.toDate();
+                        if (!fechaRegistro) return false;
+                        return fechaRegistro.getFullYear() === fecha.getFullYear() && 
+                               fechaRegistro.getMonth() === fecha.getMonth();
+                    });
+                    
+                    datos.push(clientesMes.length);
+                }
+
+                this.charts.clientesMes = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: meses,
+                        datasets: [{
+                            label: 'Clientes Registrados',
+                            data: datos,
+                            backgroundColor: '#ff85a2',
+                            borderColor: '#8a2f5a',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            mostrarModalNuevoCliente() {
+                this.clienteEditando = null;
+                document.getElementById('modalTitulo').textContent = 'Nuevo Cliente';
+                document.getElementById('clienteForm').reset();
+                document.getElementById('clienteActivo').checked = true;
+                
+                const modal = new bootstrap.Modal(document.getElementById('clienteModal'));
+                modal.show();
+            }
+
+            async editarCliente(clienteId) {
+                const cliente = this.clientes.find(c => c.id === clienteId);
+                if (!cliente) return;
+
+                this.clienteEditando = cliente;
+
+                document.getElementById('modalTitulo').textContent = 'Editar Cliente';
+                document.getElementById('clienteNombre').value = cliente.nombre || '';
+                document.getElementById('clienteApellido').value = cliente.apellido || '';
+                document.getElementById('clienteEmail').value = cliente.email || '';
+                document.getElementById('clienteTelefono').value = cliente.telefono || '';
+                document.getElementById('clienteDireccion').value = cliente.direccion || '';
+                document.getElementById('clienteNacimiento').value = cliente.fecha_nacimiento || '';
+                document.getElementById('clienteSegmento').value = cliente.segmento || 'regular';
+                document.getElementById('clienteActivo').checked = cliente.activo !== false;
+
+                const modal = new bootstrap.Modal(document.getElementById('clienteModal'));
+                modal.show();
+            }
+
+            async guardarCliente() {
+                const form = document.getElementById('clienteForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const clienteData = {
+                    nombre: document.getElementById('clienteNombre').value,
+                    apellido: document.getElementById('clienteApellido').value,
+                    email: document.getElementById('clienteEmail').value,
+                    telefono: document.getElementById('clienteTelefono').value,
+                    direccion: document.getElementById('clienteDireccion').value,
+                    fecha_nacimiento: document.getElementById('clienteNacimiento').value,
+                    segmento: document.getElementById('clienteSegmento').value,
+                    activo: document.getElementById('clienteActivo').checked,
+                    fecha_actualizacion: new Date()
+                };
+
+                try {
+                    if (this.clienteEditando) {
+                        // Actualizar cliente existente
+                        await updateDoc(doc(this.db, "clientes", this.clienteEditando.id), clienteData);
+                    } else {
+                        // Crear nuevo cliente
+                        clienteData.fecha_registro = new Date();
+                        clienteData.total_compras = 0;
+                        clienteData.monto_total = 0;
+                        await addDoc(collection(this.db, "clientes"), clienteData);
+                    }
+
+                    // Cerrar modal y recargar datos
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('clienteModal'));
+                    modal.hide();
+                    
+                    await this.cargarDatos();
+                    this.actualizarUI();
+                    
+                    alert(this.clienteEditando ? 'Cliente actualizado exitosamente' : 'Cliente creado exitosamente');
+                    
+                } catch (error) {
+                    console.error('Error guardando cliente:', error);
+                    alert('Error al guardar el cliente: ' + error.message);
+                }
+            }
+
+            async eliminarCliente(clienteId) {
+                if (!confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
+                    return;
+                }
+
+                try {
+                    await deleteDoc(doc(this.db, "clientes", clienteId));
+                    await this.cargarDatos();
+                    this.actualizarUI();
+                    alert('Cliente eliminado exitosamente');
+                } catch (error) {
+                    console.error('Error eliminando cliente:', error);
+                    alert('Error al eliminar el cliente: ' + error.message);
+                }
+            }
+
+            exportarClientes() {
+                alert('Funcionalidad de exportación en desarrollo');
+                // En una implementación real, aquí se generaría un archivo CSV o Excel
+            }
+
+            async logout() {
+                try {
+                    await signOut(this.auth);
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Error al cerrar sesión:', error);
+                }
+            }
+        }
+
+        // Inicializar el gestor de clientes
+        document.addEventListener('DOMContentLoaded', () => {
+            window.clientesManager = new ClientesManager();
+        });
+    </script>
+    <script>
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('✅ SW registrado en clientes'))
+                .catch(err => console.log('❌ Error SW:', err));
+        }
+
+        // Detectar modo PWA
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('📱 Ejecutándose como PWA');
+            document.body.classList.add('pwa-mode');
+        }
+    </script>
+</body>
+</html>
