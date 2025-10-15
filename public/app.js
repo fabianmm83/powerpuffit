@@ -1,14 +1,209 @@
-// public/app.js - VERSIÓN MEJORADA
+// public/app.js - VERSIÓN MEJORADA CON ACTUALIZACIONES PWA
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
 class PowerPuffApp {
     constructor() {
         this.initFirebase();
         this.initEventListeners();
+        this.initPWAUpdateHandler(); // 🔥 NUEVO: Inicializar manejo de actualizaciones
     }
 
+    // 🔥 NUEVO: Manejo de actualizaciones PWA
+    initPWAUpdateHandler() {
+        this.initServiceWorker();
+        this.setupUpdateListeners();
+    }
+
+    // Registrar Service Worker
+    async initServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.register('/sw.js');
+                console.log('✅ Service Worker registrado:', registration);
+                
+                this.setupUpdateTracking(registration);
+            } catch (error) {
+                console.error('❌ Error registrando Service Worker:', error);
+            }
+        }
+    }
+
+    // Configurar seguimiento de actualizaciones
+    setupUpdateTracking(registration) {
+        let refreshing = false;
+        
+        // Detectar cuando el controlador cambia (nueva versión activa)
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                refreshing = true;
+                console.log('🔄 Nueva versión activa, recargando...');
+                this.showUpdateNotification();
+            }
+        });
+
+        // Escuchar cuando se encuentra una actualización
+        registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            console.log('🔄 Nueva versión del Service Worker encontrada');
+            
+            newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('🔄 Nueva versión lista para activar');
+                    // Forzar actualización inmediata
+                    newWorker.postMessage('skipWaiting');
+                }
+            });
+        });
+    }
+
+    // Configurar listeners de actualización
+    setupUpdateListeners() {
+        // Escuchar mensajes del Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
+                    this.showUpdateNotification();
+                }
+            });
+        }
+    }
+
+    // 🔥 NUEVO: Mostrar notificación de actualización
+    showUpdateNotification() {
+        // Crear notificación elegante
+        const updateNotification = document.createElement('div');
+        updateNotification.className = 'update-notification alert alert-warning alert-dismissible fade show';
+        updateNotification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        
+        updateNotification.innerHTML = `
+            <strong>🔄 Nueva versión disponible</strong>
+            <p class="mb-2">Hay una actualización de la aplicación.</p>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-primary" onclick="app.forceUpdate()">
+                    Actualizar ahora
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="this.closest('.alert').remove()">
+                    Más tarde
+                </button>
+            </div>
+        `;
+        
+        // Remover notificación existente si hay una
+        const existingNotification = document.querySelector('.update-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        document.body.appendChild(updateNotification);
+        
+        // Auto-remover después de 30 segundos
+        setTimeout(() => {
+            if (updateNotification.parentNode) {
+                updateNotification.remove();
+            }
+        }, 30000);
+    }
+
+    // 🔥 NUEVO: Forzar actualización inmediata
+    async forceUpdate() {
+        console.log('🔄 Forzando actualización...');
+        
+        if ('serviceWorker' in navigator) {
+            try {
+                // Obtener todos los registros de Service Worker
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                
+                // Desregistrar todos los Service Workers
+                for (let registration of registrations) {
+                    await registration.unregister();
+                    console.log('🗑️ Service Worker desregistrado');
+                }
+                
+                // Limpiar toda la cache
+                if (caches && caches.keys) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(
+                        cacheNames.map(cacheName => caches.delete(cacheName))
+                    );
+                    console.log('🗑️ Cache limpiada');
+                }
+                
+                // Recargar la página forzadamente
+                console.log('🔄 Recargando aplicación...');
+                window.location.reload(true);
+                
+            } catch (error) {
+                console.error('❌ Error forzando actualización:', error);
+                // Fallback: recarga simple
+                window.location.reload();
+            }
+        } else {
+            // Fallback para navegadores sin Service Worker
+            window.location.reload();
+        }
+    }
+
+    // 🔥 NUEVO: Verificar actualizaciones manualmente
+    async checkForUpdates() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                
+                // Forzar actualización del Service Worker
+                await registration.update();
+                console.log('🔍 Buscando actualizaciones...');
+                
+                // Mostrar mensaje al usuario
+                this.showToast('Buscando actualizaciones...', 'info');
+                
+            } catch (error) {
+                console.error('❌ Error verificando actualizaciones:', error);
+            }
+        }
+    }
+
+    // 🔥 NUEVO: Mostrar toast notifications
+    showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-bg-${type} border-0`;
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        `;
+        
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Inicializar toast de Bootstrap
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Remover del DOM después de cerrar
+        toast.addEventListener('hidden.bs.toast', () => {
+            toast.remove();
+        });
+    }
+
+    // Tu código existente continúa aquí...
     initFirebase() {
         const firebaseConfig = {
             apiKey: "AIzaSyDJIhyjLP2EEcg7RKgLHREmMosKA5cL6Qw",
@@ -39,8 +234,29 @@ class PowerPuffApp {
         if (registerBtn) {
             registerBtn.addEventListener('click', () => this.registerTestUser());
         }
+
+        // 🔥 NUEVO: Agregar botón de actualización manual en el dashboard
+        if (window.location.pathname.includes('dashboard.html')) {
+            this.addUpdateButtonToDashboard();
+        }
     }
 
+    // 🔥 NUEVO: Agregar botón de actualización al dashboard
+    addUpdateButtonToDashboard() {
+        // Esperar a que el DOM esté listo
+        setTimeout(() => {
+            const header = document.querySelector('.navbar-nav.ms-auto');
+            if (header) {
+                const updateButton = document.createElement('button');
+                updateButton.className = 'btn btn-outline-info btn-sm ms-2';
+                updateButton.innerHTML = '<i class="fas fa-sync-alt"></i> Buscar Actualizaciones';
+                updateButton.onclick = () => this.checkForUpdates();
+                header.appendChild(updateButton);
+            }
+        }, 1000);
+    }
+
+    // El resto de tus métodos existentes se mantienen igual...
     async handleLogin(event) {
         event.preventDefault();
         
@@ -148,18 +364,18 @@ class PowerPuffApp {
     }
 
     async addProduct(productData) {
-    try {
-        const docRef = await addDoc(collection(this.db, "productos"), {
-            ...productData,
-            fecha_creacion: new Date(),
-            activo: true
-        });
-        return docRef.id;
-    } catch (error) {
-        console.error("Error agregando producto:", error);
-        throw error;
+        try {
+            const docRef = await addDoc(collection(this.db, "productos"), {
+                ...productData,
+                fecha_creacion: new Date(),
+                activo: true
+            });
+            return docRef.id;
+        } catch (error) {
+            console.error("Error agregando producto:", error);
+            throw error;
+        }
     }
-}
 
     async updateProduct(productId, productData) {
         try {
@@ -228,90 +444,87 @@ class PowerPuffApp {
         }
     }
 
-
-
     // Métodos para gestión de clientes
-async getClientes() {
-    try {
-        const querySnapshot = await getDocs(collection(this.db, "clientes"));
-        const clientes = [];
-        querySnapshot.forEach((doc) => {
-            clientes.push({ id: doc.id, ...doc.data() });
-        });
-        return clientes;
-    } catch (error) {
-        console.error("Error obteniendo clientes:", error);
-        throw error;
+    async getClientes() {
+        try {
+            const querySnapshot = await getDocs(collection(this.db, "clientes"));
+            const clientes = [];
+            querySnapshot.forEach((doc) => {
+                clientes.push({ id: doc.id, ...doc.data() });
+            });
+            return clientes;
+        } catch (error) {
+            console.error("Error obteniendo clientes:", error);
+            throw error;
+        }
     }
-}
 
-async addCliente(clienteData) {
-    try {
-        const docRef = await addDoc(collection(this.db, "clientes"), {
-            ...clienteData,
-            fecha_registro: new Date(),
-            total_compras: 0,
-            monto_total: 0,
-            activo: true
-        });
-        return docRef.id;
-    } catch (error) {
-        console.error("Error agregando cliente:", error);
-        throw error;
+    async addCliente(clienteData) {
+        try {
+            const docRef = await addDoc(collection(this.db, "clientes"), {
+                ...clienteData,
+                fecha_registro: new Date(),
+                total_compras: 0,
+                monto_total: 0,
+                activo: true
+            });
+            return docRef.id;
+        } catch (error) {
+            console.error("Error agregando cliente:", error);
+            throw error;
+        }
     }
-}
 
-async updateCliente(clienteId, clienteData) {
-    try {
-        const clienteRef = doc(this.db, "clientes", clienteId);
-        await updateDoc(clienteRef, clienteData);
-    } catch (error) {
-        console.error("Error actualizando cliente:", error);
-        throw error;
+    async updateCliente(clienteId, clienteData) {
+        try {
+            const clienteRef = doc(this.db, "clientes", clienteId);
+            await updateDoc(clienteRef, clienteData);
+        } catch (error) {
+            console.error("Error actualizando cliente:", error);
+            throw error;
+        }
     }
-}
 
-// Métodos para reportes avanzados
-async getReporteClientesFrecuentes() {
-    try {
-        const clientesSnapshot = await getDocs(
-            query(collection(this.db, "clientes"), 
-            orderBy("total_compras", "desc"),
-            limit(10))
-        );
-        
-        const clientes = [];
-        clientesSnapshot.forEach((doc) => {
-            clientes.push({ id: doc.id, ...doc.data() });
-        });
-        
-        return clientes;
-    } catch (error) {
-        console.error("Error obteniendo clientes frecuentes:", error);
-        throw error;
+    // Métodos para reportes avanzados
+    async getReporteClientesFrecuentes() {
+        try {
+            const clientesSnapshot = await getDocs(
+                query(collection(this.db, "clientes"), 
+                orderBy("total_compras", "desc"),
+                limit(10))
+            );
+            
+            const clientes = [];
+            clientesSnapshot.forEach((doc) => {
+                clientes.push({ id: doc.id, ...doc.data() });
+            });
+            
+            return clientes;
+        } catch (error) {
+            console.error("Error obteniendo clientes frecuentes:", error);
+            throw error;
+        }
     }
-}
 
-async getProductosStockBajo(limite = 5) {
-    try {
-        const productosSnapshot = await getDocs(
-            query(collection(this.db, "productos"), 
-            where("cantidad", "<=", limite),
-            where("activo", "==", true))
-        );
-        
-        const productos = [];
-        productosSnapshot.forEach((doc) => {
-            productos.push({ id: doc.id, ...doc.data() });
-        });
-        
-        return productos;
-    } catch (error) {
-        console.error("Error obteniendo productos con stock bajo:", error);
-        throw error;
+    async getProductosStockBajo(limite = 5) {
+        try {
+            const productosSnapshot = await getDocs(
+                query(collection(this.db, "productos"), 
+                where("cantidad", "<=", limite),
+                where("activo", "==", true))
+            );
+            
+            const productos = [];
+            productosSnapshot.forEach((doc) => {
+                productos.push({ id: doc.id, ...doc.data() });
+            });
+            
+            return productos;
+        } catch (error) {
+            console.error("Error obteniendo productos con stock bajo:", error);
+            throw error;
+        }
     }
-}
-
 
     // Método para generar reportes
     async generarReporte(tipo, fechaInicio, fechaFin) {

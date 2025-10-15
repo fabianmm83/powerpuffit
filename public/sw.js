@@ -1,4 +1,4 @@
-const CACHE_NAME = 'powerpufffit-v1.3.0';
+const CACHE_NAME = 'powerpufffit-v1.4.0'; // ⚡ CAMBIA ESTA VERSIÓN
 const API_CACHE_NAME = 'powerpufffit-api-v1';
 const urlsToCache = [
   '/',
@@ -16,39 +16,55 @@ const urlsToCache = [
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
   'https://cdn.jsdelivr.net/npm/chart.js',
   
-  // Imágenes
+  // Imágenes - AQUÍ ESTÁ TU NUEVA IMAGEN SIN FONDO
   '/images/logo.png',
   '/images/icon-192x192.png',
   '/images/icon-512x512.png'
+  // Agrega aquí tu nueva imagen sin fondo
 ];
 
-// Instalación
+// Instalación - MÁS AGRESIVA
 self.addEventListener('install', event => {
-  console.log('🔄 Instalando Service Worker...');
+  console.log('🔄 Instalando Service Worker NUEVA VERSIÓN...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
-      .then(() => self.skipWaiting())
+      .then(() => {
+        console.log('⚡ Saltando espera - Activación inmediata');
+        return self.skipWaiting(); // Fuerza activación inmediata
+      })
   );
 });
 
-// Activación
+// Activación - MÁS AGRESIVA
 self.addEventListener('activate', event => {
-  console.log('🔄 Activando Service Worker...');
+  console.log('🔄 Activando Service Worker NUEVA VERSIÓN...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME && cacheName !== API_CACHE_NAME) {
+          // ⚡ ELIMINA TODOS LOS CACHES VIEJOS
+          if (cacheName !== CACHE_NAME) {
             console.log('🗑️ Eliminando cache antiguo:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      console.log('⚡ Tomando control de todos los clients');
+      return self.clients.claim(); // Toma control inmediato
+    })
   );
 });
 
+// 🔥 AGREGA ESTO: Detector de actualizaciones para notificar al usuario
+self.addEventListener('message', event => {
+  if (event.data === 'skipWaiting') {
+    self.skipWaiting();
+  }
+});
+
+// El resto de tu código se mantiene igual...
 // Estrategia de Cache inteligente
 self.addEventListener('fetch', event => {
   const { request } = event;
@@ -76,7 +92,7 @@ self.addEventListener('fetch', event => {
   }
 });
 
-// Estrategias de Cache
+// Estrategias de Cache (se mantienen igual)
 async function cacheFirst(request) {
   const cachedResponse = await caches.match(request);
   if (cachedResponse) {
