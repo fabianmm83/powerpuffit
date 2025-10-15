@@ -740,7 +740,7 @@ body {
                 </div>
                 <div class="user-info">
     <div class="user-avatar" id="userAvatar">
-        <img src="images/logo.png" alt="Logo PowerPuffFit" class="user-logo">
+        <img src="images/logo.png" alt="Logo" class="user-logo" style="transform: scale(0.8);">
     </div>
     <div>
         <div class="fw-bold" id="userName">Usuario</div>
@@ -1084,10 +1084,10 @@ body {
                 const displayName = user.displayName || email.split('@')[0];
                 
                 userName.textContent = displayName;
-                userAvatar.textContent = displayName.charAt(0).toUpperCase();
+                
                 
                 welcomeTitle.textContent = `¡Bienvenido, ${displayName}!`;
-                welcomeMessage.textContent = `Estás conectado como ${email}. Gestiona tu tienda PowerPuffFit desde aquí.`;
+                welcomeMessage.textContent = `Estás conectado como ${email}. Gestiona tu tienda desde aquí.`;
             }
 
             async testFirestoreConnection() {
