@@ -1,6 +1,6 @@
 {
-  "name": "PowerPuffFit - Gestión Deportiva",
-  "short_name": "PowerPuffFit",
+  "name": "PowerPufFit - Gestión Deportiva",
+  "short_name": "PowerPufFit",
   "description": "Sistema de gestión integral para tiendas deportivas",
   "start_url": "/",
   "display": "standalone",
