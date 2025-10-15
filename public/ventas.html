@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- PWA Configuration -->
-<link rel="manifest" href="../manifest.json">
-<meta name="theme-color" content="#ff85a2">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="PowerPuffFit">
-<link rel="apple-touch-icon" href="../images/icon-192x192.png">
-    <title>Ventas - PowerPuffFit</title>
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#ff85a2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PowerPuffFit">
+    <link rel="apple-touch-icon" href="../images/icon-192x192.png">
+    <title>Ventas - PowerPufFit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Scripts para tickets -->
@@ -228,43 +228,61 @@
                 margin-bottom: 15px;
             }
         }
+        
         /* Mejoras para PWA */
-.pwa-mode .sidebar-toggle {
-    top: env(safe-area-inset-top, 15px);
-}
+        .pwa-mode .sidebar-toggle {
+            top: env(safe-area-inset-top, 15px);
+        }
 
-@media (display-mode: standalone) {
-    body {
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-    
-    .navbar-top {
-        margin-top: calc(env(safe-area-inset-top) + 10px);
-    }
-}
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            
+            .navbar-top {
+                margin-top: calc(env(safe-area-inset-top) + 10px);
+            }
+        }
 
-/* Prevenir zoom en inputs en iOS */
-@media (max-width: 768px) {
-    input, select, textarea {
-        font-size: 16px !important;
-    }
-}
+        /* Prevenir zoom en inputs en iOS */
+        @media (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
 
-/* Mejorar botones para touch */
-.btn, .nav-link, .action-btn {
-    touch-action: manipulation;
-}
+        /* Mejorar botones para touch */
+        .btn, .nav-link, .action-btn {
+            touch-action: manipulation;
+        }
 
-/* Optimizar scroll para PWA */
-body {
-    -webkit-overflow-scrolling: touch;
-}
+        /* Optimizar scroll para PWA */
+        body {
+            -webkit-overflow-scrolling: touch;
+        }
 
-/* Safe areas para notches */
-.sidebar {
-    padding-top: env(safe-area-inset-top);
-}
+        /* Safe areas para notches */
+        .sidebar {
+            padding-top: env(safe-area-inset-top);
+        }
+        
+        /* Estilos para stock actualizado */
+        .stock-info {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        
+        .stock-low {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        /* Estilos para el modal de edición */
+        .edit-modal .product-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
     </style>
     
 </head>
@@ -282,7 +300,7 @@ body {
         <div class="sidebar" id="sidebar">
             <div class="sidebar-brand">
                 <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
-                <h5>PowerPuffFit</h5>
+                <h5>PowerPufFit</h5>
                 <small>Ventas</small>
             </div>
             
@@ -399,19 +417,17 @@ body {
                             <h6>Detalles de la Venta</h6>
                             <form id="ventaForm">
                                 <div class="mb-3">
-    <label class="form-label">Cliente</label>
-    <div class="mb-3">
-    <label class="form-label">Cliente *</label>
-    <div class="input-group">
-        <select class="form-select" id="clienteSelect" required>
-            <option value="">Seleccionar cliente...</option>
-            <!-- Los clientes se cargarán dinámicamente -->
-        </select>
-        <button class="btn btn-outline-primary" type="button" id="agregarClienteBtn">
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
-</div>
+                                    <label class="form-label">Cliente *</label>
+                                    <div class="input-group">
+                                        <select class="form-select" id="clienteSelect" required>
+                                            <option value="">Seleccionar cliente...</option>
+                                            <!-- Los clientes se cargarán dinámicamente -->
+                                        </select>
+                                        <button class="btn btn-outline-primary" type="button" id="agregarClienteBtn">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="mb-3">
                                     <label class="form-label">Método de Pago</label>
                                     <select class="form-select" id="metodo_pago">
@@ -432,107 +448,190 @@ body {
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mb-3">
+                                <strong>Subtotal:</strong>
+                                <span id="subtotalVenta" class="text-muted">$0.00</span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descuento</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="descuento" placeholder="0" min="0" step="0.01">
+                                    <select class="form-select" id="tipoDescuento" style="max-width: 120px;">
+                                        <option value="porcentaje">%</option>
+                                        <option value="monto">$</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" id="aplicarDescuento">
+                                        Aplicar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <strong>Descuento:</strong>
+                                <span id="montoDescuento" class="text-danger">$0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
                                 <strong>Total:</strong>
                                 <span id="totalVenta" class="h5 text-primary">$0.00</span>
                             </div>
-                            <div class="mb-3">
-    <label class="form-label">Descuento</label>
-    <div class="input-group">
-        <input type="number" class="form-control" id="descuento" placeholder="0" min="0" step="0.01">
-        <select class="form-select" id="tipoDescuento" style="max-width: 120px;">
-            <option value="porcentaje">%</option>
-            <option value="monto">$</option>
-        </select>
-        <button class="btn btn-outline-secondary" type="button" id="aplicarDescuento">
-            Aplicar
-        </button>
-    </div>
-</div>
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <strong>Subtotal:</strong>
-    <span id="subtotalVenta" class="text-muted">$0.00</span>
-</div>
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <strong>Descuento:</strong>
-    <span id="montoDescuento" class="text-danger">$0.00</span>
-</div>
-<div class="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
-    <strong>Total:</strong>
-    <span id="totalVenta" class="h5 text-primary">$0.00</span>
-</div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                     <button type="button" class="btn btn-success" id="imprimirTicketBtn">
-        <i class="fas fa-receipt me-2"></i>Imprimir Ticket
-    </button>
+                    <button type="button" class="btn btn-success" id="imprimirTicketBtn">
+                        <i class="fas fa-receipt me-2"></i>Imprimir Ticket
+                    </button>
                     <button type="button" class="btn btn-primary" id="finalizarVentaBtn">Finalizar Venta</button>
                 </div>
             </div>
         </div>
     </div>
 
-
-
     <!-- Modal para Agregar Cliente -->
-<div class="modal fade" id="clienteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Agregar Nuevo Cliente</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="clienteForm">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Nombre *</label>
-                            <input type="text" class="form-control" id="clienteNombre" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" id="clienteEmail">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Teléfono</label>
-                            <input type="tel" class="form-control" id="clienteTelefono">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Documento</label>
-                            <input type="text" class="form-control" id="clienteDocumento">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Dirección</label>
-                            <textarea class="form-control" id="clienteDireccion" rows="2"></textarea>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="clienteActivo" checked>
-                                <label class="form-check-label" for="clienteActivo">
-                                    Cliente Activo
-                                </label>
+    <div class="modal fade" id="clienteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Nuevo Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="clienteForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="clienteNombre" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="clienteEmail">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="clienteTelefono">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Documento</label>
+                                <input type="text" class="form-control" id="clienteDocumento">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Dirección</label>
+                                <textarea class="form-control" id="clienteDireccion" rows="2"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="clienteActivo" checked>
+                                    <label class="form-check-label" for="clienteActivo">
+                                        Cliente Activo
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="guardarClienteBtn">Guardar Cliente</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="guardarClienteBtn">Guardar Cliente</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
+    <!-- Modal para Editar Venta -->
+    <div class="modal fade edit-modal" id="editarVentaModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-8 mb-3">
+                            <h6>Seleccionar Productos</h6>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="searchProductEdit" placeholder="Buscar producto...">
+                            </div>
+                            <div id="productosListEdit" class="row g-2 mb-3 product-list">
+                                <!-- Lista de productos para edición -->
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <h6>Detalles de la Venta</h6>
+                            <form id="ventaFormEdit">
+                                <div class="mb-3">
+                                    <label class="form-label">Cliente *</label>
+                                    <div class="input-group">
+                                        <select class="form-select" id="clienteSelectEdit" required>
+                                            <option value="">Seleccionar cliente...</option>
+                                            <!-- Los clientes se cargarán dinámicamente -->
+                                        </select>
+                                        <button class="btn btn-outline-primary" type="button" id="agregarClienteBtnEdit">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Método de Pago</label>
+                                    <select class="form-select" id="metodo_pagoEdit">
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="tarjeta">Tarjeta</option>
+                                        <option value="transferencia">Transferencia</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Notas</label>
+                                    <textarea class="form-control" id="notasEdit" rows="3"></textarea>
+                                </div>
+                            </form>
 
+                            <h6>Productos Seleccionados</h6>
+                            <div id="carritoEdit" class="mb-3" style="max-height: 200px; overflow-y: auto;">
+                                <!-- Carrito de compras para edición -->
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <strong>Subtotal:</strong>
+                                <span id="subtotalVentaEdit" class="text-muted">$0.00</span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descuento</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="descuentoEdit" placeholder="0" min="0" step="0.01">
+                                    <select class="form-select" id="tipoDescuentoEdit" style="max-width: 120px;">
+                                        <option value="porcentaje">%</option>
+                                        <option value="monto">$</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" id="aplicarDescuentoEdit">
+                                        Aplicar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <strong>Descuento:</strong>
+                                <span id="montoDescuentoEdit" class="text-danger">$0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
+                                <strong>Total:</strong>
+                                <span id="totalVentaEdit" class="h5 text-primary">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="imprimirTicketBtnEdit">
+                        <i class="fas fa-receipt me-2"></i>Imprimir Ticket
+                    </button>
+                    <button type="button" class="btn btn-primary" id="actualizarVentaBtn">Actualizar Venta</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
         const firebaseConfig = {
@@ -545,563 +644,996 @@ body {
         };
 
         class VentasManager {
-    constructor() {
-        this.app = initializeApp(firebaseConfig);
-        this.db = getFirestore(this.app);
-        this.auth = getAuth(this.app);
-        this.productos = [];
-        this.ventas = [];
-        this.carrito = [];
-        this.clientes = [];
-        this.montoDescuento = 0;
-        this.init();
-    }
-
-    async init() {
-        await this.checkAuth();
-        this.initEventListeners();
-        await this.cargarClientes();
-        await this.cargarProductos();
-        await this.cargarVentas();
-        this.calcularResumen();
-    }
-
-    async checkAuth() {
-        return new Promise((resolve) => {
-            onAuthStateChanged(this.auth, (user) => {
-                if (!user) {
-                    window.location.href = 'index.html';
-                } else {
-                    resolve(true);
-                }
-            });
-        });
-    }
-
-    initEventListeners() {
-        document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
-        document.getElementById('finalizarVentaBtn').addEventListener('click', () => this.finalizarVenta());
-        document.getElementById('searchProduct').addEventListener('input', () => this.filtrarProductos());
-        document.getElementById('imprimirTicketBtn').addEventListener('click', () => this.generarTicket());
-        
-        // EVENT LISTENERS PARA CLIENTES
-        document.getElementById('agregarClienteBtn').addEventListener('click', () => this.mostrarModalCliente());
-        document.getElementById('guardarClienteBtn').addEventListener('click', () => this.guardarCliente());
-        
-        // EVENT LISTENERS PARA DESCUENTOS
-        document.getElementById('aplicarDescuento').addEventListener('click', () => this.aplicarDescuento());
-        
-        // Configurar el modal de venta
-        document.getElementById('ventaModal').addEventListener('show.bs.modal', () => {
-            this.carrito = [];
-            this.montoDescuento = 0;
-            this.actualizarCarrito();
-            this.filtrarProductos();
-            this.limpiarFormularioCliente();
-        });
-
-        // Responsive sidebar toggle
-        document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
-        document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
-
-        // Cerrar sidebar al hacer clic en un enlace (en móvil)
-        const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 992) {
-                    this.toggleSidebar();
-                }
-            });
-        });
-
-        // Cerrar sidebar al redimensionar la ventana si se hace más grande
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 992) {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('overlay');
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-                document.body.classList.remove('sidebar-open');
+            constructor() {
+                this.app = initializeApp(firebaseConfig);
+                this.db = getFirestore(this.app);
+                this.auth = getAuth(this.app);
+                this.productos = [];
+                this.ventas = [];
+                this.carrito = [];
+                this.clientes = [];
+                this.montoDescuento = 0;
+                this.ventaEditando = null;
+                this.carritoEdit = [];
+                this.montoDescuentoEdit = 0;
+                this.productosOriginalesEdit = []; // Para guardar productos originales al editar
+                this.init();
             }
-        });
-    }
 
-    toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        const isOpening = !sidebar.classList.contains('active');
-        
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        
-        if (isOpening) {
-            document.body.classList.add('sidebar-open');
-        } else {
-            document.body.classList.remove('sidebar-open');
-        }
-    }
-
-    // ===== GESTIÓN DE CLIENTES =====
-    async cargarClientes() {
-        try {
-            const q = query(collection(this.db, "clientes"), orderBy("nombre"));
-            const snapshot = await getDocs(q);
-            this.clientes = [];
-            snapshot.forEach((doc) => {
-                this.clientes.push({ id: doc.id, ...doc.data() });
-            });
-            this.mostrarClientesEnSelect();
-        } catch (error) {
-            console.error("Error cargando clientes:", error);
-        }
-    }
-
-    mostrarClientesEnSelect() {
-        const select = document.getElementById('clienteSelect');
-        select.innerHTML = '<option value="">Seleccionar cliente...</option>';
-        
-        this.clientes.forEach(cliente => {
-            const option = document.createElement('option');
-            option.value = cliente.id;
-            option.textContent = `${cliente.nombre}${cliente.email ? ` - ${cliente.email}` : ''}`;
-            select.appendChild(option);
-        });
-    }
-
-    mostrarModalCliente() {
-        const clienteModal = new bootstrap.Modal(document.getElementById('clienteModal'));
-        clienteModal.show();
-    }
-
-    async guardarCliente() {
-        const form = document.getElementById('clienteForm');
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
-
-        const clienteData = {
-            nombre: document.getElementById('clienteNombre').value.trim(),
-            email: document.getElementById('clienteEmail').value.trim() || '',
-            telefono: document.getElementById('clienteTelefono').value.trim() || '',
-            documento: document.getElementById('clienteDocumento').value.trim() || '',
-            direccion: document.getElementById('clienteDireccion').value.trim() || '',
-            activo: document.getElementById('clienteActivo').checked,
-            fecha_registro: new Date(),
-            total_compras: 0,
-            monto_total: 0
-        };
-
-        try {
-            const docRef = await addDoc(collection(this.db, "clientes"), clienteData);
-            
-            // Agregar el nuevo cliente a la lista local
-            this.clientes.push({
-                id: docRef.id,
-                ...clienteData
-            });
-            
-            // Actualizar el select
-            this.mostrarClientesEnSelect();
-            
-            // Seleccionar automáticamente el nuevo cliente
-            document.getElementById('clienteSelect').value = docRef.id;
-            
-            // Cerrar el modal
-            const clienteModal = bootstrap.Modal.getInstance(document.getElementById('clienteModal'));
-            clienteModal.hide();
-            
-            // Limpiar el formulario
-            this.limpiarFormularioCliente();
-            
-            alert('✅ Cliente agregado correctamente');
-            
-        } catch (error) {
-            console.error("Error guardando cliente:", error);
-            alert("Error al guardar el cliente: " + error.message);
-        }
-    }
-
-    limpiarFormularioCliente() {
-        document.getElementById('clienteForm').reset();
-        document.getElementById('clienteActivo').checked = true;
-    }
-
-    // ===== SISTEMA DE DESCUENTOS =====
-    aplicarDescuento() {
-        const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-        const tipo = document.getElementById('tipoDescuento').value;
-        const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-        
-        let montoDescuento = 0;
-        
-        if (tipo === 'porcentaje') {
-            montoDescuento = subtotal * (descuento / 100);
-        } else {
-            montoDescuento = Math.min(descuento, subtotal);
-        }
-        
-        this.montoDescuento = montoDescuento;
-        this.actualizarTotales();
-    }
-
-    actualizarTotales() {
-        const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-        const total = subtotal - this.montoDescuento;
-        
-        document.getElementById('subtotalVenta').textContent = `$${subtotal.toFixed(2)}`;
-        document.getElementById('montoDescuento').textContent = `-$${this.montoDescuento.toFixed(2)}`;
-        document.getElementById('totalVenta').textContent = `$${total.toFixed(2)}`;
-    }
-
-    // ===== GESTIÓN DE PRODUCTOS =====
-    async cargarProductos() {
-        try {
-            const querySnapshot = await getDocs(collection(this.db, "productos"));
-            this.productos = [];
-            querySnapshot.forEach((doc) => {
-                const producto = { id: doc.id, ...doc.data() };
-                if (producto.activo !== false && producto.cantidad > 0) {
-                    this.productos.push(producto);
-                }
-            });
-        } catch (error) {
-            console.error("Error cargando productos:", error);
-        }
-    }
-
-    filtrarProductos() {
-        const searchTerm = document.getElementById('searchProduct').value.toLowerCase();
-        const container = document.getElementById('productosList');
-        container.innerHTML = '';
-
-        const productosFiltrados = this.productos.filter(producto => 
-            producto.nombre.toLowerCase().includes(searchTerm)
-        );
-
-        productosFiltrados.forEach(producto => {
-            const productCard = document.createElement('div');
-            productCard.className = 'col-md-6 col-sm-12 mb-2';
-            productCard.innerHTML = `
-                <div class="card sale-item p-2">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="mb-1">${producto.nombre}</h6>
-                            <small class="text-muted">Stock: ${producto.cantidad}</small>
-                            <br>
-                            <strong class="text-primary">$${producto.precio?.toFixed(2)}</strong>
-                        </div>
-                        <button class="btn btn-sm btn-primary" onclick="ventasManager.agregarAlCarrito('${producto.id}')">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-            container.appendChild(productCard);
-        });
-    }
-
-    // ===== GESTIÓN DEL CARRITO =====
-    agregarAlCarrito(productId) {
-        const producto = this.productos.find(p => p.id === productId);
-        if (!producto) return;
-
-        const itemExistente = this.carrito.find(item => item.id === productId);
-        
-        if (itemExistente) {
-            if (itemExistente.cantidad < producto.cantidad) {
-                itemExistente.cantidad++;
-            } else {
-                alert('No hay suficiente stock disponible');
-                return;
+            async init() {
+                await this.checkAuth();
+                this.initEventListeners();
+                await this.cargarClientes();
+                await this.cargarProductos();
+                await this.cargarVentas();
+                this.calcularResumen();
             }
-        } else {
-            this.carrito.push({
-                id: producto.id,
-                nombre: producto.nombre,
-                precio: producto.precio,
-                cantidad: 1,
-                stock_disponible: producto.cantidad
-            });
-        }
 
-        this.actualizarCarrito();
-        this.actualizarTotales();
-    }
-
-    actualizarCarrito() {
-        const container = document.getElementById('carrito');
-        container.innerHTML = '';
-
-        this.carrito.forEach((item, index) => {
-            const subtotal = item.precio * item.cantidad;
-
-            const itemElement = document.createElement('div');
-            itemElement.className = 'd-flex justify-content-between align-items-center border-bottom pb-2 mb-2';
-            itemElement.innerHTML = `
-                <div>
-                    <small><strong>${item.nombre}</strong></small>
-                    <br>
-                    <small>$${item.precio.toFixed(2)} x ${item.cantidad} = $${subtotal.toFixed(2)}</small>
-                </div>
-                <div>
-                    <button class="btn btn-sm btn-outline-secondary me-1" onclick="ventasManager.modificarCantidad(${index}, -1)">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="ventasManager.modificarCantidad(${index}, 1)">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger ms-1" onclick="ventasManager.eliminarDelCarrito(${index})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
-            container.appendChild(itemElement);
-        });
-
-        this.actualizarTotales();
-    }
-
-    modificarCantidad(index, cambio) {
-        const item = this.carrito[index];
-        const nuevaCantidad = item.cantidad + cambio;
-
-        if (nuevaCantidad <= 0) {
-            this.eliminarDelCarrito(index);
-            return;
-        }
-
-        if (nuevaCantidad > item.stock_disponible) {
-            alert('No hay suficiente stock disponible');
-            return;
-        }
-
-        item.cantidad = nuevaCantidad;
-        this.actualizarCarrito();
-    }
-
-    eliminarDelCarrito(index) {
-        this.carrito.splice(index, 1);
-        this.actualizarCarrito();
-    }
-
-    // ===== GESTIÓN DE VENTAS =====
-    async cargarVentas() {
-        try {
-            const q = query(collection(this.db, "ventas"), orderBy("fecha_venta", "desc"));
-            const querySnapshot = await getDocs(q);
-            this.ventas = [];
-            querySnapshot.forEach((doc) => {
-                this.ventas.push({ id: doc.id, ...doc.data() });
-            });
-            this.mostrarVentas();
-        } catch (error) {
-            console.error("Error cargando ventas:", error);
-        }
-    }
-
-    mostrarVentas() {
-        const tbody = document.getElementById('ventasTable');
-        tbody.innerHTML = '';
-
-        this.ventas.forEach(venta => {
-            const productosText = venta.productos?.map(p => 
-                `${p.nombre} (${p.cantidad})`
-            ).join(', ') || 'N/A';
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${venta.id.substring(0, 8)}...</td>
-                <td>${venta.cliente || 'Cliente General'}</td>
-                <td>${productosText}</td>
-                <td>$${venta.total?.toFixed(2) || '0.00'}</td>
-                <td>${venta.fecha_venta ? new Date(venta.fecha_venta.toDate()).toLocaleDateString() : 'N/A'}</td>
-                <td><span class="badge bg-secondary">${this.getMetodoPagoNombre(venta.metodo_pago)}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-outline-danger" onclick="ventasManager.eliminarVenta('${venta.id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-
-    getMetodoPagoNombre(metodo) {
-        const metodos = {
-            'efectivo': 'Efectivo',
-            'tarjeta': 'Tarjeta',
-            'transferencia': 'Transferencia'
-        };
-        return metodos[metodo] || metodo;
-    }
-
-    async finalizarVenta() {
-        if (this.carrito.length === 0) {
-            alert('Agrega al menos un producto a la venta');
-            return;
-        }
-
-        const clienteSelect = document.getElementById('clienteSelect');
-        const clienteId = clienteSelect.value;
-        const cliente = this.clientes.find(c => c.id === clienteId)?.nombre || 'Cliente General';
-        const metodo_pago = document.getElementById('metodo_pago').value;
-        const notas = document.getElementById('notas').value;
-
-        const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-        const total = subtotal - this.montoDescuento;
-
-        try {
-            // Registrar la venta
-            const ventaData = {
-                cliente: cliente,
-                clienteId: clienteId,
-                productos: this.carrito,
-                subtotal: subtotal,
-                descuento: this.montoDescuento,
-                total: total,
-                metodo_pago: metodo_pago,
-                notas: notas,
-                fecha_venta: new Date(),
-                estado: 'completada'
-            };
-
-            await addDoc(collection(this.db, "ventas"), ventaData);
-
-            // Actualizar stock de productos
-            for (const item of this.carrito) {
-                const productoRef = doc(this.db, "productos", item.id);
-                const producto = this.productos.find(p => p.id === item.id);
-                const nuevoStock = producto.cantidad - item.cantidad;
-                
-                await updateDoc(productoRef, {
-                    cantidad: nuevoStock
+            async checkAuth() {
+                return new Promise((resolve) => {
+                    onAuthStateChanged(this.auth, (user) => {
+                        if (!user) {
+                            window.location.href = 'index.html';
+                        } else {
+                            resolve(true);
+                        }
+                    });
                 });
             }
 
-            // Actualizar historial del cliente
-            if (clienteId) {
-                await this.actualizarHistorialCliente(clienteId, total);
+            initEventListeners() {
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+                document.getElementById('finalizarVentaBtn').addEventListener('click', () => this.finalizarVenta());
+                document.getElementById('searchProduct').addEventListener('input', () => this.filtrarProductos());
+                document.getElementById('imprimirTicketBtn').addEventListener('click', () => this.generarTicket());
+                
+                // EVENT LISTENERS PARA CLIENTES
+                document.getElementById('agregarClienteBtn').addEventListener('click', () => this.mostrarModalCliente());
+                document.getElementById('guardarClienteBtn').addEventListener('click', () => this.guardarCliente());
+                
+                // EVENT LISTENERS PARA DESCUENTOS
+                document.getElementById('aplicarDescuento').addEventListener('click', () => this.aplicarDescuento());
+                
+                // EVENT LISTENERS PARA EDICIÓN
+                document.getElementById('searchProductEdit').addEventListener('input', () => this.filtrarProductosEdit());
+                document.getElementById('aplicarDescuentoEdit').addEventListener('click', () => this.aplicarDescuentoEdit());
+                document.getElementById('actualizarVentaBtn').addEventListener('click', () => this.actualizarVenta());
+                document.getElementById('imprimirTicketBtnEdit').addEventListener('click', () => this.generarTicketEdit());
+                document.getElementById('agregarClienteBtnEdit').addEventListener('click', () => this.mostrarModalCliente());
+                
+                // Configurar el modal de venta
+                document.getElementById('ventaModal').addEventListener('show.bs.modal', () => {
+                    this.carrito = [];
+                    this.montoDescuento = 0;
+                    this.actualizarCarrito();
+                    this.filtrarProductos();
+                    this.limpiarFormularioCliente();
+                });
+
+                // Configurar el modal de edición
+                document.getElementById('editarVentaModal').addEventListener('show.bs.modal', () => {
+                    this.filtrarProductosEdit();
+                });
+
+                // Responsive sidebar toggle
+                document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
+                document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
+
+                // Cerrar sidebar al hacer clic en un enlace (en móvil)
+                const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (window.innerWidth <= 992) {
+                            this.toggleSidebar();
+                        }
+                    });
+                });
+
+                // Cerrar sidebar al redimensionar la ventana si se hace más grande
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 992) {
+                        const sidebar = document.getElementById('sidebar');
+                        const overlay = document.getElementById('overlay');
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                        document.body.classList.remove('sidebar-open');
+                    }
+                });
             }
 
-            alert('✅ Venta registrada exitosamente');
-            
-            const modal = bootstrap.Modal.getInstance(document.getElementById('ventaModal'));
-            modal.hide();
+            toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                const isOpening = !sidebar.classList.contains('active');
+                
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                
+                if (isOpening) {
+                    document.body.classList.add('sidebar-open');
+                } else {
+                    document.body.classList.remove('sidebar-open');
+                }
+            }
 
-            // Recargar datos
-            await this.cargarProductos();
-            await this.cargarVentas();
-            await this.cargarClientes();
-            this.calcularResumen();
+            // ===== GESTIÓN DE CLIENTES =====
+            async cargarClientes() {
+                try {
+                    const q = query(collection(this.db, "clientes"), orderBy("nombre"));
+                    const snapshot = await getDocs(q);
+                    this.clientes = [];
+                    snapshot.forEach((doc) => {
+                        this.clientes.push({ id: doc.id, ...doc.data() });
+                    });
+                    this.mostrarClientesEnSelect();
+                } catch (error) {
+                    console.error("Error cargando clientes:", error);
+                }
+            }
 
-        } catch (error) {
-            console.error("Error finalizando venta:", error);
-            alert("Error al registrar la venta: " + error.message);
-        }
-    }
+            mostrarClientesEnSelect() {
+                const select = document.getElementById('clienteSelect');
+                const selectEdit = document.getElementById('clienteSelectEdit');
+                
+                select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+                selectEdit.innerHTML = '<option value="">Seleccionar cliente...</option>';
+                
+                this.clientes.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.id;
+                    option.textContent = `${cliente.nombre}${cliente.email ? ` - ${cliente.email}` : ''}`;
+                    select.appendChild(option);
+                    
+                    const optionEdit = option.cloneNode(true);
+                    selectEdit.appendChild(optionEdit);
+                });
+            }
 
-    async actualizarHistorialCliente(clienteId, montoVenta) {
-        try {
-            const clienteRef = doc(this.db, "clientes", clienteId);
-            const cliente = this.clientes.find(c => c.id === clienteId);
-            
-            await updateDoc(clienteRef, {
-                total_compras: (cliente.total_compras || 0) + 1,
-                monto_total: (cliente.monto_total || 0) + montoVenta,
-                ultima_compra: new Date()
-            });
-        } catch (error) {
-            console.error("Error actualizando historial del cliente:", error);
-        }
-    }
+            mostrarModalCliente() {
+                const clienteModal = new bootstrap.Modal(document.getElementById('clienteModal'));
+                clienteModal.show();
+            }
 
-    async eliminarVenta(ventaId) {
-        if (!confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
-            return;
-        }
+            async guardarCliente() {
+                const form = document.getElementById('clienteForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
 
-        try {
-            await deleteDoc(doc(this.db, "ventas", ventaId));
-            alert('✅ Venta eliminada correctamente');
-            await this.cargarVentas();
-            this.calcularResumen();
-        } catch (error) {
-            console.error("Error eliminando venta:", error);
-            alert("Error al eliminar la venta: " + error.message);
-        }
-    }
+                const clienteData = {
+                    nombre: document.getElementById('clienteNombre').value.trim(),
+                    email: document.getElementById('clienteEmail').value.trim() || '',
+                    telefono: document.getElementById('clienteTelefono').value.trim() || '',
+                    documento: document.getElementById('clienteDocumento').value.trim() || '',
+                    direccion: document.getElementById('clienteDireccion').value.trim() || '',
+                    activo: document.getElementById('clienteActivo').checked,
+                    fecha_registro: new Date(),
+                    total_compras: 0,
+                    monto_total: 0
+                };
 
-    
-   
+                try {
+                    const docRef = await addDoc(collection(this.db, "clientes"), clienteData);
+                    
+                    // Agregar el nuevo cliente a la lista local
+                    this.clientes.push({
+                        id: docRef.id,
+                        ...clienteData
+                    });
+                    
+                    // Actualizar el select
+                    this.mostrarClientesEnSelect();
+                    
+                    // Seleccionar automáticamente el nuevo cliente
+                    document.getElementById('clienteSelect').value = docRef.id;
+                    
+                    // Cerrar el modal
+                    const clienteModal = bootstrap.Modal.getInstance(document.getElementById('clienteModal'));
+                    clienteModal.hide();
+                    
+                    // Limpiar el formulario
+                    this.limpiarFormularioCliente();
+                    
+                    alert('✅ Cliente agregado correctamente');
+                    
+                } catch (error) {
+                    console.error("Error guardando cliente:", error);
+                    alert("Error al guardar el cliente: " + error.message);
+                }
+            }
 
-// ===== SISTEMA DE TICKETS - VERSIÓN SIMPLIFICADA Y FUNCIONAL =====
-async generarTicket() {
-    if (this.carrito.length === 0) {
-        alert('No hay productos en el carrito para generar ticket');
-        return;
-    }
+            limpiarFormularioCliente() {
+                document.getElementById('clienteForm').reset();
+                document.getElementById('clienteActivo').checked = true;
+            }
 
-    try {
-        const clienteSelect = document.getElementById('clienteSelect');
-        const clienteId = clienteSelect.value;
-        const clienteNombre = this.clientes.find(c => c.id === clienteId)?.nombre || 'Cliente General';
-        const metodoPago = document.getElementById('metodo_pago').value;
-        const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-        const total = subtotal - this.montoDescuento;
-        const ticketId = Date.now().toString().slice(-6);
+            // ===== SISTEMA DE DESCUENTOS =====
+            aplicarDescuento() {
+                const descuento = parseFloat(document.getElementById('descuento').value) || 0;
+                const tipo = document.getElementById('tipoDescuento').value;
+                const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+                
+                let montoDescuento = 0;
+                
+                if (tipo === 'porcentaje') {
+                    montoDescuento = subtotal * (descuento / 100);
+                } else {
+                    montoDescuento = Math.min(descuento, subtotal);
+                }
+                
+                this.montoDescuento = montoDescuento;
+                this.actualizarTotales();
+            }
 
-        // Crear el contenido del ticket de forma más simple
-        const ticketContent = this.crearContenidoTicket({
-            clienteNombre,
-            metodoPago,
-            subtotal,
-            total,
-            ticketId,
-            carrito: this.carrito,
-            montoDescuento: this.montoDescuento
-        });
+            aplicarDescuentoEdit() {
+                const descuento = parseFloat(document.getElementById('descuentoEdit').value) || 0;
+                const tipo = document.getElementById('tipoDescuentoEdit').value;
+                const subtotal = this.carritoEdit.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+                
+                let montoDescuento = 0;
+                
+                if (tipo === 'porcentaje') {
+                    montoDescuento = subtotal * (descuento / 100);
+                } else {
+                    montoDescuento = Math.min(descuento, subtotal);
+                }
+                
+                this.montoDescuentoEdit = montoDescuento;
+                this.actualizarTotalesEdit();
+            }
 
-        // Abrir ventana
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const ventana = window.open('', '_blank', 
-            isMobile ? 'width=device-width,height=device-height' : 'width=450,height=700'
-        );
-        
-        ventana.document.write(ticketContent);
-        ventana.document.close();
-        ventana.focus();
+            actualizarTotales() {
+                const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+                const total = subtotal - this.montoDescuento;
+                
+                document.getElementById('subtotalVenta').textContent = `$${subtotal.toFixed(2)}`;
+                document.getElementById('montoDescuento').textContent = `-$${this.montoDescuento.toFixed(2)}`;
+                document.getElementById('totalVenta').textContent = `$${total.toFixed(2)}`;
+            }
 
-    } catch (error) {
-        console.error('Error generando ticket:', error);
-        alert('Error al generar el ticket: ' + error.message);
-    }
-}
+            actualizarTotalesEdit() {
+                const subtotal = this.carritoEdit.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+                const total = subtotal - this.montoDescuentoEdit;
+                
+                document.getElementById('subtotalVentaEdit').textContent = `$${subtotal.toFixed(2)}`;
+                document.getElementById('montoDescuentoEdit').textContent = `-$${this.montoDescuentoEdit.toFixed(2)}`;
+                document.getElementById('totalVentaEdit').textContent = `$${total.toFixed(2)}`;
+            }
 
-// Función separada para crear el contenido HTML
-crearContenidoTicket(datos) {
-    const { clienteNombre, metodoPago, subtotal, total, ticketId, carrito, montoDescuento } = datos;
-    
-    const productosHTML = carrito.map(item => `
-        <tr>
-            <td>${item.nombre}<br><small>$${item.precio.toFixed(2)} c/u</small></td>
-            <td class="text-right">${item.cantidad}</td>
-            <td class="text-right">$${(item.precio * item.cantidad).toFixed(2)}</td>
-        </tr>
-    `).join('');
+            // ===== GESTIÓN DE PRODUCTOS =====
+            async cargarProductos() {
+                try {
+                    const q = query(collection(this.db, "productos"), orderBy("nombre"));
+                    const snapshot = await getDocs(q);
+                    this.productos = [];
+                    snapshot.forEach((doc) => {
+                        this.productos.push({ id: doc.id, ...doc.data() });
+                    });
+                    this.filtrarProductos();
+                } catch (error) {
+                    console.error("Error cargando productos:", error);
+                }
+            }
 
-    const descuentoHTML = montoDescuento > 0 ? `
-        <div class="total-row">
-            <span>Subtotal:</span>
-            <span>$${subtotal.toFixed(2)}</span>
-        </div>
-        <div class="total-row">
-            <span>Descuento:</span>
-            <span style="color: #dc3545;">-$${montoDescuento.toFixed(2)}</span>
-        </div>
-    ` : '';
+            filtrarProductos() {
+                const searchTerm = document.getElementById('searchProduct').value.toLowerCase();
+                const productosList = document.getElementById('productosList');
+                productosList.innerHTML = '';
+                
+                const productosFiltrados = this.productos.filter(producto => 
+                    producto.nombre.toLowerCase().includes(searchTerm) && 
+                    producto.stock > 0
+                );
+                
+                productosFiltrados.forEach(producto => {
+                    const productoCard = document.createElement('div');
+                    productoCard.className = 'col-md-6 col-lg-4';
+                    productoCard.innerHTML = `
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">${producto.nombre}</h6>
+                                <p class="card-text mb-1">Precio: $${producto.precio}</p>
+                                <p class="card-text stock-info ${producto.stock < 5 ? 'stock-low' : ''}">
+                                    Stock: ${producto.stock}
+                                </p>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="cantidad-${producto.id}" 
+                                           min="1" max="${producto.stock}" value="1">
+                                    <button class="btn btn-primary" onclick="ventasManager.agregarAlCarrito('${producto.id}')">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    productosList.appendChild(productoCard);
+                });
+            }
 
-    return `
+            filtrarProductosEdit() {
+                const searchTerm = document.getElementById('searchProductEdit').value.toLowerCase();
+                const productosList = document.getElementById('productosListEdit');
+                productosList.innerHTML = '';
+                
+                const productosFiltrados = this.productos.filter(producto => 
+                    producto.nombre.toLowerCase().includes(searchTerm)
+                );
+                
+                productosFiltrados.forEach(producto => {
+                    const productoCard = document.createElement('div');
+                    productoCard.className = 'col-md-6 col-lg-4';
+                    productoCard.innerHTML = `
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">${producto.nombre}</h6>
+                                <p class="card-text mb-1">Precio: $${producto.precio}</p>
+                                <p class="card-text stock-info ${producto.stock < 5 ? 'stock-low' : ''}">
+                                    Stock: ${producto.stock}
+                                </p>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="cantidad-edit-${producto.id}" 
+                                           min="1" max="${producto.stock}" value="1">
+                                    <button class="btn btn-primary" onclick="ventasManager.agregarAlCarritoEdit('${producto.id}')">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    productosList.appendChild(productoCard);
+                });
+            }
+
+            agregarAlCarrito(productoId) {
+                const cantidadInput = document.getElementById(`cantidad-${productoId}`);
+                const cantidad = parseInt(cantidadInput.value) || 1;
+                
+                if (cantidad < 1) {
+                    alert('La cantidad debe ser al menos 1');
+                    return;
+                }
+                
+                const producto = this.productos.find(p => p.id === productoId);
+                
+                if (!producto) {
+                    alert('Producto no encontrado');
+                    return;
+                }
+                
+                if (cantidad > producto.stock) {
+                    alert(`No hay suficiente stock. Stock disponible: ${producto.stock}`);
+                    return;
+                }
+                
+                // Verificar si el producto ya está en el carrito
+                const itemExistente = this.carrito.find(item => item.id === productoId);
+                
+                if (itemExistente) {
+                    const nuevaCantidad = itemExistente.cantidad + cantidad;
+                    
+                    if (nuevaCantidad > producto.stock) {
+                        alert(`No puedes agregar más de ${producto.stock} unidades de este producto`);
+                        return;
+                    }
+                    
+                    itemExistente.cantidad = nuevaCantidad;
+                } else {
+                    this.carrito.push({
+                        id: productoId,
+                        nombre: producto.nombre,
+                        precio: producto.precio,
+                        cantidad: cantidad
+                    });
+                }
+                
+                // Actualizar stock visualmente
+                this.actualizarStockVisual(productoId, -cantidad);
+                
+                this.actualizarCarrito();
+                cantidadInput.value = 1;
+            }
+
+            agregarAlCarritoEdit(productoId) {
+                const cantidadInput = document.getElementById(`cantidad-edit-${productoId}`);
+                const cantidad = parseInt(cantidadInput.value) || 1;
+                
+                if (cantidad < 1) {
+                    alert('La cantidad debe ser al menos 1');
+                    return;
+                }
+                
+                const producto = this.productos.find(p => p.id === productoId);
+                
+                if (!producto) {
+                    alert('Producto no encontrado');
+                    return;
+                }
+                
+                // Verificar si el producto ya está en el carrito de edición
+                const itemExistente = this.carritoEdit.find(item => item.id === productoId);
+                
+                if (itemExistente) {
+                    const nuevaCantidad = itemExistente.cantidad + cantidad;
+                    itemExistente.cantidad = nuevaCantidad;
+                } else {
+                    this.carritoEdit.push({
+                        id: productoId,
+                        nombre: producto.nombre,
+                        precio: producto.precio,
+                        cantidad: cantidad
+                    });
+                }
+                
+                this.actualizarCarritoEdit();
+                cantidadInput.value = 1;
+            }
+
+            actualizarStockVisual(productoId, cambio) {
+                // Actualizar el stock visual en la lista de productos
+                const productoCard = document.querySelector(`#cantidad-${productoId}`).closest('.card');
+                if (productoCard) {
+                    const stockElement = productoCard.querySelector('.stock-info');
+                    if (stockElement) {
+                        const stockActual = parseInt(stockElement.textContent.split(': ')[1]);
+                        const nuevoStock = stockActual + cambio;
+                        stockElement.textContent = `Stock: ${nuevoStock}`;
+                        
+                        if (nuevoStock < 5) {
+                            stockElement.classList.add('stock-low');
+                        } else {
+                            stockElement.classList.remove('stock-low');
+                        }
+                        
+                        // Actualizar el max del input
+                        const cantidadInput = document.getElementById(`cantidad-${productoId}`);
+                        cantidadInput.max = nuevoStock;
+                    }
+                }
+            }
+
+            actualizarCarrito() {
+                const carritoElement = document.getElementById('carrito');
+                carritoElement.innerHTML = '';
+                
+                if (this.carrito.length === 0) {
+                    carritoElement.innerHTML = '<p class="text-muted text-center">No hay productos en el carrito</p>';
+                    this.actualizarTotales();
+                    return;
+                }
+                
+                this.carrito.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'd-flex justify-content-between align-items-center border-bottom py-2';
+                    itemElement.innerHTML = `
+                        <div>
+                            <h6 class="mb-0">${item.nombre}</h6>
+                            <small class="text-muted">$${item.precio} x ${item.cantidad}</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">$${(item.precio * item.cantidad).toFixed(2)}</span>
+                            <button class="btn btn-sm btn-outline-danger" onclick="ventasManager.eliminarDelCarrito(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    carritoElement.appendChild(itemElement);
+                });
+                
+                this.actualizarTotales();
+            }
+
+            actualizarCarritoEdit() {
+                const carritoElement = document.getElementById('carritoEdit');
+                carritoElement.innerHTML = '';
+                
+                if (this.carritoEdit.length === 0) {
+                    carritoElement.innerHTML = '<p class="text-muted text-center">No hay productos en el carrito</p>';
+                    this.actualizarTotalesEdit();
+                    return;
+                }
+                
+                this.carritoEdit.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'd-flex justify-content-between align-items-center border-bottom py-2';
+                    itemElement.innerHTML = `
+                        <div>
+                            <h6 class="mb-0">${item.nombre}</h6>
+                            <small class="text-muted">$${item.precio} x ${item.cantidad}</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">$${(item.precio * item.cantidad).toFixed(2)}</span>
+                            <button class="btn btn-sm btn-outline-danger" onclick="ventasManager.eliminarDelCarritoEdit(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    carritoElement.appendChild(itemElement);
+                });
+                
+                this.actualizarTotalesEdit();
+            }
+
+            eliminarDelCarrito(index) {
+                const item = this.carrito[index];
+                
+                // Restaurar el stock visual
+                this.actualizarStockVisual(item.id, item.cantidad);
+                
+                this.carrito.splice(index, 1);
+                this.actualizarCarrito();
+            }
+
+            eliminarDelCarritoEdit(index) {
+                this.carritoEdit.splice(index, 1);
+                this.actualizarCarritoEdit();
+            }
+
+            // ===== GESTIÓN DE VENTAS =====
+            async cargarVentas() {
+                try {
+                    const q = query(collection(this.db, "ventas"), orderBy("fecha_venta", "desc"));
+                    const snapshot = await getDocs(q);
+                    this.ventas = [];
+                    snapshot.forEach((doc) => {
+                        this.ventas.push({ id: doc.id, ...doc.data() });
+                    });
+                    this.mostrarVentas();
+                } catch (error) {
+                    console.error("Error cargando ventas:", error);
+                }
+            }
+
+            mostrarVentas() {
+                const ventasTable = document.getElementById('ventasTable');
+                ventasTable.innerHTML = '';
+                
+                this.ventas.forEach(venta => {
+                    const productosTexto = venta.productos.map(p => 
+                        `${p.nombre} (${p.cantidad})`
+                    ).join(', ');
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${venta.id.substring(0, 8)}</td>
+                        <td>${venta.cliente || 'Cliente General'}</td>
+                        <td>${productosTexto}</td>
+                        <td>$${venta.total?.toFixed(2) || '0.00'}</td>
+                        <td>${venta.fecha_venta ? new Date(venta.fecha_venta.toDate()).toLocaleDateString() : 'N/A'}</td>
+                        <td><span class="badge bg-secondary">${this.getMetodoPagoNombre(venta.metodo_pago)}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="ventasManager.editarVenta('${venta.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="ventasManager.eliminarVenta('${venta.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    ventasTable.appendChild(row);
+                });
+            }
+
+            getMetodoPagoNombre(metodo) {
+                const metodos = {
+                    'efectivo': 'Efectivo',
+                    'tarjeta': 'Tarjeta',
+                    'transferencia': 'Transferencia'
+                };
+                return metodos[metodo] || metodo;
+            }
+
+            async finalizarVenta() {
+                if (this.carrito.length === 0) {
+                    alert('Agrega al menos un producto a la venta');
+                    return;
+                }
+
+                const clienteSelect = document.getElementById('clienteSelect');
+                const clienteId = clienteSelect.value;
+                const cliente = this.clientes.find(c => c.id === clienteId)?.nombre || 'Cliente General';
+                const metodo_pago = document.getElementById('metodo_pago').value;
+                const notas = document.getElementById('notas').value;
+
+                const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+                const total = subtotal - this.montoDescuento;
+
+                try {
+                    // Registrar la venta
+                    const ventaData = {
+                        cliente: cliente,
+                        clienteId: clienteId,
+                        productos: this.carrito,
+                        subtotal: subtotal,
+                        descuento: this.montoDescuento,
+                        total: total,
+                        metodo_pago: metodo_pago,
+                        notas: notas,
+                        fecha_venta: new Date(),
+                        estado: 'completada'
+                    };
+
+                    await addDoc(collection(this.db, "ventas"), ventaData);
+
+                    // Actualizar stock de productos
+                    for (const item of this.carrito) {
+                        const productoRef = doc(this.db, "productos", item.id);
+                        const producto = this.productos.find(p => p.id === item.id);
+                        const nuevoStock = producto.cantidad - item.cantidad;
+                        
+                        await updateDoc(productoRef, {
+                            cantidad: nuevoStock
+                        });
+                    }
+
+                    // Actualizar historial del cliente
+                    if (clienteId) {
+                        await this.actualizarHistorialCliente(clienteId, total);
+                    }
+
+                    alert('✅ Venta registrada exitosamente');
+                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('ventaModal'));
+                    modal.hide();
+
+                    // Recargar datos
+                    await this.cargarProductos();
+                    await this.cargarVentas();
+                    await this.cargarClientes();
+                    this.calcularResumen();
+
+                } catch (error) {
+                    console.error("Error finalizando venta:", error);
+                    alert("Error al registrar la venta: " + error.message);
+                }
+            }
+
+            async actualizarHistorialCliente(clienteId, montoVenta) {
+                try {
+                    const clienteRef = doc(this.db, "clientes", clienteId);
+                    const cliente = this.clientes.find(c => c.id === clienteId);
+                    
+                    await updateDoc(clienteRef, {
+                        total_compras: (cliente.total_compras || 0) + 1,
+                        monto_total: (cliente.monto_total || 0) + montoVenta,
+                        ultima_compra: new Date()
+                    });
+                } catch (error) {
+                    console.error("Error actualizando historial del cliente:", error);
+                }
+            }
+
+            async editarVenta(ventaId) {
+                const venta = this.ventas.find(v => v.id === ventaId);
+                
+                if (!venta) {
+                    alert('Venta no encontrada');
+                    return;
+                }
+                
+                this.ventaEditando = venta;
+                this.carritoEdit = [...venta.productos];
+                this.productosOriginalesEdit = [...venta.productos]; // Guardar productos originales
+                this.montoDescuentoEdit = venta.descuento || 0;
+                
+                // Configurar el formulario de edición
+                document.getElementById('clienteSelectEdit').value = venta.clienteId || '';
+                document.getElementById('metodo_pagoEdit').value = venta.metodo_pago;
+                document.getElementById('notasEdit').value = venta.notas || '';
+                document.getElementById('descuentoEdit').value = '';
+                
+                // Mostrar el modal de edición
+                const editarModal = new bootstrap.Modal(document.getElementById('editarVentaModal'));
+                editarModal.show();
+                
+                this.actualizarCarritoEdit();
+                this.actualizarTotalesEdit();
+            }
+
+            async actualizarVenta() {
+                if (!this.ventaEditando) return;
+                
+                const clienteId = document.getElementById('clienteSelectEdit').value;
+                const metodoPago = document.getElementById('metodo_pagoEdit').value;
+                const notas = document.getElementById('notasEdit').value.trim();
+                
+                if (!clienteId) {
+                    alert('Por favor selecciona un cliente');
+                    return;
+                }
+                
+                if (this.carritoEdit.length === 0) {
+                    alert('Por favor agrega al menos un producto a la venta');
+                    return;
+                }
+                
+                const cliente = this.clientes.find(c => c.id === clienteId);
+                const subtotal = this.carritoEdit.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+                const total = subtotal - this.montoDescuentoEdit;
+                
+                const ventaData = {
+                    cliente: cliente?.nombre || 'Cliente General',
+                    clienteId: clienteId,
+                    productos: this.carritoEdit,
+                    subtotal: subtotal,
+                    descuento: this.montoDescuentoEdit,
+                    total: total,
+                    metodo_pago: metodoPago,
+                    notas: notas,
+                    fecha_venta: this.ventaEditando.fecha_venta,
+                    estado: 'completada'
+                };
+                
+                try {
+                    // 1. RESTAURAR STOCK DE PRODUCTOS ORIGINALES
+                    for (const item of this.productosOriginalesEdit) {
+                        const productoRef = doc(this.db, "productos", item.id);
+                        const productoSnap = await getDoc(productoRef);
+                        
+                        if (productoSnap.exists()) {
+                            const producto = productoSnap.data();
+                            const nuevoStock = producto.cantidad + item.cantidad;
+                            
+                            await updateDoc(productoRef, {
+                                cantidad: nuevoStock
+                            });
+                        }
+                    }
+                    
+                    // 2. ACTUALIZAR STOCK CON NUEVOS PRODUCTOS
+                    for (const item of this.carritoEdit) {
+                        const productoRef = doc(this.db, "productos", item.id);
+                        const productoSnap = await getDoc(productoRef);
+                        
+                        if (productoSnap.exists()) {
+                            const producto = productoSnap.data();
+                            const nuevoStock = producto.cantidad - item.cantidad;
+                            
+                            if (nuevoStock < 0) {
+                                throw new Error(`No hay suficiente stock para ${item.nombre}`);
+                            }
+                            
+                            await updateDoc(productoRef, {
+                                cantidad: nuevoStock
+                            });
+                        }
+                    }
+                    
+                    // 3. ACTUALIZAR LA VENTA
+                    const ventaRef = doc(this.db, "ventas", this.ventaEditando.id);
+                    await updateDoc(ventaRef, ventaData);
+                    
+                    // 4. ACTUALIZAR HISTORIAL DEL CLIENTE
+                    if (clienteId) {
+                        await this.actualizarHistorialClienteEdit(clienteId, total, this.ventaEditando.total);
+                    }
+                    
+                    // Cerrar modal
+                    const editarModal = bootstrap.Modal.getInstance(document.getElementById('editarVentaModal'));
+                    editarModal.hide();
+                    
+                    // Recargar datos
+                    await this.cargarProductos();
+                    await this.cargarVentas();
+                    this.calcularResumen();
+                    
+                    alert('✅ Venta actualizada correctamente');
+                    
+                } catch (error) {
+                    console.error("Error actualizando venta:", error);
+                    alert("Error al actualizar la venta: " + error.message);
+                    
+                    // Revertir cambios en caso de error
+                    try {
+                        for (const item of this.productosOriginalesEdit) {
+                            const productoRef = doc(this.db, "productos", item.id);
+                            const productoSnap = await getDoc(productoRef);
+                            
+                            if (productoSnap.exists()) {
+                                const producto = productoSnap.data();
+                                const stockRestaurado = producto.cantidad - item.cantidad;
+                                
+                                await updateDoc(productoRef, {
+                                    cantidad: stockRestaurado
+                                });
+                            }
+                        }
+                    } catch (revertError) {
+                        console.error("Error revirtiendo cambios:", revertError);
+                    }
+                }
+            }
+
+            async actualizarHistorialClienteEdit(clienteId, nuevoTotal, totalAnterior) {
+                try {
+                    const clienteRef = doc(this.db, "clientes", clienteId);
+                    const clienteSnap = await getDoc(clienteRef);
+                    
+                    if (clienteSnap.exists()) {
+                        const cliente = clienteSnap.data();
+                        const diferencia = nuevoTotal - totalAnterior;
+                        
+                        await updateDoc(clienteRef, {
+                            monto_total: (cliente.monto_total || 0) + diferencia
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error actualizando historial del cliente:", error);
+                }
+            }
+
+            async eliminarVenta(ventaId) {
+                if (!confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
+                    return;
+                }
+
+                try {
+                    // Obtener la venta para restaurar el stock
+                    const venta = this.ventas.find(v => v.id === ventaId);
+                    
+                    if (venta) {
+                        // RESTAURAR STOCK DE PRODUCTOS
+                        for (const item of venta.productos) {
+                            const productoRef = doc(this.db, "productos", item.id);
+                            const productoSnap = await getDoc(productoRef);
+                            
+                            if (productoSnap.exists()) {
+                                const producto = productoSnap.data();
+                                const nuevoStock = producto.cantidad + item.cantidad;
+                                
+                                await updateDoc(productoRef, {
+                                    cantidad: nuevoStock
+                                });
+                            }
+                        }
+                        
+                        // ACTUALIZAR HISTORIAL DEL CLIENTE
+                        if (venta.clienteId) {
+                            await this.actualizarHistorialClienteEliminar(venta.clienteId, venta.total);
+                        }
+                    }
+                    
+                    // Eliminar la venta
+                    await deleteDoc(doc(this.db, "ventas", ventaId));
+                    
+                    alert('✅ Venta eliminada correctamente');
+                    await this.cargarVentas();
+                    await this.cargarProductos();
+                    this.calcularResumen();
+                    
+                } catch (error) {
+                    console.error("Error eliminando venta:", error);
+                    alert("Error al eliminar la venta: " + error.message);
+                }
+            }
+
+            async actualizarHistorialClienteEliminar(clienteId, montoVenta) {
+                try {
+                    const clienteRef = doc(this.db, "clientes", clienteId);
+                    const clienteSnap = await getDoc(clienteRef);
+                    
+                    if (clienteSnap.exists()) {
+                        const cliente = clienteSnap.data();
+                        
+                        await updateDoc(clienteRef, {
+                            total_compras: Math.max(0, (cliente.total_compras || 0) - 1),
+                            monto_total: Math.max(0, (cliente.monto_total || 0) - montoVenta)
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error actualizando historial del cliente:", error);
+                }
+            }
+
+            // ===== SISTEMA DE TICKETS - MANTENIENDO EL ORIGINAL =====
+            async generarTicket() {
+                if (this.carrito.length === 0) {
+                    alert('No hay productos en el carrito para generar ticket');
+                    return;
+                }
+
+                try {
+                    const clienteSelect = document.getElementById('clienteSelect');
+                    const clienteId = clienteSelect.value;
+                    const clienteNombre = this.clientes.find(c => c.id === clienteId)?.nombre || 'Cliente General';
+                    const metodoPago = document.getElementById('metodo_pago').value;
+                    const subtotal = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+                    const total = subtotal - this.montoDescuento;
+                    const ticketId = Date.now().toString().slice(-6);
+
+                    // Crear el contenido del ticket de forma más simple
+                    const ticketContent = this.crearContenidoTicket({
+                        clienteNombre,
+                        metodoPago,
+                        subtotal,
+                        total,
+                        ticketId,
+                        carrito: this.carrito,
+                        montoDescuento: this.montoDescuento
+                    });
+
+                    // Abrir ventana
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    const ventana = window.open('', '_blank', 
+                        isMobile ? 'width=device-width,height=device-height' : 'width=450,height=700'
+                    );
+                    
+                    ventana.document.write(ticketContent);
+                    ventana.document.close();
+                    ventana.focus();
+
+                } catch (error) {
+                    console.error('Error generando ticket:', error);
+                    alert('Error al generar el ticket: ' + error.message);
+                }
+            }
+
+            async generarTicketEdit() {
+                if (this.carritoEdit.length === 0) {
+                    alert('No hay productos en el carrito para generar ticket');
+                    return;
+                }
+
+                try {
+                    const clienteSelect = document.getElementById('clienteSelectEdit');
+                    const clienteId = clienteSelect.value;
+                    const clienteNombre = this.clientes.find(c => c.id === clienteId)?.nombre || 'Cliente General';
+                    const metodoPago = document.getElementById('metodo_pagoEdit').value;
+                    const subtotal = this.carritoEdit.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+                    const total = subtotal - this.montoDescuentoEdit;
+                    const ticketId = Date.now().toString().slice(-6);
+
+                    // Crear el contenido del ticket de forma más simple
+                    const ticketContent = this.crearContenidoTicket({
+                        clienteNombre,
+                        metodoPago,
+                        subtotal,
+                        total,
+                        ticketId,
+                        carrito: this.carritoEdit,
+                        montoDescuento: this.montoDescuentoEdit
+                    });
+
+                    // Abrir ventana
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    const ventana = window.open('', '_blank', 
+                        isMobile ? 'width=device-width,height=device-height' : 'width=450,height=700'
+                    );
+                    
+                    ventana.document.write(ticketContent);
+                    ventana.document.close();
+                    ventana.focus();
+
+                } catch (error) {
+                    console.error('Error generando ticket:', error);
+                    alert('Error al generar el ticket: ' + error.message);
+                }
+            }
+
+            // Función separada para crear el contenido HTML
+            crearContenidoTicket(datos) {
+                const { clienteNombre, metodoPago, subtotal, total, ticketId, carrito, montoDescuento } = datos;
+                
+                const productosHTML = carrito.map(item => `
+                    <tr>
+                        <td>${item.nombre}<br><small>$${item.precio.toFixed(2)} c/u</small></td>
+                        <td class="text-right">${item.cantidad}</td>
+                        <td class="text-right">$${(item.precio * item.cantidad).toFixed(2)}</td>
+                    </tr>
+                `).join('');
+
+                const descuentoHTML = montoDescuento > 0 ? `
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span>$${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Descuento:</span>
+                        <span style="color: #dc3545;">-$${montoDescuento.toFixed(2)}</span>
+                    </div>
+                ` : '';
+
+                return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -1202,60 +1734,43 @@ crearContenidoTicket(datos) {
     </div>
 </body>
 </html>`;
-}
+            }
 
-// Función auxiliar para métodos de pago
-getMetodoPagoNombre(metodo) {
-    const metodos = {
-        'efectivo': 'Efectivo',
-        'tarjeta': 'Tarjeta', 
-        'transferencia': 'Transferencia',
-        'credito': 'Crédito'
-    };
-    return metodos[metodo] || metodo;
-}
+            // ===== MÉTRICAS Y REPORTES =====
+            calcularResumen() {
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                
+                const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
 
+                const ventasHoy = this.ventas.filter(venta => {
+                    const fechaVenta = venta.fecha_venta?.toDate();
+                    return fechaVenta >= hoy;
+                });
 
+                const ventasMes = this.ventas.filter(venta => {
+                    const fechaVenta = venta.fecha_venta?.toDate();
+                    return fechaVenta >= inicioMes;
+                });
 
+                document.getElementById('totalVentasHoy').textContent = ventasHoy.length;
+                document.getElementById('ingresosHoy').textContent = '$' + 
+                    ventasHoy.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
+                
+                document.getElementById('totalVentasMes').textContent = ventasMes.length;
+                document.getElementById('ingresosMes').textContent = '$' + 
+                    ventasMes.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
+            }
 
-
-
-    // ===== MÉTRICAS Y REPORTES =====
-    calcularResumen() {
-        const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0);
-        
-        const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-
-        const ventasHoy = this.ventas.filter(venta => {
-            const fechaVenta = venta.fecha_venta?.toDate();
-            return fechaVenta >= hoy;
-        });
-
-        const ventasMes = this.ventas.filter(venta => {
-            const fechaVenta = venta.fecha_venta?.toDate();
-            return fechaVenta >= inicioMes;
-        });
-
-        document.getElementById('totalVentasHoy').textContent = ventasHoy.length;
-        document.getElementById('ingresosHoy').textContent = '$' + 
-            ventasHoy.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
-        
-        document.getElementById('totalVentasMes').textContent = ventasMes.length;
-        document.getElementById('ingresosMes').textContent = '$' + 
-            ventasMes.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
-    }
-
-    async logout() {
-        try {
-            await signOut(this.auth);
-            window.location.href = 'index.html';
-        } catch (error) {
-            console.error('Error al cerrar sesión:', error);
+            async logout() {
+                try {
+                    await signOut(this.auth);
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error('Error al cerrar sesión:', error);
+                }
+            }
         }
-    }
-}
-
 
         // Inicializar el gestor de ventas
         document.addEventListener('DOMContentLoaded', () => {
