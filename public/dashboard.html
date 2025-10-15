@@ -698,7 +698,7 @@ body {
         <div class="sidebar" id="sidebar">
             <div class="sidebar-brand">
                 <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
-                <h5>PowerPuffFit</h5>
+                <h5>PowerPufFit</h5>
                 <small>Dashboard</small>
             </div>
             
@@ -776,7 +776,7 @@ body {
                 </a>
                 <a href="inventario.html" class="action-btn" id="viewInventoryBtn">
                     <i class="fas fa-box-open"></i>
-                    <span>Ver Inventario</span>
+                    <span>Gestionar Inventario</span>
                 </a>
                 <a href="reportes.html" class="action-btn" id="reportsBtn">
                     <i class="fas fa-file-alt"></i>
@@ -1505,12 +1505,12 @@ body {
                             datasets: [{
                                 data: hasProducts ? data : [1],
                                 backgroundColor: hasProducts ? [
-                                    '#ff85a2',
-                                    '#ffacc7',
-                                    '#ffd6e0',
-                                    '#8a2f5a',
-                                    '#ff6b9d',
-                                    '#ff4f81'
+                                     '#ff85a2', // Rosa
+    '#36a2eb', // Azul
+    '#ffce56', // Amarillo
+    '#4bc0c0', // Turquesa
+    '#9966ff', // Púrpura
+    '#ff9f40'  // Naranja
                                 ] : ['#ccc'],
                                 borderWidth: 0
                             }]
@@ -1535,6 +1535,9 @@ body {
                     this.createEmptyCategoryChart();
                 }
             }
+
+
+
 
             // Funciones auxiliares para gráficos vacíos
             createEmptySalesChart() {

@@ -388,7 +388,7 @@
         <div class="sidebar" id="sidebar">
             <div class="sidebar-brand">
                 <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
-                <h5>PowerPuffFit</h5>
+                <h5>PowerPufFit</h5>
                 <small>Gestión de Clientes</small>
             </div>
             
@@ -575,67 +575,63 @@
         </div>
     </div>
 
+    
     <!-- Modal para Nuevo/Editar Cliente -->
-    <div class="modal fade" id="clienteModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitulo">Nuevo Cliente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="clienteForm">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Nombre *</label>
-                                <input type="text" class="form-control" id="clienteNombre" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Apellido *</label>
-                                <input type="text" class="form-control" id="clienteApellido" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Email *</label>
-                                <input type="email" class="form-control" id="clienteEmail" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" id="clienteTelefono">
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Dirección</label>
-                                <textarea class="form-control" id="clienteDireccion" rows="2"></textarea>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Fecha de Nacimiento</label>
-                                <input type="date" class="form-control" id="clienteNacimiento">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Segmento</label>
-                                <select class="form-select" id="clienteSegmento">
-                                    <option value="regular">Regular</option>
-                                    <option value="frecuente">Frecuente</option>
-                                    <option value="vip">VIP</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="clienteActivo" checked>
-                                    <label class="form-check-label" for="clienteActivo">
-                                        Cliente Activo
-                                    </label>
-                                </div>
+<div class="modal fade" id="clienteModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitulo">Nuevo Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="clienteForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="clienteNombre" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="clienteTelefono">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Instagram</label>
+                            <div class="input-group">
+                                <span class="input-group-text">@</span>
+                                <input type="text" class="form-control" id="clienteInstagram" placeholder="usuario">
                             </div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="guardarClienteBtn">Guardar Cliente</button>
-                </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Segmento</label>
+                            <select class="form-select" id="clienteSegmento">
+                                <option value="regular">Regular</option>
+                                <option value="frecuente">Frecuente</option>
+                                <option value="vip">VIP</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Notas del Cliente</label>
+                            <textarea class="form-control" id="clienteNotas" rows="3" placeholder="Observaciones, preferencias, etc..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="clienteActivo" checked>
+                                <label class="form-check-label" for="clienteActivo">
+                                    Cliente Activo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="guardarClienteBtn">Guardar Cliente</button>
             </div>
         </div>
     </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
@@ -793,57 +789,61 @@
                 document.getElementById('promedioCompras').textContent = promedioCompras;
             }
 
+            
+
             mostrarListaClientes() {
-                const tbody = document.getElementById('tablaClientes');
-                tbody.innerHTML = '';
+    const tbody = document.getElementById('tablaClientes');
+    tbody.innerHTML = '';
 
-                const clientesFiltrados = this.filtrarClientes();
+    const clientesFiltrados = this.filtrarClientes();
 
-                clientesFiltrados.forEach(cliente => {
-                    const ventasCliente = this.ventas.filter(v => v.cliente_id === cliente.id);
-                    const totalCompras = ventasCliente.length;
-                    const montoTotal = ventasCliente.reduce((sum, venta) => sum + (venta.total || 0), 0);
-                    const ultimaCompra = ventasCliente.length > 0 ? 
-                        new Date(ventasCliente[0].fecha_venta?.toDate()).toLocaleDateString() : 'Sin compras';
+    clientesFiltrados.forEach(cliente => {
+        const ventasCliente = this.ventas.filter(v => v.cliente_id === cliente.id);
+        const totalCompras = ventasCliente.length;
+        const montoTotal = ventasCliente.reduce((sum, venta) => sum + (venta.total || 0), 0);
+        const ultimaCompra = ventasCliente.length > 0 ? 
+            new Date(ventasCliente[0].fecha_venta?.toDate()).toLocaleDateString() : 'Sin compras';
 
-                    const iniciales = this.getIniciales(cliente.nombre, cliente.apellido);
-                    const segmentoBadge = this.getSegmentoBadge(cliente.segmento);
-                    const estadoBadge = cliente.activo !== false ? 
-                        '<span class="badge status-active">Activo</span>' : 
-                        '<span class="badge status-inactive">Inactivo</span>';
+        const iniciales = this.getIniciales(cliente.nombre);
+        const segmentoBadge = this.getSegmentoBadge(cliente.segmento);
+        const estadoBadge = cliente.activo !== false ? 
+            '<span class="badge status-active">Activo</span>' : 
+            '<span class="badge status-inactive">Inactivo</span>';
 
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="client-avatar me-3">${iniciales}</div>
-                                <div>
-                                    <strong>${cliente.nombre} ${cliente.apellido}</strong>
-                                    <br><small class="text-muted">ID: ${cliente.id.substring(0, 8)}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div>${cliente.email || 'N/A'}</div>
-                            <small class="text-muted">${cliente.telefono || 'Sin teléfono'}</small>
-                        </td>
-                        <td>${totalCompras}</td>
-                        <td>$${montoTotal.toFixed(2)}</td>
-                        <td>${ultimaCompra}</td>
-                        <td>${segmentoBadge}</td>
-                        <td>${estadoBadge}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary me-1" onclick="clientesManager.editarCliente('${cliente.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="clientesManager.eliminarCliente('${cliente.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="client-avatar me-3">${iniciales}</div>
+                    <div>
+                        <strong>${cliente.nombre}</strong>
+                        ${cliente.instagram ? `<br><small class="text-muted">@${cliente.instagram}</small>` : ''}
+                        <br><small class="text-muted">ID: ${cliente.id.substring(0, 8)}</small>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div>${cliente.telefono || 'N/A'}</div>
+                <small class="text-muted">${cliente.instagram ? '@' + cliente.instagram : 'Sin Instagram'}</small>
+            </td>
+            <td>${totalCompras}</td>
+            <td>$${montoTotal.toFixed(2)}</td>
+            <td>${ultimaCompra}</td>
+            <td>${segmentoBadge}</td>
+            <td>${estadoBadge}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary me-1" onclick="clientesManager.editarCliente('${cliente.id}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="clientesManager.eliminarCliente('${cliente.id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
 
             filtrarClientes() {
                 let clientesFiltrados = [...this.clientes];
@@ -887,9 +887,10 @@
                 this.mostrarListaClientes();
             }
 
-            getIniciales(nombre, apellido) {
-                return ((nombre?.charAt(0) || '') + (apellido?.charAt(0) || '')).toUpperCase();
-            }
+            getIniciales(nombre) {
+    // Tomar las primeras dos letras del nombre para el avatar
+    return nombre ? nombre.substring(0, 2).toUpperCase() : 'CL';
+}
 
             getSegmentoBadge(segmento) {
                 const badges = {
@@ -901,59 +902,61 @@
                 return badges[segmento] || '<span class="badge bg-secondary">Regular</span>';
             }
 
+           
             mostrarTopClientes() {
-                // Top 5 clientes VIP por monto gastado
-                const clientesConGasto = this.clientes.map(cliente => {
-                    const ventasCliente = this.ventas.filter(v => v.cliente_id === cliente.id);
-                    const montoTotal = ventasCliente.reduce((sum, venta) => sum + (venta.total || 0), 0);
-                    return { ...cliente, montoTotal };
-                }).filter(c => c.montoTotal > 0)
-                  .sort((a, b) => b.montoTotal - a.montoTotal)
-                  .slice(0, 5);
+    // Top 5 clientes VIP por monto gastado
+    const clientesConGasto = this.clientes.map(cliente => {
+        const ventasCliente = this.ventas.filter(v => v.cliente_id === cliente.id);
+        const montoTotal = ventasCliente.reduce((sum, venta) => sum + (venta.total || 0), 0);
+        return { ...cliente, montoTotal };
+    }).filter(c => c.montoTotal > 0)
+      .sort((a, b) => b.montoTotal - a.montoTotal)
+      .slice(0, 5);
 
-                const topVIPContainer = document.getElementById('topClientesVIP');
-                topVIPContainer.innerHTML = clientesConGasto.map(cliente => `
-                    <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
-                        <div class="d-flex align-items-center">
-                            <div class="client-avatar me-2" style="width: 40px; height: 40px; font-size: 1rem;">
-                                ${this.getIniciales(cliente.nombre, cliente.apellido)}
-                            </div>
-                            <div>
-                                <div class="fw-bold">${cliente.nombre} ${cliente.apellido}</div>
-                                <small class="text-muted">${cliente.email}</small>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <div class="fw-bold text-success">$${cliente.montoTotal.toFixed(2)}</div>
-                            <small class="text-muted">${this.ventas.filter(v => v.cliente_id === cliente.id).length} compras</small>
-                        </div>
-                    </div>
-                `).join('');
+    const topVIPContainer = document.getElementById('topClientesVIP');
+    topVIPContainer.innerHTML = clientesConGasto.map(cliente => `
+        <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+            <div class="d-flex align-items-center">
+                <div class="client-avatar me-2" style="width: 40px; height: 40px; font-size: 1rem;">
+                    ${this.getIniciales(cliente.nombre)}
+                </div>
+                <div>
+                    <div class="fw-bold">${cliente.nombre}</div>
+                    <small class="text-muted">${cliente.instagram ? '@' + cliente.instagram : cliente.telefono || 'Sin contacto'}</small>
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="fw-bold text-success">$${cliente.montoTotal.toFixed(2)}</div>
+                <small class="text-muted">${this.ventas.filter(v => v.cliente_id === cliente.id).length} compras</small>
+            </div>
+        </div>
+    `).join('');
 
-                // Clientes recientes (últimos 5 registrados)
-                const clientesRecientes = [...this.clientes]
-                    .sort((a, b) => new Date(b.fecha_registro?.toDate()) - new Date(a.fecha_registro?.toDate()))
-                    .slice(0, 5);
+    // Clientes recientes (últimos 5 registrados)
+    const clientesRecientes = [...this.clientes]
+        .sort((a, b) => new Date(b.fecha_registro?.toDate()) - new Date(a.fecha_registro?.toDate()))
+        .slice(0, 5);
 
-                const recientesContainer = document.getElementById('clientesRecientes');
-                recientesContainer.innerHTML = clientesRecientes.map(cliente => `
-                    <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
-                        <div class="d-flex align-items-center">
-                            <div class="client-avatar me-2" style="width: 40px; height: 40px; font-size: 1rem;">
-                                ${this.getIniciales(cliente.nombre, cliente.apellido)}
-                            </div>
-                            <div>
-                                <div class="fw-bold">${cliente.nombre} ${cliente.apellido}</div>
-                                <small class="text-muted">${cliente.email}</small>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <small class="text-muted">${this.formatFecha(cliente.fecha_registro?.toDate())}</small>
-                            <div>${this.getSegmentoBadge(cliente.segmento)}</div>
-                        </div>
-                    </div>
-                `).join('');
-            }
+    const recientesContainer = document.getElementById('clientesRecientes');
+    recientesContainer.innerHTML = clientesRecientes.map(cliente => `
+        <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+            <div class="d-flex align-items-center">
+                <div class="client-avatar me-2" style="width: 40px; height: 40px; font-size: 1rem;">
+                    ${this.getIniciales(cliente.nombre)}
+                </div>
+                <div>
+                    <div class="fw-bold">${cliente.nombre}</div>
+                    <small class="text-muted">${cliente.instagram ? '@' + cliente.instagram : cliente.telefono || 'Sin contacto'}</small>
+                </div>
+            </div>
+            <div class="text-end">
+                <small class="text-muted">${this.formatFecha(cliente.fecha_registro?.toDate())}</small>
+                <div>${this.getSegmentoBadge(cliente.segmento)}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
 
             formatFecha(fecha) {
                 if (!fecha) return 'N/A';
@@ -1086,71 +1089,69 @@
                 modal.show();
             }
 
+            
             async editarCliente(clienteId) {
-                const cliente = this.clientes.find(c => c.id === clienteId);
-                if (!cliente) return;
+    const cliente = this.clientes.find(c => c.id === clienteId);
+    if (!cliente) return;
 
-                this.clienteEditando = cliente;
+    this.clienteEditando = cliente;
 
-                document.getElementById('modalTitulo').textContent = 'Editar Cliente';
-                document.getElementById('clienteNombre').value = cliente.nombre || '';
-                document.getElementById('clienteApellido').value = cliente.apellido || '';
-                document.getElementById('clienteEmail').value = cliente.email || '';
-                document.getElementById('clienteTelefono').value = cliente.telefono || '';
-                document.getElementById('clienteDireccion').value = cliente.direccion || '';
-                document.getElementById('clienteNacimiento').value = cliente.fecha_nacimiento || '';
-                document.getElementById('clienteSegmento').value = cliente.segmento || 'regular';
-                document.getElementById('clienteActivo').checked = cliente.activo !== false;
+    document.getElementById('modalTitulo').textContent = 'Editar Cliente';
+    document.getElementById('clienteNombre').value = cliente.nombre || '';
+    document.getElementById('clienteTelefono').value = cliente.telefono || '';
+    document.getElementById('clienteInstagram').value = cliente.instagram || '';
+    document.getElementById('clienteSegmento').value = cliente.segmento || 'regular';
+    document.getElementById('clienteNotas').value = cliente.notas || '';
+    document.getElementById('clienteActivo').checked = cliente.activo !== false;
 
-                const modal = new bootstrap.Modal(document.getElementById('clienteModal'));
-                modal.show();
-            }
+    const modal = new bootstrap.Modal(document.getElementById('clienteModal'));
+    modal.show();
+}
+
 
             async guardarCliente() {
-                const form = document.getElementById('clienteForm');
-                if (!form.checkValidity()) {
-                    form.reportValidity();
-                    return;
-                }
+    const form = document.getElementById('clienteForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
 
-                const clienteData = {
-                    nombre: document.getElementById('clienteNombre').value,
-                    apellido: document.getElementById('clienteApellido').value,
-                    email: document.getElementById('clienteEmail').value,
-                    telefono: document.getElementById('clienteTelefono').value,
-                    direccion: document.getElementById('clienteDireccion').value,
-                    fecha_nacimiento: document.getElementById('clienteNacimiento').value,
-                    segmento: document.getElementById('clienteSegmento').value,
-                    activo: document.getElementById('clienteActivo').checked,
-                    fecha_actualizacion: new Date()
-                };
+    const clienteData = {
+        nombre: document.getElementById('clienteNombre').value,
+        telefono: document.getElementById('clienteTelefono').value,
+        instagram: document.getElementById('clienteInstagram').value,
+        segmento: document.getElementById('clienteSegmento').value,
+        notas: document.getElementById('clienteNotas').value,
+        activo: document.getElementById('clienteActivo').checked,
+        fecha_actualizacion: new Date()
+    };
 
-                try {
-                    if (this.clienteEditando) {
-                        // Actualizar cliente existente
-                        await updateDoc(doc(this.db, "clientes", this.clienteEditando.id), clienteData);
-                    } else {
-                        // Crear nuevo cliente
-                        clienteData.fecha_registro = new Date();
-                        clienteData.total_compras = 0;
-                        clienteData.monto_total = 0;
-                        await addDoc(collection(this.db, "clientes"), clienteData);
-                    }
+    try {
+        if (this.clienteEditando) {
+            // Actualizar cliente existente
+            await updateDoc(doc(this.db, "clientes", this.clienteEditando.id), clienteData);
+        } else {
+            // Crear nuevo cliente
+            clienteData.fecha_registro = new Date();
+            clienteData.total_compras = 0;
+            clienteData.monto_total = 0;
+            await addDoc(collection(this.db, "clientes"), clienteData);
+        }
 
-                    // Cerrar modal y recargar datos
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('clienteModal'));
-                    modal.hide();
-                    
-                    await this.cargarDatos();
-                    this.actualizarUI();
-                    
-                    alert(this.clienteEditando ? 'Cliente actualizado exitosamente' : 'Cliente creado exitosamente');
-                    
-                } catch (error) {
-                    console.error('Error guardando cliente:', error);
-                    alert('Error al guardar el cliente: ' + error.message);
-                }
-            }
+        // Cerrar modal y recargar datos
+        const modal = bootstrap.Modal.getInstance(document.getElementById('clienteModal'));
+        modal.hide();
+        
+        await this.cargarDatos();
+        this.actualizarUI();
+        
+        alert(this.clienteEditando ? 'Cliente actualizado exitosamente' : 'Cliente creado exitosamente');
+        
+    } catch (error) {
+        console.error('Error guardando cliente:', error);
+        alert('Error al guardar el cliente: ' + error.message);
+    }
+}
 
             async eliminarCliente(clienteId) {
                 if (!confirm('¿Estás seguro de que quieres eliminar este cliente?')) {

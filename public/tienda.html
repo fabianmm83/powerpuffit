@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="PowerPuffFit">
     <link rel="apple-touch-icon" href="../images/icon-192x192.png">
-    <title>Tienda Online - PowerPuffFit</title>
+    <title>Tienda Online - PowerPufFit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -183,7 +183,7 @@
             overflow: hidden;
         }
 
-        /* Estilos específicos de tienda */
+        /* ===== ESTILOS ESPECÍFICOS DE TIENDA ===== */
         .card {
             border-radius: 15px;
             border: none;
@@ -208,61 +208,78 @@
             box-shadow: 0 5px 15px rgba(255, 133, 162, 0.4);
         }
 
-        .btn-outline-primary {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            border-radius: 10px;
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        /* Product Cards */
+        /* Product Cards Mejoradas */
         .product-card {
             height: 100%;
-            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .product-image {
-            height: 200px;
+        .product-image-container {
+            height: 220px;
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             border-radius: 10px 10px 0 0;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
 
-        .product-image img {
-            max-height: 100%;
-            max-width: 100%;
+        .product-image {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 2;
         }
 
         .product-price {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: bold;
             color: var(--dark-color);
         }
 
         .product-stock {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .stock-high {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .stock-medium {
+            background-color: #fff3cd;
+            color: #856404;
         }
 
         .stock-low {
-            color: #dc3545;
-            font-weight: bold;
+            background-color: #f8d7da;
+            color: #721c24;
         }
 
-        .stock-available {
-            color: #28a745;
+        .stock-none {
+            background-color: #e2e3e5;
+            color: #383d41;
         }
 
         .badge-category {
             background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
             color: var(--text-dark);
+            font-weight: 600;
         }
 
         /* Cart Styles */
@@ -312,13 +329,20 @@
             background: #f8f9fa;
         }
 
-        /* Search and Filters */
+        /* Search and Filters Mejorados */
         .search-box {
             position: relative;
         }
 
         .search-box .form-control {
             padding-left: 2.5rem;
+            border-radius: 10px;
+            border: 2px solid transparent;
+        }
+
+        .search-box .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 133, 162, 0.25);
         }
 
         .search-box i {
@@ -331,21 +355,127 @@
 
         .filter-section {
             background: white;
-            border-radius: 10px;
+            border-radius: 15px;
             padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(138, 47, 90, 0.1);
+        }
+
+        .stats-cards {
             margin-bottom: 2rem;
         }
 
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(138, 47, 90, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-btn {
+            background: white;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 1.5rem 1rem;
+            border-radius: 15px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 4px 15px rgba(255, 133, 162, 0.1);
+        }
+
+        .action-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 133, 162, 0.3);
+        }
+
+        .action-btn i {
+            font-size: 1.8rem;
+        }
+
+        /* Loading States */
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Notificaciones */
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Adjustments */
         @media (max-width: 768px) {
-            .product-image {
-                height: 150px;
+            .product-image-container {
+                height: 180px;
             }
             
             .product-price {
-                font-size: 1.3rem;
+                font-size: 1.2rem;
             }
             
             .filter-section .row > div {
+                margin-bottom: 1rem;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-cards .col-md-3 {
                 margin-bottom: 1rem;
             }
         }
@@ -367,6 +497,10 @@
             .btn-group .btn {
                 flex: 1;
             }
+            
+            .product-image-container {
+                height: 160px;
+            }
         }
 
         /* Mejoras para PWA */
@@ -380,7 +514,7 @@
                 padding-bottom: env(safe-area-inset-bottom);
             }
             
-            .navbar-top {
+            .main-content {
                 margin-top: calc(env(safe-area-inset-top) + 10px);
             }
         }
@@ -418,22 +552,6 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(255, 133, 162, 0.25);
         }
-
-        /* Loading spinner */
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -450,7 +568,7 @@
         <div class="sidebar" id="sidebar">
             <div class="sidebar-brand">
                 <img src="images/logo.png" alt="Logo" height="50" class="rounded-circle mb-2">
-                <h5>PowerPuffFit</h5>
+                <h5>PowerPufFit</h5>
                 <small>Tienda Online</small>
             </div>
             
@@ -483,7 +601,7 @@
         <div class="main-content" id="mainContent">
             <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Tienda Online PowerPuffFit</h2>
+                <h2 class="mb-0">Tienda Online PowerPufFit</h2>
                 <div class="btn-group">
                     <button class="btn btn-outline-primary position-relative" id="cartBtn">
                         <i class="fas fa-shopping-cart me-2"></i>Carrito
@@ -495,13 +613,61 @@
                 </div>
             </div>
 
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="ventas.html" class="action-btn">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Registro de Ventas</span>
+                </a>
+                <a href="inventario.html" class="action-btn">
+                    <i class="fas fa-boxes"></i>
+                    <span>Gestionar Inventario</span>
+                </a>
+                <a href="clientes.html" class="action-btn">
+                    <i class="fas fa-users"></i>
+                    <span>Gestión de Clientes</span>
+                </a>
+                <a href="reportes.html" class="action-btn">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Ver Reportes</span>
+                </a>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row stats-cards">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalProductos">0</div>
+                        <div class="stat-label">Productos Activos</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-number" id="stockBajo">0</div>
+                        <div class="stat-label">Stock Bajo</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCategorias">0</div>
+                        <div class="stat-label">Categorías</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-number" id="ventasHoy">0</div>
+                        <div class="stat-label">Ventas Hoy</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Search and Filters -->
             <div class="filter-section">
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <div class="search-box">
                             <i class="fas fa-search"></i>
-                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar productos...">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar productos por nombre, descripción...">
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -514,9 +680,17 @@
                             <option value="suplementos">Suplementos</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <select class="form-select" id="stockFilter">
+                            <option value="all">Todo el stock</option>
+                            <option value="available">En stock</option>
+                            <option value="low">Stock bajo</option>
+                            <option value="out">Sin stock</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <select class="form-select" id="sortFilter">
-                            <option value="nombre">Ordenar por nombre</option>
+                            <option value="nombre">Nombre A-Z</option>
                             <option value="precio_asc">Precio: Menor a Mayor</option>
                             <option value="precio_desc">Precio: Mayor a Menor</option>
                             <option value="stock">Stock disponible</option>
@@ -528,9 +702,9 @@
             <!-- Product Grid -->
             <div class="row" id="productGrid">
                 <!-- Los productos se cargarán aquí -->
-                <div class="col-12 text-center">
-                    <div class="loading-spinner"></div>
-                    <p>Cargando productos...</p>
+                <div class="col-12 text-center py-5">
+                    <div class="loading-spinner mb-3"></div>
+                    <p class="text-muted">Cargando productos...</p>
                 </div>
             </div>
 
@@ -627,7 +801,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
 
         const firebaseConfig = {
@@ -647,6 +821,7 @@
                 this.productos = [];
                 this.clientes = [];
                 this.carrito = [];
+                this.ventas = [];
                 this.init();
             }
 
@@ -656,6 +831,7 @@
                 await this.cargarDatos();
                 this.mostrarProductos();
                 this.actualizarCarritoUI();
+                this.calcularEstadisticas();
             }
 
             async checkAuth() {
@@ -680,6 +856,7 @@
                 // Filtros
                 document.getElementById('searchInput').addEventListener('input', () => this.filtrarProductos());
                 document.getElementById('categoryFilter').addEventListener('change', () => this.filtrarProductos());
+                document.getElementById('stockFilter').addEventListener('change', () => this.filtrarProductos());
                 document.getElementById('sortFilter').addEventListener('change', () => this.filtrarProductos());
 
                 // Responsive sidebar
@@ -724,6 +901,7 @@
             async cargarDatos() {
                 await this.cargarProductos();
                 await this.cargarClientes();
+                await this.cargarVentasHoy();
             }
 
             async cargarProductos() {
@@ -753,12 +931,47 @@
                 }
             }
 
+            async cargarVentasHoy() {
+                try {
+                    const hoy = new Date();
+                    hoy.setHours(0, 0, 0, 0);
+                    
+                    const q = query(
+                        collection(this.db, "ventas"),
+                        where("fecha_venta", ">=", hoy),
+                        where("estado", "==", "completada")
+                    );
+                    
+                    const querySnapshot = await getDocs(q);
+                    this.ventas = [];
+                    querySnapshot.forEach((doc) => {
+                        this.ventas.push({ id: doc.id, ...doc.data() });
+                    });
+                } catch (error) {
+                    console.error("Error cargando ventas:", error);
+                }
+            }
+
+            calcularEstadisticas() {
+                const totalProductos = this.productos.length;
+                const stockBajo = this.productos.filter(p => p.cantidad < 5 && p.cantidad > 0).length;
+                const categorias = [...new Set(this.productos.map(p => p.categoria))].length;
+                const ventasHoy = this.ventas.length;
+
+                document.getElementById('totalProductos').textContent = totalProductos;
+                document.getElementById('stockBajo').textContent = stockBajo;
+                document.getElementById('totalCategorias').textContent = categorias;
+                document.getElementById('ventasHoy').textContent = ventasHoy;
+            }
+
             actualizarSelectClientes() {
                 const select = document.getElementById('clienteSelect');
+                select.innerHTML = '<option value="">Cliente General</option>';
+                
                 this.clientes.forEach(cliente => {
                     const option = document.createElement('option');
                     option.value = cliente.id;
-                    option.textContent = `${cliente.nombre} ${cliente.apellido} - ${cliente.email}`;
+                    option.textContent = `${cliente.nombre}${cliente.instagram ? ` (@${cliente.instagram})` : ''}`;
                     select.appendChild(option);
                 });
             }
@@ -776,33 +989,51 @@
                 grid.classList.remove('d-none');
                 emptyState.classList.add('d-none');
 
-                grid.innerHTML = productos.map(producto => `
-                    <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
-                        <div class="card product-card">
-                            <div class="product-image">
-                                <i class="fas fa-tshirt fa-3x text-muted"></i>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="badge badge-category">${this.getCategoriaNombre(producto.categoria)}</span>
-                                    <span class="product-stock ${producto.cantidad < 5 ? 'stock-low' : 'stock-available'}">
-                                        ${producto.cantidad} en stock
-                                    </span>
+                grid.innerHTML = productos.map(producto => {
+                    const stockClass = this.getStockClass(producto.cantidad);
+                    const stockText = this.getStockText(producto.cantidad);
+                    const imagenUrl = producto.imagen || 'images/placeholder-product.jpg';
+                    
+                    return `
+                        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                            <div class="card product-card">
+                                <div class="product-image-container">
+                                    <img src="${imagenUrl}" alt="${producto.nombre}" class="product-image" 
+                                         onerror="this.src='images/placeholder-product.jpg'">
+                                    <div class="product-badge">
+                                        <span class="badge badge-category">${this.getCategoriaNombre(producto.categoria)}</span>
+                                    </div>
                                 </div>
-                                <h6 class="card-title">${producto.nombre}</h6>
-                                <p class="card-text text-muted small">${producto.descripcion || 'Sin descripción'}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="product-price">$${producto.precio?.toFixed(2) || '0.00'}</span>
-                                    <button class="btn btn-primary btn-sm" onclick="tiendaManager.agregarAlCarrito('${producto.id}')" 
+                                <div class="card-body">
+                                    <h6 class="card-title">${producto.nombre}</h6>
+                                    <p class="card-text text-muted small">${producto.descripcion || 'Sin descripción'}</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="product-price">$${producto.precio?.toFixed(2) || '0.00'}</span>
+                                        <span class="product-stock ${stockClass}">${stockText}</span>
+                                    </div>
+                                    <button class="btn btn-primary w-100" onclick="tiendaManager.agregarAlCarrito('${producto.id}')" 
                                             ${producto.cantidad < 1 ? 'disabled' : ''}>
                                         <i class="fas fa-cart-plus me-1"></i>
-                                        ${producto.cantidad < 1 ? 'Sin stock' : 'Agregar'}
+                                        ${producto.cantidad < 1 ? 'Sin stock' : 'Agregar al carrito'}
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
+            }
+
+            getStockClass(cantidad) {
+                if (cantidad === 0) return 'stock-none';
+                if (cantidad < 5) return 'stock-low';
+                if (cantidad < 10) return 'stock-medium';
+                return 'stock-high';
+            }
+
+            getStockText(cantidad) {
+                if (cantidad === 0) return 'Sin stock';
+                if (cantidad < 5) return `${cantidad} en stock`;
+                return 'En stock';
             }
 
             getCategoriaNombre(categoria) {
@@ -824,7 +1055,8 @@
                 if (busqueda) {
                     productosFiltrados = productosFiltrados.filter(producto => 
                         producto.nombre.toLowerCase().includes(busqueda) ||
-                        producto.descripcion?.toLowerCase().includes(busqueda)
+                        producto.descripcion?.toLowerCase().includes(busqueda) ||
+                        producto.categoria?.toLowerCase().includes(busqueda)
                     );
                 }
 
@@ -832,6 +1064,20 @@
                 const categoria = document.getElementById('categoryFilter').value;
                 if (categoria) {
                     productosFiltrados = productosFiltrados.filter(producto => producto.categoria === categoria);
+                }
+
+                // Filtro por stock
+                const stockFilter = document.getElementById('stockFilter').value;
+                switch(stockFilter) {
+                    case 'available':
+                        productosFiltrados = productosFiltrados.filter(p => p.cantidad > 0);
+                        break;
+                    case 'low':
+                        productosFiltrados = productosFiltrados.filter(p => p.cantidad > 0 && p.cantidad < 5);
+                        break;
+                    case 'out':
+                        productosFiltrados = productosFiltrados.filter(p => p.cantidad === 0);
+                        break;
                 }
 
                 // Ordenamiento
@@ -863,7 +1109,7 @@
                     if (itemExistente.cantidad < producto.cantidad) {
                         itemExistente.cantidad++;
                     } else {
-                        alert('No hay suficiente stock disponible');
+                        this.mostrarNotificacion('❌ No hay suficiente stock disponible', 'danger');
                         return;
                     }
                 } else {
@@ -877,19 +1123,26 @@
                 }
 
                 this.actualizarCarritoUI();
-                this.mostrarNotificacion(`${producto.nombre} agregado al carrito`);
+                this.mostrarNotificacion(`✅ ${producto.nombre} agregado al carrito`);
             }
 
             removerDelCarrito(productoId) {
                 this.carrito = this.carrito.filter(item => item.id !== productoId);
                 this.actualizarCarritoUI();
+                this.mostrarNotificacion('Producto removido del carrito', 'warning');
             }
 
             actualizarCantidad(productoId, nuevaCantidad) {
                 const item = this.carrito.find(item => item.id === productoId);
-                if (item && nuevaCantidad > 0 && nuevaCantidad <= item.stock) {
-                    item.cantidad = nuevaCantidad;
-                    this.actualizarCarritoUI();
+                if (item) {
+                    if (nuevaCantidad <= 0) {
+                        this.removerDelCarrito(productoId);
+                    } else if (nuevaCantidad <= item.stock) {
+                        item.cantidad = nuevaCantidad;
+                        this.actualizarCarritoUI();
+                    } else {
+                        this.mostrarNotificacion('❌ No hay suficiente stock disponible', 'danger');
+                    }
                 }
             }
 
@@ -918,20 +1171,26 @@
                     cartItems.innerHTML = this.carrito.map(item => `
                         <div class="cart-item">
                             <div class="row align-items-center">
-                                <div class="col-md-4">
+                                <div class="col-md-5">
                                     <strong>${item.nombre}</strong>
+                                    <br>
+                                    <small class="text-muted">$${item.precio.toFixed(2)} c/u</small>
                                 </div>
-                                <div class="col-md-3">
-                                    <span>$${item.precio.toFixed(2)}</span>
-                                </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="quantity-controls">
-                                        <button class="quantity-btn" onclick="tiendaManager.actualizarCantidad('${item.id}', ${item.cantidad - 1})">-</button>
-                                        <span>${item.cantidad}</span>
-                                        <button class="quantity-btn" onclick="tiendaManager.actualizarCantidad('${item.id}', ${item.cantidad + 1})">+</button>
+                                        <button class="quantity-btn" onclick="tiendaManager.actualizarCantidad('${item.id}', ${item.cantidad - 1})">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <span class="mx-2 fw-bold">${item.cantidad}</span>
+                                        <button class="quantity-btn" onclick="tiendaManager.actualizarCantidad('${item.id}', ${item.cantidad + 1})">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="col-md-2 text-end">
+                                    <strong>$${(item.precio * item.cantidad).toFixed(2)}</strong>
+                                </div>
+                                <div class="col-md-1 text-end">
                                     <button class="btn btn-sm btn-outline-danger" onclick="tiendaManager.removerDelCarrito('${item.id}')">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -947,7 +1206,7 @@
 
             mostrarCheckout() {
                 if (this.carrito.length === 0) {
-                    alert('El carrito está vacío');
+                    this.mostrarNotificacion('❌ El carrito está vacío', 'danger');
                     return;
                 }
 
@@ -960,25 +1219,25 @@
                             <thead>
                                 <tr>
                                     <th>Producto</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio</th>
-                                    <th>Subtotal</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-end">Precio</th>
+                                    <th class="text-end">Subtotal</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${this.carrito.map(item => `
                                     <tr>
                                         <td>${item.nombre}</td>
-                                        <td>${item.cantidad}</td>
-                                        <td>$${item.precio.toFixed(2)}</td>
-                                        <td>$${(item.precio * item.cantidad).toFixed(2)}</td>
+                                        <td class="text-center">${item.cantidad}</td>
+                                        <td class="text-end">$${item.precio.toFixed(2)}</td>
+                                        <td class="text-end">$${(item.precio * item.cantidad).toFixed(2)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                    <td><strong>$${total.toFixed(2)}</strong></td>
+                                    <td class="text-end"><strong class="text-primary">$${total.toFixed(2)}</strong></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -994,7 +1253,7 @@
 
             async procesarVenta() {
                 if (this.carrito.length === 0) {
-                    alert('El carrito está vacío');
+                    this.mostrarNotificacion('❌ El carrito está vacío', 'danger');
                     return;
                 }
 
@@ -1015,11 +1274,16 @@
                         fecha_venta: new Date(),
                         metodo_pago: metodoPago,
                         notas: notas,
-                        estado: 'completada'
+                        estado: 'completada',
+                        origen: 'tienda_online'
                     };
 
                     if (clienteId) {
                         ventaData.cliente_id = clienteId;
+                        const cliente = this.clientes.find(c => c.id === clienteId);
+                        if (cliente) {
+                            ventaData.cliente_nombre = cliente.nombre;
+                        }
                     }
 
                     // Guardar la venta en Firestore
@@ -1029,8 +1293,10 @@
                     for (const item of this.carrito) {
                         const productoRef = doc(this.db, "productos", item.id);
                         const producto = this.productos.find(p => p.id === item.id);
+                        const nuevoStock = producto.cantidad - item.cantidad;
+                        
                         await updateDoc(productoRef, {
-                            cantidad: producto.cantidad - item.cantidad
+                            cantidad: nuevoStock
                         });
                     }
 
@@ -1038,40 +1304,36 @@
                     this.carrito = [];
                     this.actualizarCarritoUI();
                     await this.cargarProductos();
+                    await this.cargarVentasHoy();
                     this.mostrarProductos();
+                    this.calcularEstadisticas();
 
                     // Cerrar modales
                     const checkoutModal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
                     checkoutModal.hide();
 
-                    alert(`✅ Venta procesada exitosamente\nID: ${docRef.id}\nTotal: $${ventaData.total.toFixed(2)}`);
+                    this.mostrarNotificacion(`✅ Venta procesada exitosamente - ID: ${docRef.id.substring(0, 8)}`);
 
                 } catch (error) {
                     console.error('Error procesando venta:', error);
-                    alert('Error al procesar la venta: ' + error.message);
+                    this.mostrarNotificacion('❌ Error al procesar la venta: ' + error.message, 'danger');
                 }
             }
 
-            mostrarNotificacion(mensaje) {
-                // Crear notificación toast simple
+            mostrarNotificacion(mensaje, tipo = 'success') {
                 const toast = document.createElement('div');
-                toast.className = 'alert alert-success alert-dismissible fade show position-fixed';
-                toast.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    z-index: 9999;
-                    min-width: 300px;
-                `;
+                toast.className = `alert alert-${tipo} alert-dismissible fade show notification-toast`;
                 toast.innerHTML = `
-                    <strong>✅ ${mensaje}</strong>
+                    <strong>${mensaje}</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
                 document.body.appendChild(toast);
                 
                 setTimeout(() => {
-                    toast.remove();
-                }, 3000);
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 4000);
             }
 
             async logout() {

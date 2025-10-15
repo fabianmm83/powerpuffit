@@ -766,7 +766,14 @@ body {
 
                 const labels = Object.keys(metodos).map(key => this.getMetodoPagoNombre(key));
                 const data = Object.values(metodos);
-                const backgroundColors = ['#ff85a2', '#ffacc7', '#ffd6e0', '#8a2f5a', '#fff0f6'];
+                const backgroundColors = [
+        '#ff85a2', // Rosa
+        '#36a2eb', // Azul
+        '#ffce56', // Amarillo
+        '#4bc0c0', // Turquesa
+        '#9966ff', // Púrpura
+        '#ff9f40'  // Naranja
+    ];
 
                 this.charts.metodosPago = new Chart(ctx, {
                     type: 'doughnut',
@@ -814,7 +821,13 @@ body {
 
                 const labels = topProductos.map(([nombre]) => nombre.substring(0, 15) + (nombre.length > 15 ? '...' : ''));
                 const data = topProductos.map(([,cantidad]) => cantidad);
-
+                 const backgroundColors = [
+        '#36a2eb', // Azul
+        '#ffce56', // Amarillo
+        '#4bc0c0', // Turquesa
+        '#9966ff', // Púrpura
+        '#ff9f40'  // Naranja
+    ];
                 this.charts.productos = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -873,7 +886,16 @@ body {
 
                 const labels = Object.keys(ventasPorCategoria).map(key => this.getCategoriaNombre(key));
                 const data = Object.values(ventasPorCategoria);
-                const backgroundColors = ['#ff85a2', '#ffacc7', '#ffd6e0', '#8a2f5a', '#fff0f6'];
+                const backgroundColors = [
+        '#ff85a2', // Rosa
+        '#36a2eb', // Azul
+        '#ffce56', // Amarillo
+        '#4bc0c0', // Turquesa
+        '#9966ff', // Púrpura
+        '#ff9f40', // Naranja
+        '#c9cbcf', // Gris
+        '#77dd77'  // Verde
+    ];
 
                 this.charts.categorias = new Chart(ctx, {
                     type: 'pie',
