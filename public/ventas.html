@@ -317,6 +317,9 @@
                 <a class="nav-link" href="reportes.html">
                     <i class="fas fa-chart-bar me-2"></i>Reportes
                 </a>
+                <a class="nav-link" href="clientes.html">
+                    <i class="fas fa-users me-2"></i>Clientes
+                </a>
                 <a class="nav-link text-danger mt-auto" href="#" id="logoutBtn">
                     <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
                 </a>
@@ -502,20 +505,27 @@
                                 <input type="text" class="form-control" id="clienteNombre" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" id="clienteEmail">
-                            </div>
-                            <div class="col-md-6">
                                 <label class="form-label">Teléfono</label>
                                 <input type="tel" class="form-control" id="clienteTelefono">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Documento</label>
-                                <input type="text" class="form-control" id="clienteDocumento">
+                                <label class="form-label">Instagram</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">@</span>
+                                    <input type="text" class="form-control" id="clienteInstagram" placeholder="usuario">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Segmento</label>
+                                <select class="form-select" id="clienteSegmento">
+                                    <option value="regular">Regular</option>
+                                    <option value="frecuente">Frecuente</option>
+                                    <option value="vip">VIP</option>
+                                </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Dirección</label>
-                                <textarea class="form-control" id="clienteDireccion" rows="2"></textarea>
+                                <label class="form-label">Notas del Cliente</label>
+                                <textarea class="form-control" id="clienteNotas" rows="3" placeholder="Observaciones, preferencias, etc..."></textarea>
                             </div>
                             <div class="col-12">
                                 <div class="form-check">
@@ -781,7 +791,7 @@
                 this.clientes.forEach(cliente => {
                     const option = document.createElement('option');
                     option.value = cliente.id;
-                    option.textContent = `${cliente.nombre}${cliente.email ? ` - ${cliente.email}` : ''}`;
+                    option.textContent = `${cliente.nombre}${cliente.instagram ? ` (@${cliente.instagram})` : ''}`;
                     select.appendChild(option);
                     
                     const optionEdit = option.cloneNode(true);
@@ -803,10 +813,10 @@
 
                 const clienteData = {
                     nombre: document.getElementById('clienteNombre').value.trim(),
-                    email: document.getElementById('clienteEmail').value.trim() || '',
                     telefono: document.getElementById('clienteTelefono').value.trim() || '',
-                    documento: document.getElementById('clienteDocumento').value.trim() || '',
-                    direccion: document.getElementById('clienteDireccion').value.trim() || '',
+                    instagram: document.getElementById('clienteInstagram').value.trim() || '',
+                    segmento: document.getElementById('clienteSegmento').value,
+                    notas: document.getElementById('clienteNotas').value.trim() || '',
                     activo: document.getElementById('clienteActivo').checked,
                     fecha_registro: new Date(),
                     total_compras: 0,
@@ -908,9 +918,13 @@
                     const snapshot = await getDocs(q);
                     this.productos = [];
                     snapshot.forEach((doc) => {
-                        this.productos.push({ id: doc.id, ...doc.data() });
+                        const producto = { id: doc.id, ...doc.data() };
+                        // Asegurarse de que el producto tenga stock y esté activo
+                        if (producto.activo !== false && producto.cantidad > 0) {
+                            this.productos.push(producto);
+                        }
                     });
-                    this.filtrarProductos();
+                    console.log("Productos cargados:", this.productos.length);
                 } catch (error) {
                     console.error("Error cargando productos:", error);
                 }
@@ -923,27 +937,33 @@
                 
                 const productosFiltrados = this.productos.filter(producto => 
                     producto.nombre.toLowerCase().includes(searchTerm) && 
-                    producto.stock > 0
+                    producto.cantidad > 0
                 );
+                
+                if (productosFiltrados.length === 0) {
+                    productosList.innerHTML = `
+                        <div class="col-12 text-center py-4">
+                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No se encontraron productos</p>
+                        </div>
+                    `;
+                    return;
+                }
                 
                 productosFiltrados.forEach(producto => {
                     const productoCard = document.createElement('div');
-                    productoCard.className = 'col-md-6 col-lg-4';
+                    productoCard.className = 'col-md-6 col-lg-4 mb-3';
                     productoCard.innerHTML = `
-                        <div class="card h-100">
+                        <div class="card sale-item h-100">
                             <div class="card-body">
                                 <h6 class="card-title">${producto.nombre}</h6>
-                                <p class="card-text mb-1">Precio: $${producto.precio}</p>
-                                <p class="card-text stock-info ${producto.stock < 5 ? 'stock-low' : ''}">
-                                    Stock: ${producto.stock}
+                                <p class="card-text mb-1 text-primary fw-bold">$${producto.precio?.toFixed(2) || '0.00'}</p>
+                                <p class="card-text stock-info ${producto.cantidad < 5 ? 'stock-low' : ''}">
+                                    Stock: ${producto.cantidad}
                                 </p>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="cantidad-${producto.id}" 
-                                           min="1" max="${producto.stock}" value="1">
-                                    <button class="btn btn-primary" onclick="ventasManager.agregarAlCarrito('${producto.id}')">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
+                                <button class="btn btn-primary w-100" onclick="ventasManager.agregarAlCarrito('${producto.id}')">
+                                    <i class="fas fa-plus me-2"></i>Agregar
+                                </button>
                             </div>
                         </div>
                     `;
@@ -960,24 +980,30 @@
                     producto.nombre.toLowerCase().includes(searchTerm)
                 );
                 
+                if (productosFiltrados.length === 0) {
+                    productosList.innerHTML = `
+                        <div class="col-12 text-center py-4">
+                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No se encontraron productos</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
                 productosFiltrados.forEach(producto => {
                     const productoCard = document.createElement('div');
-                    productoCard.className = 'col-md-6 col-lg-4';
+                    productoCard.className = 'col-md-6 col-lg-4 mb-3';
                     productoCard.innerHTML = `
-                        <div class="card h-100">
+                        <div class="card sale-item h-100">
                             <div class="card-body">
                                 <h6 class="card-title">${producto.nombre}</h6>
-                                <p class="card-text mb-1">Precio: $${producto.precio}</p>
-                                <p class="card-text stock-info ${producto.stock < 5 ? 'stock-low' : ''}">
-                                    Stock: ${producto.stock}
+                                <p class="card-text mb-1 text-primary fw-bold">$${producto.precio?.toFixed(2) || '0.00'}</p>
+                                <p class="card-text stock-info ${producto.cantidad < 5 ? 'stock-low' : ''}">
+                                    Stock: ${producto.cantidad}
                                 </p>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="cantidad-edit-${producto.id}" 
-                                           min="1" max="${producto.stock}" value="1">
-                                    <button class="btn btn-primary" onclick="ventasManager.agregarAlCarritoEdit('${producto.id}')">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
+                                <button class="btn btn-primary w-100" onclick="ventasManager.agregarAlCarritoEdit('${producto.id}')">
+                                    <i class="fas fa-plus me-2"></i>Agregar
+                                </button>
                             </div>
                         </div>
                     `;
@@ -986,14 +1012,6 @@
             }
 
             agregarAlCarrito(productoId) {
-                const cantidadInput = document.getElementById(`cantidad-${productoId}`);
-                const cantidad = parseInt(cantidadInput.value) || 1;
-                
-                if (cantidad < 1) {
-                    alert('La cantidad debe ser al menos 1');
-                    return;
-                }
-                
                 const producto = this.productos.find(p => p.id === productoId);
                 
                 if (!producto) {
@@ -1001,8 +1019,8 @@
                     return;
                 }
                 
-                if (cantidad > producto.stock) {
-                    alert(`No hay suficiente stock. Stock disponible: ${producto.stock}`);
+                if (producto.cantidad <= 0) {
+                    alert('No hay stock disponible de este producto');
                     return;
                 }
                 
@@ -1010,39 +1028,27 @@
                 const itemExistente = this.carrito.find(item => item.id === productoId);
                 
                 if (itemExistente) {
-                    const nuevaCantidad = itemExistente.cantidad + cantidad;
-                    
-                    if (nuevaCantidad > producto.stock) {
-                        alert(`No puedes agregar más de ${producto.stock} unidades de este producto`);
+                    if (itemExistente.cantidad < producto.cantidad) {
+                        itemExistente.cantidad++;
+                    } else {
+                        alert('No hay suficiente stock disponible');
                         return;
                     }
-                    
-                    itemExistente.cantidad = nuevaCantidad;
                 } else {
                     this.carrito.push({
-                        id: productoId,
+                        id: producto.id,
                         nombre: producto.nombre,
                         precio: producto.precio,
-                        cantidad: cantidad
+                        cantidad: 1,
+                        stock_disponible: producto.cantidad
                     });
                 }
-                
-                // Actualizar stock visualmente
-                this.actualizarStockVisual(productoId, -cantidad);
-                
+
                 this.actualizarCarrito();
-                cantidadInput.value = 1;
+                this.actualizarTotales();
             }
 
             agregarAlCarritoEdit(productoId) {
-                const cantidadInput = document.getElementById(`cantidad-edit-${productoId}`);
-                const cantidad = parseInt(cantidadInput.value) || 1;
-                
-                if (cantidad < 1) {
-                    alert('La cantidad debe ser al menos 1');
-                    return;
-                }
-                
                 const producto = this.productos.find(p => p.id === productoId);
                 
                 if (!producto) {
@@ -1054,42 +1060,19 @@
                 const itemExistente = this.carritoEdit.find(item => item.id === productoId);
                 
                 if (itemExistente) {
-                    const nuevaCantidad = itemExistente.cantidad + cantidad;
-                    itemExistente.cantidad = nuevaCantidad;
+                    itemExistente.cantidad++;
                 } else {
                     this.carritoEdit.push({
-                        id: productoId,
+                        id: producto.id,
                         nombre: producto.nombre,
                         precio: producto.precio,
-                        cantidad: cantidad
+                        cantidad: 1,
+                        stock_disponible: producto.cantidad
                     });
                 }
                 
                 this.actualizarCarritoEdit();
-                cantidadInput.value = 1;
-            }
-
-            actualizarStockVisual(productoId, cambio) {
-                // Actualizar el stock visual en la lista de productos
-                const productoCard = document.querySelector(`#cantidad-${productoId}`).closest('.card');
-                if (productoCard) {
-                    const stockElement = productoCard.querySelector('.stock-info');
-                    if (stockElement) {
-                        const stockActual = parseInt(stockElement.textContent.split(': ')[1]);
-                        const nuevoStock = stockActual + cambio;
-                        stockElement.textContent = `Stock: ${nuevoStock}`;
-                        
-                        if (nuevoStock < 5) {
-                            stockElement.classList.add('stock-low');
-                        } else {
-                            stockElement.classList.remove('stock-low');
-                        }
-                        
-                        // Actualizar el max del input
-                        const cantidadInput = document.getElementById(`cantidad-${productoId}`);
-                        cantidadInput.max = nuevoStock;
-                    }
-                }
+                this.actualizarTotalesEdit();
             }
 
             actualizarCarrito() {
@@ -1108,13 +1091,21 @@
                     itemElement.innerHTML = `
                         <div>
                             <h6 class="mb-0">${item.nombre}</h6>
-                            <small class="text-muted">$${item.precio} x ${item.cantidad}</small>
+                            <small class="text-muted">$${item.precio.toFixed(2)} x ${item.cantidad}</small>
                         </div>
                         <div class="d-flex align-items-center">
                             <span class="me-2">$${(item.precio * item.cantidad).toFixed(2)}</span>
-                            <button class="btn btn-sm btn-outline-danger" onclick="ventasManager.eliminarDelCarrito(${index})">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary" onclick="ventasManager.modificarCantidad(${index}, -1)">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="ventasManager.modificarCantidad(${index}, 1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="ventasManager.eliminarDelCarrito(${index})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
                     carritoElement.appendChild(itemElement);
@@ -1139,13 +1130,21 @@
                     itemElement.innerHTML = `
                         <div>
                             <h6 class="mb-0">${item.nombre}</h6>
-                            <small class="text-muted">$${item.precio} x ${item.cantidad}</small>
+                            <small class="text-muted">$${item.precio.toFixed(2)} x ${item.cantidad}</small>
                         </div>
                         <div class="d-flex align-items-center">
                             <span class="me-2">$${(item.precio * item.cantidad).toFixed(2)}</span>
-                            <button class="btn btn-sm btn-outline-danger" onclick="ventasManager.eliminarDelCarritoEdit(${index})">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary" onclick="ventasManager.modificarCantidadEdit(${index}, -1)">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="ventasManager.modificarCantidadEdit(${index}, 1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="ventasManager.eliminarDelCarritoEdit(${index})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
                     carritoElement.appendChild(itemElement);
@@ -1154,12 +1153,38 @@
                 this.actualizarTotalesEdit();
             }
 
-            eliminarDelCarrito(index) {
+            modificarCantidad(index, cambio) {
                 const item = this.carrito[index];
-                
-                // Restaurar el stock visual
-                this.actualizarStockVisual(item.id, item.cantidad);
-                
+                const nuevaCantidad = item.cantidad + cambio;
+
+                if (nuevaCantidad <= 0) {
+                    this.eliminarDelCarrito(index);
+                    return;
+                }
+
+                if (nuevaCantidad > item.stock_disponible) {
+                    alert('No hay suficiente stock disponible');
+                    return;
+                }
+
+                item.cantidad = nuevaCantidad;
+                this.actualizarCarrito();
+            }
+
+            modificarCantidadEdit(index, cambio) {
+                const item = this.carritoEdit[index];
+                const nuevaCantidad = item.cantidad + cambio;
+
+                if (nuevaCantidad <= 0) {
+                    this.eliminarDelCarritoEdit(index);
+                    return;
+                }
+
+                item.cantidad = nuevaCantidad;
+                this.actualizarCarritoEdit();
+            }
+
+            eliminarDelCarrito(index) {
                 this.carrito.splice(index, 1);
                 this.actualizarCarrito();
             }
@@ -1173,9 +1198,9 @@
             async cargarVentas() {
                 try {
                     const q = query(collection(this.db, "ventas"), orderBy("fecha_venta", "desc"));
-                    const snapshot = await getDocs(q);
+                    const querySnapshot = await getDocs(q);
                     this.ventas = [];
-                    snapshot.forEach((doc) => {
+                    querySnapshot.forEach((doc) => {
                         this.ventas.push({ id: doc.id, ...doc.data() });
                     });
                     this.mostrarVentas();
@@ -1185,19 +1210,19 @@
             }
 
             mostrarVentas() {
-                const ventasTable = document.getElementById('ventasTable');
-                ventasTable.innerHTML = '';
-                
+                const tbody = document.getElementById('ventasTable');
+                tbody.innerHTML = '';
+
                 this.ventas.forEach(venta => {
-                    const productosTexto = venta.productos.map(p => 
+                    const productosText = venta.productos?.map(p => 
                         `${p.nombre} (${p.cantidad})`
-                    ).join(', ');
-                    
+                    ).join(', ') || 'N/A';
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${venta.id.substring(0, 8)}</td>
+                        <td>${venta.id.substring(0, 8)}...</td>
                         <td>${venta.cliente || 'Cliente General'}</td>
-                        <td>${productosTexto}</td>
+                        <td>${productosText}</td>
                         <td>$${venta.total?.toFixed(2) || '0.00'}</td>
                         <td>${venta.fecha_venta ? new Date(venta.fecha_venta.toDate()).toLocaleDateString() : 'N/A'}</td>
                         <td><span class="badge bg-secondary">${this.getMetodoPagoNombre(venta.metodo_pago)}</span></td>
@@ -1210,7 +1235,7 @@
                             </button>
                         </td>
                     `;
-                    ventasTable.appendChild(row);
+                    tbody.appendChild(row);
                 });
             }
 
@@ -1242,7 +1267,7 @@
                     // Registrar la venta
                     const ventaData = {
                         cliente: cliente,
-                        clienteId: clienteId,
+                        cliente_id: clienteId,
                         productos: this.carrito,
                         subtotal: subtotal,
                         descuento: this.montoDescuento,
@@ -1317,7 +1342,7 @@
                 this.montoDescuentoEdit = venta.descuento || 0;
                 
                 // Configurar el formulario de edición
-                document.getElementById('clienteSelectEdit').value = venta.clienteId || '';
+                document.getElementById('clienteSelectEdit').value = venta.cliente_id || '';
                 document.getElementById('metodo_pagoEdit').value = venta.metodo_pago;
                 document.getElementById('notasEdit').value = venta.notas || '';
                 document.getElementById('descuentoEdit').value = '';
@@ -1353,7 +1378,7 @@
                 
                 const ventaData = {
                     cliente: cliente?.nombre || 'Cliente General',
-                    clienteId: clienteId,
+                    cliente_id: clienteId,
                     productos: this.carritoEdit,
                     subtotal: subtotal,
                     descuento: this.montoDescuentoEdit,
@@ -1488,8 +1513,8 @@
                         }
                         
                         // ACTUALIZAR HISTORIAL DEL CLIENTE
-                        if (venta.clienteId) {
-                            await this.actualizarHistorialClienteEliminar(venta.clienteId, venta.total);
+                        if (venta.cliente_id) {
+                            await this.actualizarHistorialClienteEliminar(venta.cliente_id, venta.total);
                         }
                     }
                     
@@ -1755,7 +1780,7 @@
 
                 document.getElementById('totalVentasHoy').textContent = ventasHoy.length;
                 document.getElementById('ingresosHoy').textContent = '$' + 
-                    ventasHoy.reduce((sum, venta) => sum + (venta.total || 0), 0).toFixed(2);
+                    ventasHoy.reduce((sum, venta) => sum + (venta.total ||  0), 0).toFixed(2);
                 
                 document.getElementById('totalVentasMes').textContent = ventasMes.length;
                 document.getElementById('ingresosMes').textContent = '$' + 
