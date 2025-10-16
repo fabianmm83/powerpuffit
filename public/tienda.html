@@ -385,69 +385,95 @@
                 text-align: center;
             }
         }
+
+        /* Estilos para productos destacados en hero section */
+.featured-product-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+}
+
+.featured-product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.featured-product-img {
+    border: 2px solid var(--primary-color);
+}
+
     </style>
 </head>
 <body>
+    
     <!-- Header -->
-    <header class="header">
-        <nav class="navbar navbar-expand-lg navbar-light py-3">
-            <div class="container">
-                <a class="navbar-brand" href="dashboard.html">
-                    <i class="fas fa-heartbeat me-2"></i>Power<span>Puf</span>Fit
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="dashboard.html">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="inventario.html">Inventario</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="tienda.html">Tienda</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="ventas.html">Ventas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="clientes.html">Clientes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="reportes.html">Reportes</a>
-                        </li>
-                    </ul>
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-outline-primary position-relative me-2" id="cartBtn">
-                            <i class="fas fa-shopping-cart me-1"></i>Carrito
-                            <span class="cart-badge" id="cartCount">0</span>
-                        </button>
-                        <button class="btn btn-primary" id="manageInventoryBtn">
-                            <i class="fas fa-cog me-1"></i>Gestionar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero-section">
+<header class="header">
+    <nav class="navbar navbar-expand-lg navbar-light py-3">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="hero-title">Tienda PowerPufFit</h1>
-                    <p class="hero-subtitle">Encuentra los mejores productos deportivos para tu entrenamiento y bienestar</p>
-                    <a href="#products" class="btn btn-light btn-lg">Explorar Productos</a>
-                </div>
-                <div class="col-lg-6 text-center">
-                    <i class="fas fa-running" style="font-size: 12rem; opacity: 0.8;"></i>
+            <a class="navbar-brand" href="dashboard.html">
+                <img src="images/logo.png" alt="PowerPufFit Logo" height="40" class="me-2">
+                Power<span>Puf</span>Fit
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="inventario.html">Inventario</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="tienda.html">Tienda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="ventas.html">Ventas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="clientes.html">Clientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reportes.html">Reportes</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-primary position-relative me-2" id="cartBtn">
+                        <i class="fas fa-shopping-cart me-1"></i>Carrito
+                        <span class="cart-badge" id="cartCount">0</span>
+                    </button>
+                    <button class="btn btn-primary" id="manageInventoryBtn">
+                        <i class="fas fa-cog me-1"></i>Gestionar
+                    </button>
                 </div>
             </div>
         </div>
-    </section>
+    </nav>
+</header>
+
+<!-- Hero Section con Productos Destacados -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="hero-title">Tienda PowerPufFit</h1>
+                <p class="hero-subtitle">Encuentra los mejores productos deportivos para tu entrenamiento y bienestar</p>
+                <a href="#products" class="btn btn-light btn-lg">Explorar Productos</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3" id="featuredProducts">
+                    <!-- Los 3 productos destacados se cargarán aquí -->
+                    <div class="col-12 text-center py-3">
+                        <div class="loading-spinner mb-2"></div>
+                        <p class="text-light mb-0">Cargando productos destacados...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 
     <!-- Main Content -->
     <main class="container">
@@ -508,52 +534,65 @@
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h5>PowerPufFit</h5>
-                    <p>Tu tienda de confianza para productos deportivos y de bienestar.</p>
-                    <div class="mt-3">
-                        <a href="#" class="me-3"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="me-3"><i class="fab fa-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-2 mb-4">
-                    <h5>Enlaces</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="dashboard.html">Dashboard</a></li>
-                        <li><a href="inventario.html">Inventario</a></li>
-                        <li><a href="tienda.html">Tienda</a></li>
-                        <li><a href="ventas.html">Ventas</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 mb-4">
-                    <h5>Categorías</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#">Ropa Deportiva</a></li>
-                        <li><a href="#">Calzado</a></li>
-                        <li><a href="#">Accesorios</a></li>
-                        <li><a href="#">Equipamiento</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 mb-4">
-                    <h5>Contacto</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-envelope me-2"></i>info@powerpuffit.com</li>
-                        <li><i class="fas fa-phone me-2"></i>+1 234 567 890</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i>Ciudad, País</li>
-                    </ul>
+ <!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <h5>
+                    <a href="https://www.instagram.com/powerpuffit" style="color: white; text-decoration: none;">
+                        PowerPufFit
+                    </a>
+                </h5>
+                <p>Tu tienda de confianza para productos deportivos y de bienestar.</p>
+                <div class="mt-3">
+                    <a href="https://www.facebook.com" class="me-3" target="_blank">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/powerpuffit" class="me-3" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.twitter.com" class="me-3" target="_blank">
+                        <i class="fab fa-twitter"></i>
+                    </a>
                 </div>
             </div>
-            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
-            <div class="text-center">
-                <p>&copy; 2023 PowerPufFit. Todos los derechos reservados.</p>
+            <div class="col-lg-2 mb-4">
+                <h5>Enlaces</h5>
+                <ul class="list-unstyled">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="inventario.html">Inventario</a></li>
+                    <li><a href="tienda.html">Tienda</a></li>
+                    <li><a href="ventas.html">Ventas</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 mb-4">
+                <h5>Categorías</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Ropa Deportiva</a></li>
+                    <li><a href="#">Calzado</a></li>
+                    <li><a href="#">Accesorios</a></li>
+                    <li><a href="#">Equipamiento</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 mb-4">
+                <h5>Contacto</h5>
+                <ul class="list-unstyled">
+                    <li>
+                        <i class="fas fa-envelope me-2"></i>
+                        <a href="https://powerpuffit.web.app/" target="_blank">powerpuffit.web.app</a>
+                    </li>
+                    <li><i class="fas fa-phone me-2"></i>+1 234 567 890</li>
+                    <li><i class="fas fa-map-marker-alt me-2"></i>CDMX, México</li>
+                </ul>
             </div>
         </div>
-    </footer>
+        <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+        <div class="text-center">
+            <p>&copy; 2023 PowerPufFit. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</footer>
 
     <!-- Cart Modal -->
     <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
@@ -610,6 +649,7 @@
                 await this.checkAuth();
                 this.initEventListeners();
                 await this.cargarProductos();
+                await this.cargarProductosDestacados();
             }
 
             async checkAuth() {
@@ -1023,6 +1063,14 @@
                 this.mostrarNotificacion(mensaje, 'error');
             }
         }
+
+
+
+
+
+        
+
+
 
         // Inicializar la tienda
         document.addEventListener('DOMContentLoaded', () => {
