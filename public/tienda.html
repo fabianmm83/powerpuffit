@@ -655,19 +655,30 @@
             
             async cargarProductosDestacados() {
     try {
-        // Consulta que usa el índice que ya creaste
+        // Sin filtro de desigualdad - solo ordenar por fecha
         const q = query(
             collection(this.db, "productos"), 
             where("activo", "==", true),
-            where("cantidad", ">", 0),
-            orderBy("fecha_registro", "desc"),  // Solo ordenar por fecha
-            limit(3)
+            orderBy("fecha_registro", "desc"),
+            limit(5)  // Traer más para filtrar después
         );
         
         const querySnapshot = await getDocs(q);
         const container = document.getElementById('featuredProducts');
         
-        if (querySnapshot.empty) {
+        // Filtrar manualmente los que tienen stock
+        const productosConStock = [];
+        querySnapshot.forEach((doc) => {
+            const producto = { id: doc.id, ...doc.data() };
+            if (producto.cantidad > 0) {
+                productosConStock.push(producto);
+            }
+        });
+        
+        // Tomar solo los primeros 3 con stock
+        const productosDestacados = productosConStock.slice(0, 3);
+        
+        if (productosDestacados.length === 0) {
             container.innerHTML = `
                 <div class="col-12 text-center">
                     <i class="fas fa-box-open fa-2x text-light mb-2"></i>
@@ -678,10 +689,9 @@
         }
 
         container.innerHTML = '';
-        querySnapshot.forEach((doc) => {
-            const producto = { id: doc.id, ...doc.data() };
+        productosDestacados.forEach(producto => {
             const productCard = document.createElement('div');
-            productCard.className = 'col-12';
+            productCard.className = 'col-12 mb-2';
             productCard.innerHTML = `
                 <div class="featured-product-card bg-white rounded-3 p-3 d-flex align-items-center">
                     <img src="${producto.imagen_url || 'https://via.placeholder.com/60x60?text=PPF'}" 
@@ -692,7 +702,6 @@
                         <h6 class="mb-1 text-dark">${producto.nombre}</h6>
                         <p class="mb-1 text-success fw-bold">$${(producto.precio || 0).toFixed(2)}</p>
                         <small class="text-muted">${this.getCategoriaNombre(producto.categoria)}</small>
-                        <small class="d-block text-muted">Stock: ${producto.cantidad}</small>
                     </div>
                     <button class="btn btn-sm btn-primary add-featured-cart" 
                             data-id="${producto.id}">
@@ -703,7 +712,7 @@
             container.appendChild(productCard);
         });
 
-        // Agregar event listeners a los botones de productos destacados
+        // Agregar event listeners
         document.querySelectorAll('.add-featured-cart').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const productId = e.target.closest('button').getAttribute('data-id');
@@ -722,7 +731,7 @@
         `;
     }
 }
-
+            
             async checkAuth() {
                 return new Promise((resolve) => {
                     onAuthStateChanged(this.auth, (user) => {
