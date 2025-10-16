@@ -1037,6 +1037,78 @@
                 }
             }
 
+
+
+            // Función para cargar productos destacados en el hero section
+async cargarProductosDestacados() {
+    try {
+        // Obtener productos activos con stock, ordenados por fecha de registro (más recientes primero)
+        const q = query(
+            collection(this.db, "productos"), 
+            where("activo", "==", true),
+            where("cantidad", ">", 0),
+            orderBy("fecha_registro", "desc"),
+            limit(3)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        const container = document.getElementById('featuredProducts');
+        
+        if (querySnapshot.empty) {
+            container.innerHTML = `
+                <div class="col-12 text-center">
+                    <i class="fas fa-box-open fa-2x text-light mb-2"></i>
+                    <p class="text-light">No hay productos disponibles</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = '';
+        querySnapshot.forEach((doc) => {
+            const producto = { id: doc.id, ...doc.data() };
+            const productCard = document.createElement('div');
+            productCard.className = 'col-12';
+            productCard.innerHTML = `
+                <div class="featured-product-card bg-white rounded-3 p-3 d-flex align-items-center">
+                    <img src="${producto.imagen_url || 'https://via.placeholder.com/60x60?text=PPF'}" 
+                         alt="${producto.nombre}" 
+                         class="featured-product-img rounded me-3" 
+                         style="width: 60px; height: 60px; object-fit: cover;">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1 text-dark">${producto.nombre}</h6>
+                        <p class="mb-1 text-success fw-bold">$${(producto.precio || 0).toFixed(2)}</p>
+                        <small class="text-muted">${this.getCategoriaNombre(producto.categoria)}</small>
+                    </div>
+                    <button class="btn btn-sm btn-primary add-featured-cart" 
+                            data-id="${producto.id}">
+                        <i class="fas fa-cart-plus"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(productCard);
+        });
+
+        // Agregar event listeners a los botones de productos destacados
+        document.querySelectorAll('.add-featured-cart').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const productId = e.target.closest('button').getAttribute('data-id');
+                this.agregarAlCarrito(productId);
+            });
+        });
+
+    } catch (error) {
+        console.error("Error cargando productos destacados:", error);
+        const container = document.getElementById('featuredProducts');
+        container.innerHTML = `
+            <div class="col-12 text-center">
+                <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                <p class="text-light">Error cargando productos</p>
+            </div>
+        `;
+    }
+}
+
             mostrarNotificacion(mensaje, tipo = 'success') {
                 // Crear toast de notificación
                 const toastContainer = document.createElement('div');
@@ -1066,6 +1138,7 @@
 
 
 
+        
 
 
         
