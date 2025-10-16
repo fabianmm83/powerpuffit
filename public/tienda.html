@@ -652,15 +652,15 @@
                 await this.cargarProductosDestacados();
             }
 
+            
             async cargarProductosDestacados() {
     try {
-        // Obtener productos activos con stock, ordenados por cantidad y luego por fecha
+        // Obtener productos activos con stock, ordenados por fecha de registro (más recientes primero)
         const q = query(
             collection(this.db, "productos"), 
             where("activo", "==", true),
             where("cantidad", ">", 0),
-            orderBy("cantidad", "desc"),  // Primero ordenar por cantidad
-            orderBy("fecha_registro", "desc"),  // Luego por fecha
+            orderBy("fecha_registro", "desc"),
             limit(3)
         );
         
@@ -721,8 +721,6 @@
         `;
     }
 }
-
-
 
             async checkAuth() {
                 return new Promise((resolve) => {
