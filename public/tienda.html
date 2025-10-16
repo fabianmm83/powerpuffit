@@ -387,50 +387,111 @@
             }
         }
 
-/* Estilos para el carrusel de productos destacados */
+        /* Estilos para el carrusel de productos destacados - VERSION MEJORADA */
+#featuredCarousel {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.carousel-inner {
+    border-radius: 12px;
+}
+
+.carousel-item {
+    transition: transform 0.4s ease-in-out; /* Transición más corta */
+}
+
 .carousel-item img {
-    height: 300px;
+    height: 350px; /* Un poco más alto */
     width: 100%;
     object-fit: cover;
     border-radius: 12px;
 }
 
 .carousel-caption-custom {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(10px);
     border-radius: 8px;
-    padding: 0.8rem;
-    bottom: 15px;
+    padding: 1rem;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    width: 90%;
+    width: 95%;
+    text-align: center;
 }
 
 .carousel-control-prev, .carousel-control-next {
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.2);
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.25);
     border-radius: 50%;
     top: 50%;
     transform: translateY(-50%);
-    margin: 0 15px;
+    margin: 0 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .carousel-control-prev:hover, .carousel-control-next:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.carousel-indicators {
+    bottom: 10px;
+}
+
+.carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
+}
+
+/* Asegurar que ocupe todo el ancho disponible */
+.col-lg-6:last-child {
+    padding-left: 0;
+    padding-right: 0;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .carousel-item img {
-        height: 250px;
+        height: 280px;
+    }
+    
+    .carousel-caption-custom {
+        padding: 0.8rem;
+        bottom: 15px;
+        width: 90%;
+    }
+    
+    .carousel-control-prev, .carousel-control-next {
+        width: 40px;
+        height: 40px;
+        margin: 0 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .carousel-item img {
+        height: 220px;
     }
     
     .carousel-caption-custom {
         padding: 0.6rem;
         bottom: 10px;
     }
+    
+    .carousel-caption-custom h5 {
+        font-size: 1rem;
+    }
+    
+    .carousel-caption-custom p {
+        font-size: 0.8rem;
+        margin-bottom: 0;
+    }
 }
+
 
 
     </style>
@@ -493,9 +554,9 @@
                 <a href="#products" class="btn btn-light btn-lg">Explorar Productos</a>
             </div>
             <div class="col-lg-6">
-                <!-- Carrusel de productos destacados -->
-                <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner rounded-3" id="carouselInner">
+                <!-- Carrusel de productos destacados - VERSION MEJORADA -->
+                <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000"> <!-- Transición más rápida -->
+                    <div class="carousel-inner" id="carouselInner">
                         <!-- Los productos se cargarán aquí -->
                         <div class="carousel-item active text-center py-5">
                             <div class="loading-spinner mb-2"></div>
@@ -515,8 +576,6 @@
         </div>
     </div>
 </section>
-
-
     <!-- Main Content -->
     <main class="container">
         <!-- Filters Section -->
@@ -698,7 +757,6 @@
     try {
         console.log("📦 Cargando productos destacados para carrusel...");
         
-        // Consulta para productos activos
         const q = query(
             collection(this.db, "productos"), 
             where("activo", "==", true),
@@ -707,8 +765,6 @@
         
         const querySnapshot = await getDocs(q);
         const container = document.getElementById('carouselInner');
-        
-        console.log(`✅ Encontrados ${querySnapshot.size} productos activos`);
         
         if (querySnapshot.empty) {
             container.innerHTML = `
@@ -720,7 +776,7 @@
             return;
         }
 
-        // Procesar y filtrar productos
+        // Procesar productos
         const productosProcesados = [];
         
         querySnapshot.forEach((doc) => {
@@ -731,17 +787,14 @@
                 fecha: data.fecha_registro?.toDate?.() || new Date()
             };
             
-            // Solo productos con stock e imagen
             if (producto.cantidad > 0 && producto.imagen_url) {
                 productosProcesados.push(producto);
             }
         });
         
-        // Ordenar por fecha y tomar máximo 3
+        // Ordenar y tomar 3
         productosProcesados.sort((a, b) => b.fecha - a.fecha);
         const productosDestacados = productosProcesados.slice(0, 3);
-        
-        console.log(`🎯 Mostrando ${productosDestacados.length} productos en carrusel`);
         
         if (productosDestacados.length === 0) {
             container.innerHTML = `
@@ -753,28 +806,26 @@
             return;
         }
 
-        // Crear carrusel con los productos
+        // Crear carrusel
         container.innerHTML = '';
         
         productosDestacados.forEach((producto, index) => {
             const carouselItem = document.createElement('div');
             carouselItem.className = `carousel-item ${index === 0 ? 'active' : ''}`;
             carouselItem.innerHTML = `
-                <div class="position-relative">
-                    <img src="${producto.imagen_url}" 
-                         class="d-block w-100" 
-                         alt="${producto.nombre}"
-                         onerror="this.src='https://via.placeholder.com/600x300/ff85a2/ffffff?text=PowerPufFit'">
-                    <div class="carousel-caption-custom">
-                        <h5 class="mb-1">${producto.nombre}</h5>
-                        <p class="mb-0">$${(producto.precio || 0).toFixed(2)} • ${this.getCategoriaNombre(producto.categoria)}</p>
-                    </div>
+                <img src="${producto.imagen_url}" 
+                     class="d-block w-100" 
+                     alt="${producto.nombre}"
+                     onerror="this.src='https://via.placeholder.com/800x350/ff85a2/ffffff?text=PowerPufFit'">
+                <div class="carousel-caption carousel-caption-custom">
+                    <h5 class="mb-1">${producto.nombre}</h5>
+                    <p class="mb-0">$${(producto.precio || 0).toFixed(2)} • ${this.getCategoriaNombre(producto.categoria)}</p>
                 </div>
             `;
             container.appendChild(carouselItem);
         });
 
-        // Agregar indicadores si hay más de 1 producto
+        // Agregar indicadores
         if (productosDestacados.length > 1) {
             const indicatorsContainer = document.createElement('div');
             indicatorsContainer.className = 'carousel-indicators';
@@ -793,21 +844,16 @@
         }
 
     } catch (error) {
-        console.error("❌ Error cargando carrusel de productos:", error);
+        console.error("❌ Error cargando carrusel:", error);
         const container = document.getElementById('carouselInner');
         container.innerHTML = `
             <div class="carousel-item active text-center py-5">
                 <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
                 <h5 class="text-light">Error cargando productos</h5>
-                <button class="btn btn-light btn-sm mt-2" onclick="window.tiendaManager.cargarProductosDestacados()">
-                    Reintentar
-                </button>
             </div>
         `;
     }
 }
-            
-            
             async checkAuth() {
                 return new Promise((resolve) => {
                     onAuthStateChanged(this.auth, (user) => {
