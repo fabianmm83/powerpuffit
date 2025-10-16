@@ -1,4 +1,4 @@
-const CACHE_NAME = 'powerpufffit-v1.4.0'; // ⚡ CAMBIA ESTA VERSIÓN
+const CACHE_NAME = 'powerpufffit-v1.4.1'; // ⚡ CAMBIA ESTA VERSIÓN
 const API_CACHE_NAME = 'powerpufffit-api-v1';
 const urlsToCache = [
   '/',
@@ -64,7 +64,36 @@ self.addEventListener('message', event => {
   }
 });
 
-// El resto de tu código se mantiene igual...
+// Notificar a todos los clients sobre nueva versión
+self.addEventListener('activate', event => {
+    console.log('🔄 Activando Service Worker NUEVA VERSIÓN...');
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheName !== CACHE_NAME) {
+                        console.log('🗑️ Eliminando cache antiguo:', cacheName);
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        }).then(() => {
+            console.log('⚡ Tomando control de todos los clients');
+            
+            // Notificar a todas las pestañas abiertas
+            self.clients.matchAll().then(clients => {
+                clients.forEach(client => {
+                    client.postMessage({
+                        type: 'NEW_VERSION',
+                        version: CACHE_NAME
+                    });
+                });
+            });
+            
+            return self.clients.claim();
+        })
+    );
+});
 // Estrategia de Cache inteligente
 self.addEventListener('fetch', event => {
   const { request } = event;

@@ -1630,10 +1630,45 @@ body {
         });
     </script>
     <script>
+
+
+// Detectar cuando hay una nueva versión del Service Worker
+let newServiceWorker = null;
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+        console.log('🔄 Controller changed - recargando página');
+        window.location.reload();
+    });
+    
+    // Escuchar mensajes del Service Worker
+    navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'NEW_VERSION') {
+            console.log('🆕 Nueva versión disponible');
+            if (confirm('¡Hay una nueva versión disponible! ¿Quieres actualizar ahora?')) {
+                window.location.reload();
+            }
+        }
+    });
+}
+
+
 // Service Worker para todas las páginas
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('✅ SW registrado en dashboard'))
+        .then(reg => {
+            console.log('✅ SW registrado en dashboard - NUEVA VERSIÓN');
+            
+            // 🔥 FORZAR ACTUALIZACIÓN INMEDIATA
+            reg.update().then(() => {
+                console.log('🔄 Service Worker actualizado');
+                
+                // Notificar al SW para que se active inmediatamente
+                if (reg.waiting) {
+                    reg.waiting.postMessage({type: 'SKIP_WAITING'});
+                }
+            });
+        })
         .catch(err => console.log('❌ Error SW:', err));
 }
 
