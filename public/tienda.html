@@ -399,8 +399,8 @@
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(10px);
     border-radius: 8px;
-    padding: 1rem;
-    bottom: 20px;
+    padding: 0.8rem;
+    bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
@@ -418,6 +418,18 @@
 
 .carousel-control-prev:hover, .carousel-control-next:hover {
     background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .carousel-item img {
+        height: 250px;
+    }
+    
+    .carousel-caption-custom {
+        padding: 0.6rem;
+        bottom: 10px;
+    }
 }
 
 
@@ -682,8 +694,6 @@
                 await this.cargarProductosDestacados();
             }
 
-            
-            
             async cargarProductosDestacados() {
     try {
         console.log("📦 Cargando productos destacados para carrusel...");
@@ -738,7 +748,6 @@
                 <div class="carousel-item active text-center py-5">
                     <i class="fas fa-images fa-3x text-light mb-3"></i>
                     <h5 class="text-light">No hay productos con imágenes</h5>
-                    <p class="text-light">Agrega imágenes a tus productos</p>
                 </div>
             `;
             return;
@@ -758,11 +767,7 @@
                          onerror="this.src='https://via.placeholder.com/600x300/ff85a2/ffffff?text=PowerPufFit'">
                     <div class="carousel-caption-custom">
                         <h5 class="mb-1">${producto.nombre}</h5>
-                        <p class="mb-1">$${(producto.precio || 0).toFixed(2)} • ${this.getCategoriaNombre(producto.categoria)}</p>
-                        <button class="btn btn-sm btn-light add-featured-cart" 
-                                data-id="${producto.id}">
-                            <i class="fas fa-cart-plus me-1"></i>Agregar
-                        </button>
+                        <p class="mb-0">$${(producto.precio || 0).toFixed(2)} • ${this.getCategoriaNombre(producto.categoria)}</p>
                     </div>
                 </div>
             `;
@@ -787,15 +792,6 @@
             container.parentNode.insertBefore(indicatorsContainer, container);
         }
 
-        // Agregar event listeners a los botones
-        document.querySelectorAll('.add-featured-cart').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const productId = e.target.closest('button').getAttribute('data-id');
-                this.agregarAlCarrito(productId);
-                e.stopPropagation(); // Evitar que el clic afecte al carrusel
-            });
-        });
-
     } catch (error) {
         console.error("❌ Error cargando carrusel de productos:", error);
         const container = document.getElementById('carouselInner');
@@ -810,8 +806,8 @@
         `;
     }
 }
-
-
+            
+            
             async checkAuth() {
                 return new Promise((resolve) => {
                     onAuthStateChanged(this.auth, (user) => {
