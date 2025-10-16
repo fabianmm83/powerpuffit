@@ -6,6 +6,7 @@
     <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#ff85a2">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="PowerPuffFit">
     <link rel="apple-touch-icon" href="../images/icon-192x192.png">
@@ -653,6 +654,7 @@
             }
 
             
+            
             async cargarProductosDestacados() {
     try {
         console.log("📦 Cargando productos destacados...");
@@ -683,11 +685,12 @@
         const productosProcesados = [];
         
         querySnapshot.forEach((doc) => {
+            const data = doc.data();
             const producto = { 
                 id: doc.id, 
-                ...doc.data(),
-                // Convertir timestamp a fecha si existe
-                fecha: producto.fecha_registro?.toDate?.() || new Date()
+                ...data,
+                // Convertir timestamp a fecha si existe - CORREGIDO
+                fecha: data.fecha_registro?.toDate?.() || new Date()
             };
             
             // Solo productos con stock
@@ -761,6 +764,10 @@
         `;
     }
 }
+
+
+
+
 
             async checkAuth() {
                 return new Promise((resolve) => {
