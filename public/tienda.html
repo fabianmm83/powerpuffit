@@ -655,30 +655,21 @@
             
             async cargarProductosDestacados() {
     try {
-        // Sin filtro de desigualdad - solo ordenar por fecha
+        console.log("📦 Cargando productos destacados...");
+        
+        // Consulta SIMPLE y SEGURA que no requiere índices complejos
         const q = query(
             collection(this.db, "productos"), 
             where("activo", "==", true),
-            orderBy("fecha_registro", "desc"),
-            limit(5)  // Traer más para filtrar después
+            limit(8)  // Traer varios productos para filtrar después
         );
         
         const querySnapshot = await getDocs(q);
         const container = document.getElementById('featuredProducts');
         
-        // Filtrar manualmente los que tienen stock
-        const productosConStock = [];
-        querySnapshot.forEach((doc) => {
-            const producto = { id: doc.id, ...doc.data() };
-            if (producto.cantidad > 0) {
-                productosConStock.push(producto);
-            }
-        });
+        console.log(`✅ Encontrados ${querySnapshot.size} productos activos`);
         
-        // Tomar solo los primeros 3 con stock
-        const productosDestacados = productosConStock.slice(0, 3);
-        
-        if (productosDestacados.length === 0) {
+        if (querySnapshot.empty) {
             container.innerHTML = `
                 <div class="col-12 text-center">
                     <i class="fas fa-box-open fa-2x text-light mb-2"></i>
@@ -688,6 +679,42 @@
             return;
         }
 
+        // Procesar y filtrar manualmente
+        const productosProcesados = [];
+        
+        querySnapshot.forEach((doc) => {
+            const producto = { 
+                id: doc.id, 
+                ...doc.data(),
+                // Convertir timestamp a fecha si existe
+                fecha: producto.fecha_registro?.toDate?.() || new Date()
+            };
+            
+            // Solo productos con stock
+            if (producto.cantidad > 0) {
+                productosProcesados.push(producto);
+            }
+        });
+        
+        // Ordenar manualmente por fecha (más recientes primero)
+        productosProcesados.sort((a, b) => b.fecha - a.fecha);
+        
+        // Tomar los 3 más recientes con stock
+        const productosDestacados = productosProcesados.slice(0, 3);
+        
+        console.log(`🎯 Mostrando ${productosDestacados.length} productos destacados`);
+        
+        if (productosDestacados.length === 0) {
+            container.innerHTML = `
+                <div class="col-12 text-center">
+                    <i class="fas fa-box-open fa-2x text-light mb-2"></i>
+                    <p class="text-light">No hay productos en stock</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Mostrar productos
         container.innerHTML = '';
         productosDestacados.forEach(producto => {
             const productCard = document.createElement('div');
@@ -712,7 +739,7 @@
             container.appendChild(productCard);
         });
 
-        // Agregar event listeners
+        // Agregar event listeners de forma segura
         document.querySelectorAll('.add-featured-cart').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const productId = e.target.closest('button').getAttribute('data-id');
@@ -721,17 +748,20 @@
         });
 
     } catch (error) {
-        console.error("Error cargando productos destacados:", error);
+        console.error("❌ Error cargando productos destacados:", error);
         const container = document.getElementById('featuredProducts');
         container.innerHTML = `
             <div class="col-12 text-center">
                 <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
-                <p class="text-light">Error cargando productos</p>
+                <p class="text-light">Error temporal cargando productos</p>
+                <button class="btn btn-light btn-sm mt-2" onclick="window.tiendaManager.cargarProductosDestacados()">
+                    Reintentar
+                </button>
             </div>
         `;
     }
 }
-            
+
             async checkAuth() {
                 return new Promise((resolve) => {
                     onAuthStateChanged(this.auth, (user) => {
