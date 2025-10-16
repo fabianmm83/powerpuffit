@@ -652,15 +652,15 @@
                 await this.cargarProductosDestacados();
             }
 
+            
             async cargarProductosDestacados() {
     try {
-        // Obtener productos activos con stock, ordenados por cantidad y luego por fecha
+        // Consulta que usa el índice que ya creaste
         const q = query(
             collection(this.db, "productos"), 
             where("activo", "==", true),
             where("cantidad", ">", 0),
-            orderBy("cantidad", "desc"),  // Primero ordenar por cantidad
-            orderBy("fecha_registro", "desc"),  // Luego por fecha
+            orderBy("fecha_registro", "desc"),  // Solo ordenar por fecha
             limit(3)
         );
         
@@ -692,6 +692,7 @@
                         <h6 class="mb-1 text-dark">${producto.nombre}</h6>
                         <p class="mb-1 text-success fw-bold">$${(producto.precio || 0).toFixed(2)}</p>
                         <small class="text-muted">${this.getCategoriaNombre(producto.categoria)}</small>
+                        <small class="d-block text-muted">Stock: ${producto.cantidad}</small>
                     </div>
                     <button class="btn btn-sm btn-primary add-featured-cart" 
                             data-id="${producto.id}">
@@ -721,8 +722,6 @@
         `;
     }
 }
-
-
 
             async checkAuth() {
                 return new Promise((resolve) => {
