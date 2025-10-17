@@ -17,8 +17,6 @@ const urlsToCache = [
   'https://cdn.jsdelivr.net/npm/chart.js',
   
   // Imágenes - AQUÍ ESTÁ TU NUEVA IMAGEN SIN FONDO
-  '/images/logo.png',
-  '/images/logo.png',
   '/images/logo.png'
   // Agrega aquí tu nueva imagen sin fondo
 ];
