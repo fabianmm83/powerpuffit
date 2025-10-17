@@ -1,4 +1,4 @@
-const CACHE_NAME = 'powerpufffit-v2.3'; // ⚡ CAMBIA ESTA VERSIÓN
+const CACHE_NAME = 'powerpufffit-v2.5'; // ⚡ CAMBIA ESTA VERSIÓN
 const API_CACHE_NAME = 'powerpufffit-api-v1';
 const urlsToCache = [
   '/',
@@ -18,7 +18,6 @@ const urlsToCache = [
   
   
   '/images/logo.png'
-  // Agrega aquí tu nueva imagen sin fondo
 ];
 
 // Instalación - MÁS AGRESIVA
