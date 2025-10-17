@@ -1,4 +1,4 @@
-const CACHE_NAME = 'powerpufffit-v1.1.5'; // ⚡ CAMBIA ESTA VERSIÓN
+const CACHE_NAME = 'powerpufffit-v1.1.6'; // ⚡ CAMBIA ESTA VERSIÓN
 const API_CACHE_NAME = 'powerpufffit-api-v1';
 const urlsToCache = [
   '/',
@@ -16,7 +16,7 @@ const urlsToCache = [
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
   'https://cdn.jsdelivr.net/npm/chart.js',
   
-  // Imágenes - AQUÍ ESTÁ TU NUEVA IMAGEN SIN FONDO
+  
   '/images/logo.png'
   // Agrega aquí tu nueva imagen sin fondo
 ];
