@@ -363,17 +363,137 @@
     }
 
     /* Cards */
+    /* ===== NUEVOS ESTILOS PARA LAS TARJETAS DE ESTADÍSTICAS ===== */
+
+/* Contenedor principal con fondo gris */
+.grey-bg {  
+    background-color: #F5F7FA;
+}
+
+/* Estilos para las tarjetas de estadísticas */
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 25px 20px;
+    height: 100%;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Contenedor de contenido de la tarjeta */
+.card-content {
+    width: 100%;
+}
+
+.card-body {
+    padding: 0 !important;
+}
+
+/* Layout de medios para alinear icono y contenido */
+.media.d-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* Iconos alineados a la izquierda */
+.align-self-center {
+    flex-shrink: 0;
+}
+
+/* Iconos con estilo del ejemplo */
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0;
+    margin-right: 15px;
+}
+
+/* Colores específicos para cada icono según el ejemplo */
+.stat-card:nth-child(1) .stat-icon {
+    color: #0d6efd; /* Azul - Primary */
+}
+
+.stat-card:nth-child(2) .stat-icon {
+    color: #ffc107; /* Amarillo - Warning */
+}
+
+.stat-card:nth-child(3) .stat-icon {
+    color: #198754; /* Verde - Success */
+}
+
+.stat-card:nth-child(4) .stat-icon {
+    color: #dc3545; /* Rojo - Danger */
+}
+
+/* Contenido del texto alineado a la derecha */
+.media-body.text-right {
+    text-align: right;
+    flex: 1;
+}
+
+/* Números de estadísticas */
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #333;
+    line-height: 1;
+}
+
+/* Etiquetas de estadísticas */
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* ===== RESPONSIVE PARA LAS NUEVAS TARJETAS ===== */
+
+@media (max-width: 768px) {
     .stat-card {
-        background: white;
-        border-radius: 20px;
-        padding: 1.8rem;
-        box-shadow: 0 8px 25px rgba(138, 47, 90, 0.1);
-        transition: all 0.3s ease;
-        border: none;
-        height: 100%;
-        position: relative;
-        overflow: hidden;
+        padding: 20px 15px;
     }
+    
+    .stat-icon {
+        font-size: 2rem;
+        margin-right: 12px;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .stat-card {
+        padding: 15px 12px;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-icon {
+        font-size: 1.8rem;
+        margin-right: 10px;
+    }
+    
+    .stat-number {
+        font-size: 1.6rem;
+    }
+}
 
     .stat-card::before {
         content: '';
@@ -1237,44 +1357,84 @@ body {
             </div>
 
             <!-- Statistics Cards -->
-            <div class="row g-4 mb-4">
-                <div class="col-xl-3 col-md-6">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-boxes"></i>
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="card-content">
+                <div class="card-body">
+                    <div class="media d-flex">
+                        <div class="align-self-center">
+                            <div class="stat-icon">
+                                <i class="fas fa-boxes"></i>
+                            </div>
                         </div>
-                        <div class="stat-number" id="totalProductos">0</div>
-                        <div class="stat-label">Total Productos</div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-shopping-cart"></i>
+                        <div class="media-body text-right">
+                            <div class="stat-number" id="totalProductos">0</div>
+                            <div class="stat-label">Total Productos</div>
                         </div>
-                        <div class="stat-number" id="totalVentas">0</div>
-                        <div class="stat-label">Ventas del Mes</div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <div class="stat-number" id="ingresosTotales">$0</div>
-                        <div class="stat-label">Ingresos Totales</div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="stat-number" id="stockBajo">0</div>
-                        <div class="stat-label">Stock Bajo</div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="card-content">
+                <div class="card-body">
+                    <div class="media d-flex">
+                        <div class="align-self-center">
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                        </div>
+                        <div class="media-body text-right">
+                            <div class="stat-number" id="totalVentas">0</div>
+                            <div class="stat-label">Ventas del Mes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="card-content">
+                <div class="card-body">
+                    <div class="media d-flex">
+                        <div class="align-self-center">
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                        </div>
+                        <div class="media-body text-right">
+                            <div class="stat-number" id="ingresosTotales">$0</div>
+                            <div class="stat-label">Ingresos Totales</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="card-content">
+                <div class="card-body">
+                    <div class="media d-flex">
+                        <div class="align-self-center">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                        <div class="media-body text-right">
+                            <div class="stat-number" id="stockBajo">0</div>
+                            <div class="stat-label">Stock Bajo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Charts Row -->
             <div class="row g-4">
