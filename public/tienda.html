@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#ff85a2">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,11 +16,17 @@
     <style>
         :root {
             --primary-color: #ff85a2;
-            --secondary-color: #ffacc7;
-            --accent-color: #ffd6e0;
-            --dark-color: #8a2f5a;
-            --light-color: #fff0f6;
-            --text-dark: #5a2a3a;
+            --primary-light: #ffd6e0;
+            --primary-dark: #8a2f5a;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --background-light: #f8f9fa;
+            --border-color: #e9ecef;
+            --white: #ffffff;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
         }
 
         * {
@@ -31,26 +36,30 @@
         }
 
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-light);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
-            color: #333;
+            color: var(--text-dark);
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        /* Header Styles */
+        /* Header Styles - Minimalista */
         .header {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: var(--white);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .navbar-brand {
             font-weight: 700;
-            font-size: 1.8rem;
-            color: var(--dark-color);
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
         }
 
         .navbar-brand span {
@@ -59,12 +68,15 @@
 
         .nav-link {
             font-weight: 500;
-            color: #555;
-            transition: color 0.3s;
+            color: var(--text-light);
+            transition: color 0.2s;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
         }
 
         .nav-link:hover, .nav-link.active {
             color: var(--primary-color);
+            background-color: rgba(255, 133, 162, 0.05);
         }
 
         .cart-badge {
@@ -82,50 +94,66 @@
             justify-content: center;
         }
 
-        /* Hero Section */
+        /* Hero Section - Rediseñada */
         .hero-section {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-color) 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 80px 0;
+            padding: 60px 0;
             margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.05)"><polygon points="0,0 1000,50 1000,100 0,100"/></svg>');
+            background-size: cover;
         }
 
         .hero-title {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 1rem;
         }
 
         .hero-subtitle {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 2rem;
             opacity: 0.9;
+            max-width: 500px;
         }
 
-        /* Product Grid */
+        /* Product Grid - Diseño Minimalista */
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
+            gap: 1.5rem;
             margin-bottom: 3rem;
         }
 
         .product-card {
-            background: white;
-            border-radius: 12px;
+            background: var(--white);
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
             position: relative;
+            border: 1px solid var(--border-color);
         }
 
         .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-color: var(--primary-light);
         }
 
         .product-image-container {
-            height: 220px;
+            height: 200px;
             overflow: hidden;
             position: relative;
         }
@@ -145,34 +173,35 @@
             position: absolute;
             top: 12px;
             left: 12px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--text-dark);
         }
 
         .product-info {
-            padding: 1.5rem;
+            padding: 1.25rem;
         }
 
         .product-title {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin-bottom: 0.5rem;
             color: var(--text-dark);
             line-height: 1.4;
         }
 
         .product-description {
-            color: #666;
-            font-size: 0.9rem;
+            color: var(--text-light);
+            font-size: 0.85rem;
             margin-bottom: 1rem;
             line-height: 1.4;
             display: -webkit-box;
             -webkit-box-orient: vertical;
+            
             overflow: hidden;
         }
 
@@ -184,70 +213,75 @@
         }
 
         .price-tag {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: var(--dark-color);
+            color: var(--primary-dark);
         }
 
         .add-to-cart-btn {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             color: white;
             padding: 0.5rem 1rem;
             font-weight: 600;
             transition: all 0.3s ease;
+            font-size: 0.85rem;
         }
 
         .add-to-cart-btn:hover {
+            background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 133, 162, 0.4);
         }
 
         .add-to-cart-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
         .stock-indicator {
             position: absolute;
             top: 12px;
             right: 12px;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: 600;
         }
 
         .stock-high {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(40, 167, 69, 0.2);
         }
 
         .stock-medium {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(255, 193, 7, 0.2);
         }
 
         .stock-low {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(220, 53, 69, 0.2);
         }
 
         .stock-none {
-            background-color: #e2e3e5;
-            color: #383d41;
+            background-color: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+            border: 1px solid rgba(108, 117, 125, 0.2);
         }
 
-        /* Filters Section */
+        /* Filters Section - Minimalista */
         .filters-section {
-            background: white;
-            border-radius: 12px;
+            background: var(--white);
+            border-radius: 8px;
             padding: 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
         }
 
         .search-box {
@@ -256,13 +290,14 @@
 
         .search-box .form-control {
             padding-left: 2.5rem;
-            border-radius: 8px;
-            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
         }
 
         .search-box .form-control:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(255, 133, 162, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(255, 133, 162, 0.15);
         }
 
         .search-box i {
@@ -270,7 +305,7 @@
             left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #6c757d;
+            color: var(--text-light);
         }
 
         .filter-tabs {
@@ -281,29 +316,31 @@
         }
 
         .filter-tab {
-            background: white;
-            border: 2px solid var(--accent-color);
-            border-radius: 25px;
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             padding: 0.5rem 1.2rem;
-            font-weight: 600;
+            font-weight: 500;
             color: var(--text-dark);
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
 
         .filter-tab.active {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
         }
 
         .filter-tab:hover:not(.active) {
-            background: var(--accent-color);
+            background: var(--primary-light);
+            border-color: var(--primary-light);
         }
 
-        /* Footer */
+        /* Footer - Minimalista */
         .footer {
-            background: var(--dark-color);
+            background: var(--text-dark);
             color: white;
             padding: 3rem 0;
             margin-top: 4rem;
@@ -315,7 +352,7 @@
         }
 
         .footer a {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             transition: color 0.3s;
         }
@@ -347,30 +384,153 @@
         }
 
         .empty-state i {
-            font-size: 4rem;
+            font-size: 3rem;
             color: #ddd;
             margin-bottom: 1rem;
+        }
+
+        /* Carrusel Mejorado */
+        #featuredCarousel {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .carousel-inner {
+            border-radius: 8px;
+        }
+
+        .carousel-item {
+            transition: transform 0.4s ease-in-out;
+        }
+
+        .carousel-item img {
+            height: 320px;
+            width: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .carousel-caption-custom {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 6px;
+            padding: 1rem;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            text-align: center;
+        }
+
+        .carousel-control-prev, .carousel-control-next {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin: 0 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .carousel-control-prev:hover, .carousel-control-next:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .carousel-indicators {
+            bottom: 10px;
+        }
+
+        .carousel-indicators button {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin: 0 4px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .carousel-indicators button.active {
+            background-color: white;
+        }
+
+        /* Modal de Carrito Mejorado */
+        .modal-content {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+        }
+
+        .cart-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quantity-btn {
+            background: var(--background-light);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .quantity-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-color);
         }
 
         /* Responsive */
         @media (max-width: 768px) {
             .hero-title {
-                font-size: 2.2rem;
+                font-size: 2rem;
             }
             
             .product-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 1.5rem;
+                gap: 1.25rem;
             }
             
             .filter-tabs {
                 justify-content: center;
             }
+            
+            .carousel-item img {
+                height: 250px;
+            }
         }
 
         @media (max-width: 576px) {
             .hero-title {
-                font-size: 1.8rem;
+                font-size: 1.7rem;
             }
             
             .product-grid {
@@ -379,206 +539,240 @@
             
             .filter-tabs {
                 flex-direction: column;
-                align-items: center;
+                align-items: stretch;
             }
             
             .filter-tab {
                 width: 100%;
                 text-align: center;
             }
+            
+            .carousel-item img {
+                height: 200px;
+            }
+            
+            .carousel-caption-custom {
+                padding: 0.8rem;
+                bottom: 15px;
+                width: 90%;
+            }
+            
+            .carousel-caption-custom h5 {
+                font-size: 1rem;
+            }
+            
+            .carousel-caption-custom p {
+                font-size: 0.8rem;
+                margin-bottom: 0;
+            }
         }
 
-        /* Estilos para el carrusel de productos destacados - VERSION MEJORADA */
-#featuredCarousel {
-    width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-}
+        /* Mejoras adicionales */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
 
-.carousel-inner {
-    border-radius: 12px;
-}
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
 
-.carousel-item {
-    transition: transform 0.4s ease-in-out; /* Transición más corta */
-}
+        .stats-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all 0.3s;
+        }
 
-.carousel-item img {
-    height: 350px; /* Un poco más alto */
-    width: 100%;
-    object-fit: cover;
-    border-radius: 12px;
-}
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
 
-.carousel-caption-custom {
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(10px);
-    border-radius: 8px;
-    padding: 1rem;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 95%;
-    text-align: center;
-}
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
 
-.carousel-control-prev, .carousel-control-next {
-    width: 45px;
-    height: 45px;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 50%;
-    top: 50%;
-    transform: translateY(-50%);
-    margin: 0 20px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-}
+        .stats-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
 
-.carousel-control-prev:hover, .carousel-control-next:hover {
-    background: rgba(255, 255, 255, 0.4);
-}
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
 
-.carousel-indicators {
-    bottom: 10px;
-}
+        .quick-action-btn {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem 1.25rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
 
-.carousel-indicators button {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin: 0 5px;
-}
+        .quick-action-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
 
-/* Asegurar que ocupe todo el ancho disponible */
-.col-lg-6:last-child {
-    padding-left: 0;
-    padding-right: 0;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .carousel-item img {
-        height: 280px;
-    }
-    
-    .carousel-caption-custom {
-        padding: 0.8rem;
-        bottom: 15px;
-        width: 90%;
-    }
-    
-    .carousel-control-prev, .carousel-control-next {
-        width: 40px;
-        height: 40px;
-        margin: 0 10px;
-    }
-}
-
-@media (max-width: 576px) {
-    .carousel-item img {
-        height: 220px;
-    }
-    
-    .carousel-caption-custom {
-        padding: 0.6rem;
-        bottom: 10px;
-    }
-    
-    .carousel-caption-custom h5 {
-        font-size: 1rem;
-    }
-    
-    .carousel-caption-custom p {
-        font-size: 0.8rem;
-        margin-bottom: 0;
-    }
-}
-
-
-
+        .quick-action-btn i {
+            font-size: 1.1rem;
+        }
     </style>
 </head>
 <body>
     
     <!-- Header -->
-<header class="header">
-    <nav class="navbar navbar-expand-lg navbar-light py-3">
-        <div class="container">
-            <a class="navbar-brand" href="tienda.html">
-                <img src="images/logo.png" alt="PowerPufFit Logo" height="40" class="me-2">
-                Power<span>Puf</span>Fit
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="inventario.html">Inventario</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="tienda.html">Tienda</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="ventas.html">Ventas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="clientes.html">Clientes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="reportes.html">Reportes</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-primary position-relative me-2" id="cartBtn">
-                        <i class="fas fa-shopping-cart me-1"></i>Carrito
-                        <span class="cart-badge" id="cartCount">0</span>
-                    </button>
-                    <button class="btn btn-primary" id="manageInventoryBtn">
-                        <i class="fas fa-cog me-1"></i>Gestionar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
-</header>
-
-<!-- Hero Section con Productos Destacados -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="hero-title">Tienda PowerPufFit</h1>
-                <p class="hero-subtitle">Encuentra los mejores productos deportivos para tu entrenamiento y bienestar</p>
-                <a href="#products" class="btn btn-light btn-lg">Explorar Productos</a>
-            </div>
-            <div class="col-lg-6">
-                <!-- Carrusel de productos destacados - VERSION MEJORADA -->
-                <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000"> <!-- Transición más rápida -->
-                    <div class="carousel-inner" id="carouselInner">
-                        <!-- Los productos se cargarán aquí -->
-                        <div class="carousel-item active text-center py-5">
-                            <div class="loading-spinner mb-2"></div>
-                            <p class="text-light mb-0">Cargando productos...</p>
-                        </div>
+    <header class="header">
+        <nav class="navbar navbar-expand-lg navbar-light py-2">
+            <div class="container">
+                <a class="navbar-brand" href="tienda.html">
+                    <img src="images/logo.png" alt="PowerPufFit Logo" height="35" class="me-2">
+                    Power<span>Puf</span>Fit
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="inventario.html">Inventario</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="tienda.html">Tienda</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="ventas.html">Ventas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="clientes.html">Clientes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="reportes.html">Reportes</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-outline-secondary position-relative me-2" id="cartBtn">
+                            <i class="fas fa-shopping-cart me-1"></i>Carrito
+                            <span class="cart-badge" id="cartCount">0</span>
+                        </button>
+                        <button class="btn btn-primary" id="manageInventoryBtn">
+                            <i class="fas fa-cog me-1"></i>Gestionar
+                        </button>
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Anterior</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Siguiente</span>
-                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section con Productos Destacados -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="hero-title">Tienda PowerPufFit</h1>
+                    <p class="hero-subtitle">Encuentra los mejores productos deportivos para tu entrenamiento y bienestar</p>
+                    <a href="#products" class="btn btn-light btn-lg">Explorar Productos</a>
+                </div>
+                <div class="col-lg-6">
+                    <!-- Carrusel de productos destacados -->
+                    <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+                        <div class="carousel-inner" id="carouselInner">
+                            <!-- Los productos se cargarán aquí -->
+                            <div class="carousel-item active text-center py-5">
+                                <div class="loading-spinner mb-2"></div>
+                                <p class="text-light mb-0">Cargando productos...</p>
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Siguiente</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+
     <!-- Main Content -->
     <main class="container">
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="inventario.html" class="quick-action-btn">
+                <i class="fas fa-boxes"></i> Gestionar Inventario
+            </a>
+            <a href="ventas.html" class="quick-action-btn">
+                <i class="fas fa-chart-line"></i> Ver Ventas
+            </a>
+            <a href="reportes.html" class="quick-action-btn">
+                <i class="fas fa-file-alt"></i> Reportes
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stats-card">
+                    <div class="stats-number" id="totalProducts">0</div>
+                    <div class="stats-label">Productos Totales</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stats-card">
+                    <div class="stats-number" id="availableProducts">0</div>
+                    <div class="stats-label">Disponibles</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stats-card">
+                    <div class="stats-number" id="lowStockProducts">0</div>
+                    <div class="stats-label">Stock Bajo</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="stats-card">
+                    <div class="stats-number" id="outOfStockProducts">0</div>
+                    <div class="stats-label">Sin Stock</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Filters Section -->
         <section class="filters-section">
             <div class="row g-3 mb-4">
@@ -619,6 +813,7 @@
 
         <!-- Products Section -->
         <section id="products">
+            <h2 class="section-title">Productos</h2>
             <div class="product-grid" id="productGrid">
                 <!-- Los productos se cargarán aquí -->
                 <div class="col-12 text-center py-5">
@@ -636,65 +831,65 @@
         </section>
     </main>
 
- <!-- Footer -->
-<footer class="footer">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <h5>
-                    <a href="https://www.instagram.com/powerpuffit" style="color: white; text-decoration: none;">
-                        PowerPufFit
-                    </a>
-                </h5>
-                <p>Tu tienda de confianza para productos deportivos y de bienestar.</p>
-                <div class="mt-3">
-                    <a href="https://www.facebook.com" class="me-3" target="_blank">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="https://www.instagram.com/powerpuffit" class="me-3" target="_blank">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="https://www.twitter.com" class="me-3" target="_blank">
-                        <i class="fab fa-twitter"></i>
-                    </a>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>
+                        <a href="https://www.instagram.com/powerpuffit" style="color: white; text-decoration: none;">
+                            PowerPufFit
+                        </a>
+                    </h5>
+                    <p>Tu tienda de confianza para productos deportivos y de bienestar.</p>
+                    <div class="mt-3">
+                        <a href="https://www.facebook.com" class="me-3" target="_blank">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.instagram.com/powerpuffit" class="me-3" target="_blank">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://www.twitter.com" class="me-3" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h5>Enlaces</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="inventario.html">Inventario</a></li>
+                        <li><a href="tienda.html">Tienda</a></li>
+                        <li><a href="ventas.html">Ventas</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>Categorías</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Ropa Deportiva</a></li>
+                        <li><a href="#">Calzado</a></li>
+                        <li><a href="#">Accesorios</a></li>
+                        <li><a href="#">Equipamiento</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4">
+                    <h5>Contacto</h5>
+                    <ul class="list-unstyled">
+                        <li>
+                            <i class="fas fa-envelope me-2"></i>
+                            <a href="https://powerpuffit.web.app/" target="_blank">powerpuffit.web.app</a>
+                        </li>
+                        <li><i class="fas fa-phone me-2"></i>+1 234 567 890</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>CDMX, México</li>
+                    </ul>
                 </div>
             </div>
-            <div class="col-lg-2 mb-4">
-                <h5>Enlaces</h5>
-                <ul class="list-unstyled">
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="inventario.html">Inventario</a></li>
-                    <li><a href="tienda.html">Tienda</a></li>
-                    <li><a href="ventas.html">Ventas</a></li>
-                </ul>
-            </div>
-            <div class="col-lg-3 mb-4">
-                <h5>Categorías</h5>
-                <ul class="list-unstyled">
-                    <li><a href="#">Ropa Deportiva</a></li>
-                    <li><a href="#">Calzado</a></li>
-                    <li><a href="#">Accesorios</a></li>
-                    <li><a href="#">Equipamiento</a></li>
-                </ul>
-            </div>
-            <div class="col-lg-3 mb-4">
-                <h5>Contacto</h5>
-                <ul class="list-unstyled">
-                    <li>
-                        <i class="fas fa-envelope me-2"></i>
-                        <a href="https://powerpuffit.web.app/" target="_blank">powerpuffit.web.app</a>
-                    </li>
-                    <li><i class="fas fa-phone me-2"></i>+1 234 567 890</li>
-                    <li><i class="fas fa-map-marker-alt me-2"></i>CDMX, México</li>
-                </ul>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+            <div class="text-center">
+                <p>&copy; 2023 PowerPufFit. Todos los derechos reservados.</p>
             </div>
         </div>
-        <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
-        <div class="text-center">
-            <p>&copy; 2023 PowerPufFit. Todos los derechos reservados.</p>
-        </div>
-    </div>
-</footer>
+    </footer>
 
     <!-- Cart Modal -->
     <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
@@ -720,7 +915,6 @@
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
@@ -1242,6 +1436,17 @@
 
 
 
+              actualizarEstadisticas() {
+            const total = this.productos.length;
+            const disponibles = this.productos.filter(p => p.cantidad > 5).length;
+            const stockBajo = this.productos.filter(p => p.cantidad > 0 && p.cantidad <= 5).length;
+            const sinStock = this.productos.filter(p => p.cantidad === 0).length;
+            
+            document.getElementById('totalProducts').textContent = total;
+            document.getElementById('availableProducts').textContent = disponibles;
+            document.getElementById('lowStockProducts').textContent = stockBajo;
+            document.getElementById('outOfStockProducts').textContent = sinStock;
+        }
             
             
             
@@ -1287,6 +1492,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             window.tiendaManager = new TiendaManager();
         });
+        this.actualizarEstadisticas();
     </script>
 </body>
 </html>
