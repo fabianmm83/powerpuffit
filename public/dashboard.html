@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="../manifest.json">
-<meta name="theme-color" content="#ff85a2">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="PowerPuffFit">
-<link rel="apple-touch-icon" href="../images/logo.png">
+    <meta name="theme-color" content="#ff85a2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PowerPuffFit">
+    <link rel="apple-touch-icon" href="../images/logo.png">
     <title>Dashboard - PowerPufFit</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -681,9 +681,486 @@ body {
     }
 }
 
+/* ===== ESTILOS PARA LA ANIMACIÓN DEL ASTRONAUTA ===== */
+@keyframes snow {
+  0% {
+    opacity: 0;
+    transform: translateY(0px);
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(650px);
+  }
+}
+
+@keyframes astronaut {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.box-of-star1,
+.box-of-star2,
+.box-of-star3,
+.box-of-star4 {
+  width: 100%;
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  top: 0;
+  transform: translateY(0px);
+  height: 700px;
+}
+
+.box-of-star1 {
+  animation: snow 5s linear infinite;
+}
+
+.box-of-star2 {
+  animation: snow 5s -1.64s linear infinite;
+}
+
+.box-of-star3 {
+  animation: snow 5s -2.30s linear infinite;
+}
+
+.box-of-star4 {
+  animation: snow 5s -3.30s linear infinite;
+}
+
+.star {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: #FFF;
+  position: absolute;
+  z-index: 10;
+  opacity: 0.7;
+}
+
+.star:before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #FFF;
+  position: absolute;
+  z-index: 10;
+  top: 80px;
+  left: 70px;
+  opacity: .7;
+}
+
+.star:after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #FFF;
+  position: absolute;
+  z-index: 10;
+  top: 8px;
+  left: 170px;
+  opacity: .9;
+}
+
+.star-position1 {
+  top: 30px;
+  left: 20px;
+}
+
+.star-position2 {
+  top: 110px;
+  left: 250px;
+}
+
+.star-position3 {
+  top: 60px;
+  left: 570px;
+}
+
+.star-position4 {
+  top: 120px;
+  left: 900px;
+}
+
+.star-position5 {
+  top: 20px;
+  left: 1120px;
+}
+
+.star-position6 {
+  top: 90px;
+  left: 1280px;
+}
+
+.star-position7 {
+  top: 30px;
+  left: 1480px;
+}
+
+.astronaut {
+  width: 250px;
+  height: 300px;
+  position: absolute;
+  z-index: 11;
+  top: calc(50% - 150px);
+  left: calc(50% - 125px);
+  animation: astronaut 5s linear infinite;
+}
+
+.schoolbag {
+  width: 100px;
+  height: 150px;
+  position: absolute;
+  z-index: 1;
+  top: calc(50% - 75px);
+  left: calc(50% - 50px);
+  background-color: #94b7ca;
+  border-radius: 50px 50px 0 0 / 30px 30px 0 0;
+}
+
+.head {
+  width: 97px;
+  height: 80px;
+  position: absolute;
+  z-index: 3;
+  background: -webkit-linear-gradient(left, #e3e8eb 0%, #e3e8eb 50%, #fbfdfa 50%, #fbfdfa 100%);
+  border-radius: 50%;
+  top: 34px;
+  left: calc(50% - 47.5px);
+}
+
+.head:after {
+  content: "";
+  width: 60px;
+  height: 50px;
+  position: absolute;
+  top: calc(50% - 25px);
+  left: calc(50% - 30px);
+  background: -webkit-linear-gradient(top, #15aece 0%, #15aece 50%, #0391bf 50%, #0391bf 100%);
+  border-radius: 15px;
+}
+
+.head:before {
+  content: "";
+  width: 12px;
+  height: 25px;
+  position: absolute;
+  top: calc(50% - 12.5px);
+  left: -4px;
+  background-color: #618095;
+  border-radius: 5px;
+  box-shadow: 92px 0px 0px #618095;
+}
+
+.body {
+  width: 85px;
+  height: 100px;
+  position: absolute;
+  z-index: 2;
+  background-color: #fffbff;
+  border-radius: 40px / 20px;
+  top: 105px;
+  left: calc(50% - 41px);
+  background: -webkit-linear-gradient(left, #e3e8eb 0%, #e3e8eb 50%, #fbfdfa 50%, #fbfdfa 100%);
+}
+
+.panel {
+  width: 60px;
+  height: 40px;
+  position: absolute;
+  top: 20px;
+  left: calc(50% - 30px);
+  background-color: #b7cceb;
+}
+
+.panel:before {
+  content: "";
+  width: 30px;
+  height: 5px;
+  position: absolute;
+  top: 9px;
+  left: 7px;
+  background-color: #fbfdfa;
+  box-shadow: 0px 9px 0px #fbfdfa, 0px 18px 0px #fbfdfa;
+}
+
+.panel:after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  position: absolute;
+  top: 9px;
+  right: 7px;
+  background-color: #fbfdfa;
+  border-radius: 50%;
+  box-shadow: 0px 14px 0px 2px #fbfdfa;
+}
+
+.arm {
+  width: 80px;
+  height: 30px;
+  position: absolute;
+  top: 121px;
+  z-index: 2;
+}
+
+.arm-left {
+  left: 30px;
+  background-color: #e3e8eb;
+  border-radius: 0 0 0 39px;
+}
+
+.arm-right {
+  right: 30px;
+  background-color: #fbfdfa;
+  border-radius: 0 0 39px 0;
+}
+
+.arm-left:before,
+.arm-right:before {
+  content: "";
+  width: 30px;
+  height: 70px;
+  position: absolute;
+  top: -40px;
+}
+
+.arm-left:before {
+  border-radius: 50px 50px 0px 120px / 50px 50px 0 110px;
+  left: 0;
+  background-color: #e3e8eb;
+}
+
+.arm-right:before {
+  border-radius: 50px 50px 120px 0 / 50px 50px 110px 0;
+  right: 0;
+  background-color: #fbfdfa;
+}
+
+.arm-left:after,
+.arm-right:after {
+  content: "";
+  width: 30px;
+  height: 10px;
+  position: absolute;
+  top: -24px;
+}
+
+.arm-left:after {
+  background-color: #6e91a4;
+  left: 0;
+}
+
+.arm-right:after {
+  right: 0;
+  background-color: #b6d2e0;
+}
+
+.leg {
+  width: 30px;
+  height: 40px;
+  position: absolute;
+  z-index: 2;
+  bottom: 70px;
+}
+
+.leg-left {
+  left: 76px;
+  background-color: #e3e8eb;
+  transform: rotate(20deg);
+}
+
+.leg-right {
+  right: 73px;
+  background-color: #fbfdfa;
+  transform: rotate(-20deg);
+}
+
+.leg-left:before,
+.leg-right:before {
+  content: "";
+  width: 50px;
+  height: 25px;
+  position: absolute;
+  bottom: -26px;
+}
+
+.leg-left:before {
+  left: -20px;
+  background-color: #e3e8eb;
+  border-radius: 30px 0 0 0;
+  border-bottom: 10px solid #6d96ac;
+}
+
+.leg-right:before {
+  right: -20px;
+  background-color: #fbfdfa;
+  border-radius: 0 30px 0 0;
+  border-bottom: 10px solid #b0cfe4;
+}
+
+/* Contenedor para la animación de bienvenida */
+.welcome-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+.welcome-animation h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.welcome-animation p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+.welcome-animation .btn {
+  background-color: white;
+  color: #1a2a6c;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 50px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.welcome-animation .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+/* Notificación de actualización */
+.update-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #ff85a2;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.update-notification .btn {
+  background-color: white;
+  color: #ff85a2;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
 </style>
 </head>
 <body>
+    <!-- Animación de bienvenida -->
+    <div class="welcome-animation" id="welcomeAnimation">
+        <div class="box-of-star1">
+            <div class="star star-position1"></div>
+            <div class="star star-position2"></div>
+            <div class="star star-position3"></div>
+            <div class="star star-position4"></div>
+            <div class="star star-position5"></div>
+            <div class="star star-position6"></div>
+            <div class="star star-position7"></div>
+        </div>
+        <div class="box-of-star2">
+            <div class="star star-position1"></div>
+            <div class="star star-position2"></div>
+            <div class="star star-position3"></div>
+            <div class="star star-position4"></div>
+            <div class="star star-position5"></div>
+            <div class="star star-position6"></div>
+            <div class="star star-position7"></div>
+        </div>
+        <div class="box-of-star3">
+            <div class="star star-position1"></div>
+            <div class="star star-position2"></div>
+            <div class="star star-position3"></div>
+            <div class="star star-position4"></div>
+            <div class="star star-position5"></div>
+            <div class="star star-position6"></div>
+            <div class="star star-position7"></div>
+        </div>
+        <div class="box-of-star4">
+            <div class="star star-position1"></div>
+            <div class="star star-position2"></div>
+            <div class="star star-position3"></div>
+            <div class="star star-position4"></div>
+            <div class="star star-position5"></div>
+            <div class="star star-position6"></div>
+            <div class="star star-position7"></div>
+        </div>
+        <div class="astronaut">
+            <div class="head"></div>
+            <div class="arm arm-left"></div>
+            <div class="arm arm-right"></div>
+            <div class="body">
+                <div class="panel"></div>
+            </div>
+            <div class="leg leg-left"></div>
+            <div class="leg leg-right"></div>
+            <div class="schoolbag"></div>
+        </div>
+        <h1>¡Bienvenido a PowerPuffFit!</h1>
+        <p>Tu sistema de gestión de inventario y ventas está listo para usar.</p>
+        <button class="btn" id="enterDashboardBtn">Entrar al Dashboard</button>
+    </div>
+
+    <!-- Notificación de actualización -->
+    <div class="update-notification" id="updateNotification" style="display: none;">
+        <i class="fas fa-sync-alt"></i>
+        <span>¡Nueva versión disponible!</span>
+        <button class="btn" id="updateNowBtn">Actualizar ahora</button>
+    </div>
+
     <!-- Botón para mostrar/ocultar sidebar en móvil -->
     <button class="sidebar-toggle" id="sidebarToggle">
         <i class="fas fa-bars"></i>
@@ -733,159 +1210,118 @@ body {
             <div class="navbar-top">
                 <div>
                     <h3 class="mb-0">Dashboard Principal</h3>
-                    <small class="text-muted" id="currentDate">Cargando fecha...</small>
+                    <small class="text-muted">Bienvenido de nuevo</small>
                 </div>
+                
                 <div class="user-info">
-    <div class="user-avatar" id="userAvatar">
-        <img src="images/logo.png" alt="Logo PowerPuffFit" class="user-logo">
-    </div>
-    <div>
-        <div class="fw-bold" id="userName">Usuario</div>
-        <small class="text-muted" id="userStatus">activo</small>
-    </div>
-</div>
-            </div>
-
-            <!-- Welcome Message -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="alert alert-info status-alert">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-info-circle me-3 fs-4"></i>
-                            <div>
-                                <h5 class="alert-heading mb-1" id="welcomeTitle">Bienvenido al Dashboard</h5>
-                                <p class="mb-0" id="welcomeMessage">Cargando información del sistema...</p>
-                            </div>
-                        </div>
+                    <div class="user-avatar">
+                        <img src="images/logo.png" alt="User Logo" class="user-logo">
+                    </div>
+                    <div>
+                        <div class="fw-bold">Administrador</div>
+                        <small class="text-muted">PowerPuffFit</small>
                     </div>
                 </div>
             </div>
 
             <!-- Quick Actions -->
             <div class="quick-actions">
-                <a href="inventario.html" class="action-btn" id="addProductBtn">
-                    <i class="fas fa-plus"></i>
-                    <span>Agregar Producto</span>
+                <a href="inventario.html" class="action-btn">
+                    <i class="fas fa-boxes"></i>
+                    <span>Gestión de Inventario</span>
                 </a>
-                <a href="ventas.html" class="action-btn" id="newSaleBtn">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Nueva Venta</span>
+                <a href="tienda.html" class="action-btn">
+                    <i class="fas fa-store"></i>
+                    <span>Tienda Online</span>
                 </a>
-                <a href="inventario.html" class="action-btn" id="viewInventoryBtn">
-                    <i class="fas fa-box-open"></i>
-                    <span>Gestionar Inventario</span>
+                <a href="ventas.html" class="action-btn">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Registrar Venta</span>
                 </a>
-                <a href="reportes.html" class="action-btn" id="reportsBtn">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Generar Reporte</span>
+                <a href="clientes.html" class="action-btn">
+                    <i class="fas fa-users"></i>
+                    <span>Gestión Clientes</span>
                 </a>
             </div>
 
-            <!-- Statistics Cards -->
+            <!-- Stats Cards -->
             <div class="row g-4 mb-4">
-                <div class="col-xl-3 col-md-6">
+                <div class="col-md-3">
                     <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-boxes"></i>
-                        </div>
-                        <div class="stat-number" id="totalProductos">0</div>
-                        <div class="stat-label">Total Productos</div>
+                        <i class="fas fa-box stat-icon"></i>
+                        <div class="stat-number">1,248</div>
+                        <div class="stat-label">Productos en Stock</div>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-6">
+                <div class="col-md-3">
                     <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <div class="stat-number" id="totalVentas">0</div>
+                        <i class="fas fa-shopping-cart stat-icon"></i>
+                        <div class="stat-number">342</div>
                         <div class="stat-label">Ventas del Mes</div>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-6">
+                <div class="col-md-3">
                     <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <div class="stat-number" id="ingresosTotales">$0</div>
+                        <i class="fas fa-users stat-icon"></i>
+                        <div class="stat-number">1,845</div>
+                        <div class="stat-label">Clientes Registrados</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line stat-icon"></i>
+                        <div class="stat-number">$24,580</div>
                         <div class="stat-label">Ingresos Totales</div>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-6">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="stat-number" id="stockBajo">0</div>
-                        <div class="stat-label">Stock Bajo</div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Charts Row -->
+            <!-- Charts & Activity -->
             <div class="row g-4">
-                <div class="col-xl-8 col-lg-7">
+                <div class="col-lg-8">
                     <div class="chart-container">
-                        <h4 class="section-title">Ventas de los Últimos 7 Días</h4>
+                        <h4 class="section-title">Ventas Mensuales</h4>
                         <canvas id="salesChart" height="250"></canvas>
                     </div>
                 </div>
-                <div class="col-xl-4 col-lg-5">
-                    <div class="chart-container">
-                        <h4 class="section-title">Productos por Categoría</h4>
-                        <canvas id="categoryChart" height="250"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Activity & Low Stock -->
-            <div class="row g-4 mt-4">
-                <div class="col-lg-6">
+                <div class="col-lg-4">
                     <div class="activity-list">
                         <h4 class="section-title">Actividad Reciente</h4>
-                        <div id="recentActivity">
-                            <!-- Activity items will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="activity-list">
-                        <h4 class="section-title">Productos con Stock Bajo</h4>
-                        <div id="lowStockProducts">
-                            <!-- Low stock products will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- System Status -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="chart-container">
-                        <h4 class="section-title">Estado del Sistema</h4>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <h5><i class="fas fa-key me-2"></i>Firebase Auth Status</h5>
-                                <div id="authStatus" class="alert alert-warning status-alert">
-                                    <i class="fas fa-sync fa-spin me-2"></i>Verificando autenticación...
-                                </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-shopping-cart"></i>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <h5><i class="fas fa-database me-2"></i>Firestore Status</h5>
-                                <div id="firestoreStatus" class="alert alert-warning status-alert">
-                                    <i class="fas fa-sync fa-spin me-2"></i>Conectando a la base de datos...
-                                </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Nueva venta registrada</div>
+                                <div class="activity-time">Hace 5 minutos</div>
                             </div>
                         </div>
-                        <div class="mt-3 text-center">
-                            <button id="testAuthBtn" class="btn btn-primary me-2 mb-2">
-                                <i class="fas fa-vial me-1"></i>Probar Autenticación
-                            </button>
-                            <button id="testFirestoreBtn" class="btn btn-success me-2 mb-2">
-                                <i class="fas fa-database me-1"></i>Probar Firestore
-                            </button>
-                            <button id="refreshDataBtn" class="btn btn-info mb-2">
-                                <i class="fas fa-sync me-1"></i>Actualizar Datos
-                            </button>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Stock actualizado</div>
+                                <div class="activity-time">Hace 1 hora</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Nuevo cliente registrado</div>
+                                <div class="activity-time">Hace 2 horas</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Pedido enviado</div>
+                                <div class="activity-time">Hace 3 horas</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -894,790 +1330,160 @@ body {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+    <script>
+        // Variables globales para el Service Worker
+        let newServiceWorker;
+        let registration;
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDJIhyjLP2EEcg7RKgLHREmMosKA5cL6Qw",
-            authDomain: "powerpuffit.firebaseapp.com",
-            projectId: "powerpuffit",
-            storageBucket: "powerpuffit.appspot.com",
-            messagingSenderId: "450568163513",
-            appId: "1:450568163513:web:ee8ccfa9fbfe1075d34b68"
-        };
-
-        class Dashboard {
-            constructor() {
-                this.app = initializeApp(firebaseConfig);
-                this.db = getFirestore(this.app);
-                this.auth = getAuth(this.app);
-                this.init();
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos DOM
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const mainContent = document.getElementById('mainContent');
+            const welcomeAnimation = document.getElementById('welcomeAnimation');
+            const enterDashboardBtn = document.getElementById('enterDashboardBtn');
+            const updateNotification = document.getElementById('updateNotification');
+            const updateNowBtn = document.getElementById('updateNowBtn');
+            
+            // Verificar si es la primera visita
+            const isFirstVisit = !localStorage.getItem('hasVisitedBefore');
+            
+            if (isFirstVisit) {
+                // Mostrar animación de bienvenida
+                welcomeAnimation.style.display = 'flex';
+                localStorage.setItem('hasVisitedBefore', 'true');
+            } else {
+                // Ocultar animación de bienvenida
+                welcomeAnimation.style.display = 'none';
             }
-
-            async init() {
-                this.initEventListeners();
-                this.updateCurrentDate();
-                await this.checkAuth();
-                await this.testFirestoreConnection();
-                await this.loadStatistics();
-                await this.loadRecentActivity();
-                await this.loadLowStockProducts();
-                await this.initCharts(); 
-            }
-
-            updateCurrentDate() {
-                const now = new Date();
-                const options = { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                };
-                document.getElementById('currentDate').textContent = 
-                    now.toLocaleDateString('es-ES', options);
-            }
-
-            initEventListeners() {
-                // Logout
-                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
-                
-                // Test buttons
-                document.getElementById('testAuthBtn').addEventListener('click', () => this.testAuth());
-                document.getElementById('testFirestoreBtn').addEventListener('click', () => this.testFirestore());
-                document.getElementById('refreshDataBtn').addEventListener('click', () => this.refreshData());
-                
-                // Navigation links - Solo los que no tienen página específica mostrarán alerta
-                const navLinks = ['tiendaLink', 'clientesLink'];
-                
-                navLinks.forEach(linkId => {
-                    const element = document.getElementById(linkId);
-                    if (element) {
-                        element.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            alert(`🚧 ${this.getLinkName(linkId)} - Esta funcionalidad está en desarrollo... kaizen`);
-                        });
-                    }
-                });
-
-                // Quick Actions
-                document.getElementById('addProductBtn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    window.location.href = 'inventario.html';
-                });
-
-                document.getElementById('newSaleBtn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    window.location.href = 'ventas.html';
-                });
-
-                document.getElementById('viewInventoryBtn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    window.location.href = 'inventario.html';
-                });
-
-                document.getElementById('reportsBtn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    window.location.href = 'reportes.html';
-                });
-
-                // Responsive sidebar toggle
-                document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
-                document.getElementById('overlay').addEventListener('click', () => this.toggleSidebar());
-
-                // Cerrar sidebar al hacer clic en un enlace (en móvil)
-                const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
-                sidebarLinks.forEach(link => {
-                    link.addEventListener('click', () => {
-                        if (window.innerWidth <= 992) {
-                            this.toggleSidebar();
-                        }
-                    });
-                });
-
-                // Cerrar sidebar al redimensionar la ventana si se hace más grande
-                window.addEventListener('resize', () => {
-                    if (window.innerWidth > 992) {
-                        const sidebar = document.getElementById('sidebar');
-                        const overlay = document.getElementById('overlay');
-                        sidebar.classList.remove('active');
-                        overlay.classList.remove('active');
-                        document.body.classList.remove('sidebar-open');
-                    }
-                });
-            }
-
-            toggleSidebar() {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('overlay');
-                const isOpening = !sidebar.classList.contains('active');
-                
+            
+            // Botón para entrar al dashboard
+            enterDashboardBtn.addEventListener('click', function() {
+                welcomeAnimation.style.opacity = '0';
+                setTimeout(() => {
+                    welcomeAnimation.style.display = 'none';
+                }, 500);
+            });
+            
+            // Toggle sidebar en móvil
+            sidebarToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
-                
-                if (isOpening) {
-                    document.body.classList.add('sidebar-open');
-                } else {
-                    document.body.classList.remove('sidebar-open');
-                }
-            }
-
-            // Agrega esta función auxiliar para obtener nombres de enlaces
-            getLinkName(linkId) {
-                const linkNames = {
-                    'tiendaLink': 'Tienda Online',
-                    'clientesLink': 'Gestión de Clientes',
-                    'inventarioLink': 'Inventario',
-                    'ventasLink': 'Registro de Ventas',
-                    'productosLink': 'Agregar Producto',
-                    'reportesLink': 'Reportes'
-                };
-                return linkNames[linkId] || linkId;
-            }
-
-            async checkAuth() {
-                console.log("🔐 Verificando autenticación...");
-                
-                return new Promise((resolve) => {
-                    onAuthStateChanged(this.auth, (user) => {
-                        const authStatus = document.getElementById('authStatus');
-                        
-                        if (user) {
-                            console.log("✅ Usuario autenticado:", user);
-                            authStatus.className = 'alert alert-success';
-                            authStatus.innerHTML = `
-                                <strong>✅ CONECTADO</strong><br>
-                                Email: ${user.email}<br>
-                                UID: ${user.uid}
-                            `;
-                            this.displayUserInfo(user);
-                            resolve(true);
-                        } else {
-                            console.log("❌ No hay usuario autenticado");
-                            authStatus.className = 'alert alert-danger';
-                            authStatus.innerHTML = `
-                                <strong>❌ NO AUTENTICADO</strong><br>
-                                Redirigiendo al login...
-                            `;
-                            
-                            setTimeout(() => {
-                                window.location.href = 'index.html';
-                            }, 2000);
-                            resolve(false);
-                        }
-                    });
-                });
-            }
-
-            displayUserInfo(user) {
-                const userName = document.getElementById('userName');
-                const userAvatar = document.getElementById('userAvatar');
-                const welcomeMessage = document.getElementById('welcomeMessage');
-                const welcomeTitle = document.getElementById('welcomeTitle');
-                
-                const email = user.email;
-                const displayName = user.displayName || email.split('@')[0];
-                
-                userName.textContent = displayName;
-                
-                
-                welcomeTitle.textContent = `¡Bienvenido, ${displayName}!`;
-                welcomeMessage.textContent = `Estás conectado como ${email}. Gestiona tu tienda desde aquí.`;
-            }
-
-            async testFirestoreConnection() {
-                try {
-                    const firestoreStatus = document.getElementById('firestoreStatus');
-                    firestoreStatus.className = 'alert alert-warning';
-                    firestoreStatus.innerHTML = 'Probando conexión...';
-                    
-                    const snapshot = await getDocs(collection(this.db, "productos"));
-                    
-                    firestoreStatus.className = 'alert alert-success';
-                    firestoreStatus.innerHTML = `
-                        <strong>✅ FIRESTORE CONECTADO</strong><br>
-                        Productos en la base de datos: ${snapshot.size}
-                    `;
-                    
-                    console.log("✅ Firestore conectado correctamente");
-                    
-                } catch (error) {
-                    console.error("❌ Error conectando a Firestore:", error);
-                    const firestoreStatus = document.getElementById('firestoreStatus');
-                    
-                    if (error.code === 'permission-denied') {
-                        firestoreStatus.className = 'alert alert-danger';
-                        firestoreStatus.innerHTML = `
-                            <strong>❌ PERMISO DENEGADO</strong><br>
-                            Las reglas de Firestore están bloqueando el acceso.<br>
-                            <small>Error: ${error.message}</small>
-                        `;
-                    } else {
-                        firestoreStatus.className = 'alert alert-danger';
-                        firestoreStatus.innerHTML = `
-                            <strong>❌ ERROR EN FIRESTORE</strong><br>
-                            ${error.message}
-                        `;
-                    }
-                }
-            }
-
-            async logout() {
-                try {
-                    await signOut(this.auth);
-                    console.log("✅ Sesión cerrada exitosamente");
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    console.error('❌ Error al cerrar sesión:', error);
-                    alert('Error al cerrar sesión: ' + error.message);
-                }
-            }
-
-            async testAuth() {
-                const user = this.auth.currentUser;
-                if (user) {
-                    alert(`✅ Autenticación funcionando\nUsuario: ${user.email}\nUID: ${user.uid}`);
-                } else {
-                    alert('❌ No hay usuario autenticado');
-                }
-            }
-
-            async testFirestore() {
-                try {
-                    const testProduct = {
-                        nombre: "Producto Test " + new Date().toLocaleTimeString(),
-                        descripcion: "Producto de prueba creado desde el dashboard",
-                        precio: Math.random() * 100 + 10,
-                        cantidad: Math.floor(Math.random() * 50) + 1,
-                        categoria: "pruebas",
-                        activo: true,
-                        fecha_creacion: new Date()
-                    };
-
-                    const docRef = await addDoc(collection(this.db, "productos"), testProduct);
-                    alert(`✅ Producto de prueba creado exitosamente\nID: ${docRef.id}\nNombre: ${testProduct.nombre}`);
-                    
-                    await this.loadStatistics();
-                    await this.loadLowStockProducts();
-                    
-                } catch (error) {
-                    console.error("❌ Error creando producto de prueba:", error);
-                    alert("❌ Error: " + error.message);
-                }
-            }
-
-            async refreshData() {
-                try {
-                    await this.loadStatistics();
-                    await this.loadRecentActivity();
-                    await this.loadLowStockProducts();
-                    
-                    // Actualizar gráficos
-                    if (this.salesChart) this.salesChart.destroy();
-                    if (this.categoryChart) this.categoryChart.destroy();
-                    await this.initCharts();
-                    
-                    alert('✅ Datos actualizados correctamente');
-                } catch (error) {
-                    console.error('❌ Error actualizando datos:', error);
-                    alert('Error actualizando datos: ' + error.message);
-                }
-            }
-
-            async loadStatistics() {
-                try {
-                    // Total productos
-                    const productsSnapshot = await getDocs(collection(this.db, "productos"));
-                    const totalProductos = productsSnapshot.size;
-                    document.getElementById('totalProductos').textContent = totalProductos;
-
-                    // Productos con stock bajo
-                    const lowStockQuery = query(
-                        collection(this.db, "productos"), 
-                        where("cantidad", "<", 5)
-                    );
-                    const lowStockSnapshot = await getDocs(lowStockQuery);
-                    document.getElementById('stockBajo').textContent = lowStockSnapshot.size;
-
-                    // Ventas del mes actual
-                    const now = new Date();
-                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                    const ventasQuery = query(
-                        collection(this.db, "ventas"),
-                        where("fecha_venta", ">=", startOfMonth)
-                    );
-                    const ventasSnapshot = await getDocs(ventasQuery);
-                    const totalVentas = ventasSnapshot.size;
-                    document.getElementById('totalVentas').textContent = totalVentas;
-
-                    // Ingresos totales del mes
-                    let ingresosTotales = 0;
-                    ventasSnapshot.forEach(doc => {
-                        const venta = doc.data();
-                        ingresosTotales += venta.total || 0;
-                    });
-                    document.getElementById('ingresosTotales').textContent = `$${ingresosTotales.toFixed(2)}`;
-
-                } catch (error) {
-                    console.error("❌ Error cargando estadísticas:", error);
-                    // En caso de error, mostrar ceros
-                    document.getElementById('totalVentas').textContent = '0';
-                    document.getElementById('ingresosTotales').textContent = '$0';
-                }
-            }
-
-            async loadRecentActivity() {
-                try {
-                    const container = document.getElementById('recentActivity');
-                    
-                    // Obtener las últimas ventas y productos como actividad
-                    const ventasQuery = query(
-                        collection(this.db, "ventas"),
-                        orderBy("fecha_venta", "desc"),
-                        limit(5)
-                    );
-                    
-                    const productosQuery = query(
-                        collection(this.db, "productos"),
-                        orderBy("fecha_registro", "desc"),
-                        limit(3)
-                    );
-
-                    const [ventasSnapshot, productosSnapshot] = await Promise.all([
-                        getDocs(ventasQuery),
-                        getDocs(productosQuery)
-                    ]);
-
-                    const activities = [];
-
-                    // Agregar ventas recientes
-                    ventasSnapshot.forEach(doc => {
-                        const venta = doc.data();
-                        activities.push({
-                            type: 'sale',
-                            title: `Venta registrada - $${venta.total?.toFixed(2) || '0.00'}`,
-                            time: this.formatTimeAgo(venta.fecha_venta?.toDate()),
-                            fecha: venta.fecha_venta?.toDate()
-                        });
-                    });
-
-                    // Agregar productos recientes
-                    productosSnapshot.forEach(doc => {
-                        const producto = doc.data();
-                        activities.push({
-                            type: 'product',
-                            title: `Producto agregado: ${producto.nombre}`,
-                            time: this.formatTimeAgo(producto.fecha_registro?.toDate()),
-                            fecha: producto.fecha_registro?.toDate()
-                        });
-                    });
-
-                    // Ordenar por fecha (más reciente primero) y limitar a 5
-                    activities.sort((a, b) => b.fecha - a.fecha);
-                    const recentActivities = activities.slice(0, 5);
-
-                    if (recentActivities.length === 0) {
-                        container.innerHTML = '<p class="text-center text-muted">No hay actividad reciente</p>';
-                        return;
-                    }
-
-                    container.innerHTML = recentActivities.map(activity => `
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-${this.getActivityIcon(activity.type)}"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">${activity.title}</div>
-                                <div class="activity-time">${activity.time}</div>
-                            </div>
-                        </div>
-                    `).join('');
-
-                } catch (error) {
-                    console.error("❌ Error cargando actividad:", error);
-                    const container = document.getElementById('recentActivity');
-                    container.innerHTML = '<p class="text-center text-muted">Error cargando actividad</p>';
-                }
-            }
-
-            // Agrega esta función auxiliar para formatear el tiempo
-            formatTimeAgo(date) {
-                if (!date) return 'Fecha desconocida';
-                
-                const now = new Date();
-                const diffMs = now - date;
-                const diffMins = Math.floor(diffMs / 60000);
-                const diffHours = Math.floor(diffMs / 3600000);
-                const diffDays = Math.floor(diffMs / 86400000);
-
-                if (diffMins < 1) return 'Hace unos segundos';
-                if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
-                if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
-                if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
-                
-                return date.toLocaleDateString('es-ES');
-            }
-
-            getActivityIcon(type) {
-                const icons = {
-                    'sale': 'shopping-cart',
-                    'product': 'box',
-                    'user': 'user-plus',
-                    'update': 'sync'
-                };
-                return icons[type] || 'info-circle';
-            }
-
-            async loadLowStockProducts() {
-                try {
-                    const lowStockQuery = query(
-                        collection(this.db, "productos"), 
-                        where("cantidad", "<", 5),
-                        orderBy("cantidad", "asc"),
-                        limit(5)
-                    );
-                    
-                    const snapshot = await getDocs(lowStockQuery);
-                    const container = document.getElementById('lowStockProducts');
-                    
-                    if (snapshot.empty) {
-                        container.innerHTML = '<p class="text-center text-muted">No hay productos con stock bajo</p>';
-                        return;
-                    }
-
-                    container.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const product = doc.data();
-                        const item = document.createElement('div');
-                        item.className = 'activity-item';
-                        item.innerHTML = `
-                            <div class="activity-icon" style="background: #ffebee;">
-                                <i class="fas fa-exclamation-triangle" style="color: #f44336;"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">${product.nombre}</div>
-                                <div class="activity-time">Stock: ${product.cantidad} unidades - $${(product.precio || 0).toFixed(2)}</div>
-                            </div>
-                        `;
-                        container.appendChild(item);
-                    });
-
-                } catch (error) {
-                    console.error("❌ Error cargando productos con stock bajo:", error);
-                    const container = document.getElementById('lowStockProducts');
-                    container.innerHTML = '<p class="text-center text-muted">Error cargando productos</p>';
-                }
-            }
-
-            async initCharts() {
-                await this.loadSalesChart();
-                await this.loadCategoryChart();
-            }
-
-            async loadSalesChart() {
-                try {
-                    // Obtener ventas de los últimos 7 días
-                    const sevenDaysAgo = new Date();
-                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-                    
-                    const ventasQuery = query(
-                        collection(this.db, "ventas"),
-                        where("fecha_venta", ">=", sevenDaysAgo),
-                        orderBy("fecha_venta", "asc")
-                    );
-                    
-                    const snapshot = await getDocs(ventasQuery);
-                    
-                    // Preparar datos para los últimos 7 días
-                    const dates = [];
-                    const salesData = [];
-                    
-                    for (let i = 6; i >= 0; i--) {
-                        const date = new Date();
-                        date.setDate(date.getDate() - i);
-                        const dateStr = date.toISOString().split('T')[0];
-                        dates.push(this.formatChartDate(date));
-                        
-                        // Calcular total de ventas para este día
-                        let dailyTotal = 0;
-                        snapshot.forEach(doc => {
-                            const venta = doc.data();
-                            const ventaDate = venta.fecha_venta?.toDate();
-                            if (ventaDate && ventaDate.toISOString().split('T')[0] === dateStr) {
-                                dailyTotal += venta.total || 0;
-                            }
-                        });
-                        salesData.push(dailyTotal);
-                    }
-
-                    // Verificar si hay datos de ventas
-                    const hasSalesData = salesData.some(amount => amount > 0);
-
-                    // Gráfico de ventas
-                    const salesCtx = document.getElementById('salesChart').getContext('2d');
-                    
-                    if (this.salesChart) {
-                        this.salesChart.destroy();
-                    }
-
-                    this.salesChart = new Chart(salesCtx, {
-                        type: 'line',
-                        data: {
-                            labels: dates,
-                            datasets: [{
-                                label: 'Ventas ($)',
-                                data: salesData,
-                                borderColor: '#ff85a2',
-                                backgroundColor: hasSalesData ? 'rgba(255, 133, 162, 0.1)' : 'rgba(0,0,0,0.02)',
-                                borderWidth: 3,
-                                fill: true,
-                                tension: 0.4
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    display: false
-                                },
-                                title: {
-                                    display: !hasSalesData,
-                                    text: 'No hay datos de ventas en los últimos 7 días'
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    grid: {
-                                        color: 'rgba(0,0,0,0.1)'
-                                    }
-                                },
-                                x: {
-                                    grid: {
-                                        display: false
-                                    }
-                                }
-                            }
-                        }
-                    });
-
-                } catch (error) {
-                    console.error("❌ Error cargando gráfico de ventas:", error);
-                    // Gráfico vacío en caso de error
-                    this.createEmptySalesChart();
-                }
-            }
-
-            async loadCategoryChart() {
-                try {
-                    const productsSnapshot = await getDocs(collection(this.db, "productos"));
-                    
-                    // Contar productos por categoría
-                    const categoryCount = {};
-                    productsSnapshot.forEach(doc => {
-                        const product = doc.data();
-                        const categoria = product.categoria || 'general';
-                        categoryCount[categoria] = (categoryCount[categoria] || 0) + 1;
-                    });
-
-                    const labels = Object.keys(categoryCount);
-                    const data = Object.values(categoryCount);
-
-                    // Verificar si hay productos
-                    const hasProducts = labels.length > 0;
-
-                    // Gráfico de categorías
-                    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-                    
-                    if (this.categoryChart) {
-                        this.categoryChart.destroy();
-                    }
-
-                    this.categoryChart = new Chart(categoryCtx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: hasProducts ? labels.map(cat => this.getCategoriaNombre(cat)) : ['Sin productos'],
-                            datasets: [{
-                                data: hasProducts ? data : [1],
-                                backgroundColor: hasProducts ? [
-                                     '#ff85a2', // Rosa
-    '#36a2eb', // Azul
-    '#ffce56', // Amarillo
-    '#4bc0c0', // Turquesa
-    '#9966ff', // Púrpura
-    '#ff9f40'  // Naranja
-                                ] : ['#ccc'],
-                                borderWidth: 0
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom'
-                                },
-                                title: {
-                                    display: !hasProducts,
-                                    text: 'No hay productos registrados'
-                                }
-                            }
-                        }
-                    });
-
-                } catch (error) {
-                    console.error("❌ Error cargando gráfico de categorías:", error);
-                    // Gráfico vacío en caso de error
-                    this.createEmptyCategoryChart();
-                }
-            }
-
-
-
-
-            // Funciones auxiliares para gráficos vacíos
-            createEmptySalesChart() {
-                const salesCtx = document.getElementById('salesChart').getContext('2d');
-                
-                if (this.salesChart) {
-                    this.salesChart.destroy();
-                }
-                
-                this.salesChart = new Chart(salesCtx, {
+                document.body.classList.toggle('sidebar-open');
+            });
+            
+            // Cerrar sidebar al hacer clic en overlay
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            });
+            
+            // Inicializar gráfico de ventas
+            const salesChart = new Chart(
+                document.getElementById('salesChart'),
+                {
                     type: 'line',
                     data: {
-                        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
                         datasets: [{
-                            label: 'Ventas ($)',
-                            data: [0, 0, 0, 0, 0, 0, 0],
-                            borderColor: '#ccc',
-                            backgroundColor: 'rgba(0,0,0,0.02)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4
+                            label: 'Ventas 2023',
+                            data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 32000, 40000, 38000, 45000],
+                            borderColor: '#ff85a2',
+                            backgroundColor: 'rgba(255, 133, 162, 0.1)',
+                            tension: 0.4,
+                            fill: true
                         }]
                     },
                     options: {
                         responsive: true,
                         plugins: {
                             legend: {
+                                position: 'top',
+                            },
+                            title: {
                                 display: false
-                            },
-                            title: {
-                                display: true,
-                                text: 'Error cargando datos de ventas'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
                             }
                         }
                     }
-                });
-            }
-
-            createEmptyCategoryChart() {
-                const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-                
-                if (this.categoryChart) {
-                    this.categoryChart.destroy();
                 }
-                
-                this.categoryChart = new Chart(categoryCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Error'],
-                        datasets: [{
-                            data: [1],
-                            backgroundColor: ['#ccc'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            },
-                            title: {
-                                display: true,
-                                text: 'Error cargando categorías'
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Función auxiliar para formatear fechas del gráfico
-            formatChartDate(date) {
-                return date.toLocaleDateString('es-ES', { weekday: 'short' });
-            }
-
-            // Función auxiliar para nombres de categoría (debe coincidir con la de inventario)
-            getCategoriaNombre(categoria) {
-                const categorias = {
-                    'ropa': 'Ropa Deportiva',
-                    'calzado': 'Calzado',
-                    'accesorios': 'Accesorios',
-                    'equipamiento': 'Equipamiento',
-                    'suplementos': 'Suplementos',
-                    'general': 'General'
-                };
-                return categorias[categoria] || categoria;
-            }
-        }
-
-        // Inicializar el dashboard cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', () => {
-            window.dashboard = new Dashboard();
-        });
-    </script>
-    <script>
-
-
-// Detectar cuando hay una nueva versión del Service Worker
-let newServiceWorker = null;
-
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('controllerchange', function() {
-        console.log('🔄 Controller changed - recargando página');
-        window.location.reload();
-    });
-    
-    // Escuchar mensajes del Service Worker
-    navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data && event.data.type === 'NEW_VERSION') {
-            console.log('🆕 Nueva versión disponible');
-            if (confirm('¡Hay una nueva versión disponible! ¿Quieres actualizar ahora?')) {
-                window.location.reload();
-            }
-        }
-    });
-}
-
-
-// Service Worker para todas las páginas
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .then(reg => {
-            console.log('✅ SW registrado en dashboard - NUEVA VERSIÓN');
+            );
             
-            // 🔥 FORZAR ACTUALIZACIÓN INMEDIATA
-            reg.update().then(() => {
-                console.log('🔄 Service Worker actualizado');
-                
-                // Notificar al SW para que se active inmediatamente
-                if (reg.waiting) {
-                    reg.waiting.postMessage({type: 'SKIP_WAITING'});
+            // Manejo de logout
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                    // Aquí iría la lógica de logout
+                    window.location.href = 'login.html';
                 }
             });
-        })
-        .catch(err => console.log('❌ Error SW:', err));
-}
-
-// Detectar modo standalone (PWA instalada)
-if (window.matchMedia('(display-mode: standalone)').matches) {
-    console.log('📱 Ejecutándose como PWA');
-    document.body.classList.add('pwa-mode');
-}
-</script>
-
+            
+            // Verificar actualizaciones del Service Worker
+            checkForUpdates();
+        });
+        
+        // Función para verificar actualizaciones
+        function checkForUpdates() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(reg => {
+                    registration = reg;
+                    
+                    // Escuchar cambios en el Service Worker
+                    reg.addEventListener('updatefound', () => {
+                        newServiceWorker = reg.installing;
+                        
+                        newServiceWorker.addEventListener('statechange', () => {
+                            // Si el nuevo Service Worker está listo para activarse
+                            if (newServiceWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Mostrar notificación de actualización
+                                document.getElementById('updateNotification').style.display = 'flex';
+                            }
+                        });
+                    });
+                });
+                
+                // También verificar si hay una actualización cada vez que se carga la página
+                navigator.serviceWorker.getRegistration().then(reg => {
+                    if (reg) {
+                        reg.update();
+                    }
+                });
+            }
+        }
+        
+        // Aplicar actualización cuando el usuario hace clic en el botón
+        document.getElementById('updateNowBtn').addEventListener('click', function() {
+            if (newServiceWorker) {
+                // Enviar mensaje al Service Worker para que se active
+                newServiceWorker.postMessage({ action: 'skipWaiting' });
+            }
+            
+            // Ocultar notificación
+            document.getElementById('updateNotification').style.display = 'none';
+            
+            // Recargar la página para aplicar la actualización
+            window.location.reload();
+        });
+        
+        // Escuchar cuando el Service Worker controlador cambia (se aplica la actualización)
+        let refreshing;
+        navigator.serviceWorker.addEventListener('controllerchange', function() {
+            if (refreshing) return;
+            refreshing = true;
+            window.location.reload();
+        });
+    </script>
 </body>
 </html>
