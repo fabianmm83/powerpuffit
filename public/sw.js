@@ -1,4 +1,4 @@
-const CACHE_NAME = 'powerpufffit-v1.1.9'; // ⚡ CAMBIA ESTA VERSIÓN
+const CACHE_NAME = 'powerpufffit-v2.2'; // ⚡ CAMBIA ESTA VERSIÓN
 const API_CACHE_NAME = 'powerpufffit-api-v1';
 const urlsToCache = [
   '/',
