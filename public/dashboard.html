@@ -2414,6 +2414,89 @@
             window.dashboard = new Dashboard();
         });
     </script>
+
+
+<script>
+// Script para generar iconos PWA automáticamente
+function generatePwaIcons() {
+    const logoUrl = '/images/logo.png';
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+    
+    // Verificar si el logo existe
+    const img = new Image();
+    img.onload = function() {
+        console.log('✅ Logo encontrado, dimensiones:', this.width, 'x', this.height);
+        
+        // Crear canvas para generar iconos
+        sizes.forEach(size => {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Fondo circular para iconos maskable
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ff85a2';
+            ctx.fill();
+            
+            // Dibujar logo en el centro
+            const logoSize = size * 0.7; // 70% del tamaño del icono
+            const x = (size - logoSize) / 2;
+            const y = (size - logoSize) / 2;
+            
+            ctx.drawImage(img, x, y, logoSize, logoSize);
+            
+            // Convertir a data URL (esto es solo para demostración)
+            // En producción, deberías pre-generar estos archivos
+            const dataUrl = canvas.toDataURL('image/png');
+            console.log(`Ícono ${size}x${size} generado`);
+        });
+    };
+    
+    img.onerror = function() {
+        console.log('❌ No se pudo cargar el logo desde:', logoUrl);
+        // Crear iconos placeholder
+        createPlaceholderIcons();
+    };
+    
+    img.src = logoUrl;
+}
+
+function createPlaceholderIcons() {
+    console.log('🔄 Creando iconos placeholder...');
+    const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+    
+    sizes.forEach(size => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        
+        // Fondo circular
+        ctx.beginPath();
+        ctx.arc(size/2, size/2, size/2, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ff85a2';
+        ctx.fill();
+        
+        // Texto "PPF"
+        ctx.fillStyle = 'white';
+        ctx.font = `bold ${size/3}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('PPF', size/2, size/2);
+        
+        // Aquí podrías guardar el canvas como archivo
+        // o usar la data URL temporalmente
+        const dataUrl = canvas.toDataURL('image/png');
+        console.log(`Placeholder ${size}x${size} creado`);
+    });
+}
+
+// Ejecutar cuando la página cargue
+document.addEventListener('DOMContentLoaded', generatePwaIcons);
+</script>
+
     <script>
 
 
