@@ -479,40 +479,99 @@
     }
     
     .action-btn {
-        height: 110px;
+        height: 100px; /* Reducido para móvil */
     }
     
     .action-btn i {
-        font-size: 1.8rem;
+        font-size: 1.6rem; /* Reducido para móvil */
     }
     
     .action-btn span {
-        font-size: 0.85rem;
+        font-size: 0.8rem; /* Reducido para móvil */
     }
 }
 
 @media (max-width: 576px) {
     .quick-actions {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr); /* Mantener 2 columnas */
         gap: 0.8rem;
     }
     
     .action-btn {
-        height: 100px;
-        padding: 1.2rem 0.8rem;
+        height: 90px; /* Más compacto */
+        min-height: 90px;
+        padding: 0.8rem 0.5rem;
     }
     
     .action-btn i {
-        font-size: 1.5rem;
+        font-size: 1.4rem; /* Más pequeño */
+        margin-bottom: 0.2rem;
     }
     
     .action-btn span {
-        font-size: 0.8rem;
+        font-size: 0.75rem; /* Más compacto */
+        line-height: 1.2;
+        text-align: center;
     }
     
-    /* En móvil, hacer todos los bordes iguales para mejor apariencia */
-    .card1, .card2, .card3, .card4 {
-        border-radius: 15px;
+    .action-btn {
+        gap: 0.4rem; /* Menor espacio entre icono y texto */
+    }
+    
+    /* En móvil, mantener bordes especiales pero más sutiles */
+    .card1 {
+        border-radius: 60px 12px 12px 12px;
+    }
+    
+    .card2 {
+        border-radius: 12px 60px 12px 12px;
+    }
+    
+    .card3 {
+        border-radius: 12px 12px 12px 60px;
+    }
+    
+    .card4 {
+        border-radius: 12px 12px 60px 12px;
+    }
+}
+
+/* Para móviles muy pequeños (menos de 400px) */
+@media (max-width: 400px) {
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.6rem;
+    }
+    
+    .action-btn {
+        height: 85px;
+        min-height: 85px;
+        padding: 0.6rem 0.4rem;
+    }
+    
+    .action-btn i {
+        font-size: 1.3rem;
+    }
+    
+    .action-btn span {
+        font-size: 0.7rem;
+    }
+    
+    /* Bordes aún más sutiles en móviles muy pequeños */
+    .card1 {
+        border-radius: 50px 10px 10px 10px;
+    }
+    
+    .card2 {
+        border-radius: 10px 50px 10px 10px;
+    }
+    
+    .card3 {
+        border-radius: 10px 10px 10px 50px;
+    }
+    
+    .card4 {
+        border-radius: 10px 10px 50px 10px;
     }
 }
 
