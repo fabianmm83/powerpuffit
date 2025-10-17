@@ -18,8 +18,8 @@ const urlsToCache = [
   
   // Imágenes - AQUÍ ESTÁ TU NUEVA IMAGEN SIN FONDO
   '/images/logo.png',
-  '/images/icon-192x192.png',
-  '/images/icon-512x512.png'
+  '/images/logo.png',
+  '/images/logo.png'
   // Agrega aquí tu nueva imagen sin fondo
 ];
 
