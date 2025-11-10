@@ -313,30 +313,7 @@ class PowerPuffApp {
         }
     }
 
-    async registerTestUser(email = null, password = null) {
-        try {
-            const userEmail = email || 'admin@powerpufffit.com';
-            const userPassword = password || 'admin123';
-            
-            console.log('👤 Registrando usuario:', userEmail);
-            const userCredential = await createUserWithEmailAndPassword(this.auth, userEmail, userPassword);
-            const user = userCredential.user;
-            
-            console.log('✅ Usuario registrado:', user);
-            alert(`✅ Usuario creado exitosamente!\nEmail: ${userEmail}\nContraseña: ${userPassword}`);
-            
-            await this.handleLoginAfterRegister(userEmail, userPassword);
-            
-        } catch (error) {
-            console.error('❌ Error registrando usuario:', error);
-            
-            if (error.code === 'auth/email-already-in-use') {
-                alert('❌ Este email ya está registrado. Intenta iniciar sesión.');
-            } else {
-                alert('❌ Error creando usuario: ' + error.message);
-            }
-        }
-    }
+  
 
     async handleLoginAfterRegister(email, password) {
         try {
